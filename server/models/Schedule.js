@@ -1,0 +1,71 @@
+import mongoose, { Schema } from 'mongoose';
+
+import ScheduleMap from './ScheduleMap.js';
+
+const offsetSchema = new mongoose.Schema({
+    date: Date,
+    offset: Number
+});
+
+const scheduleSchema = new mongoose.Schema({
+    lab_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        immutable: true
+    },
+    initial_date: {
+        type: Date,
+        required: true,
+    },
+    end_date: Date,
+    type: {
+        type: String,
+        enum: ['user', 'equipment', 'thermometer', 'surface'],
+        required: true,
+        immutable: true
+    },
+    id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        immutable: true
+    },
+    recurrence: {
+        /**
+         * - weekly: recur + 7days
+         * - monthly: recur + 1mnth
+         * - quarterly: recur + 3mnth
+         * - semiannually: recur + 0.5yr
+         * - annually: recur + 1yr
+         */
+        type: String,
+        enum: ['weekly', 'monthly', 'quarterly', 'semiannually', 'annually'],
+    },
+    offsets: [offsetSchema]
+});
+
+scheduleSchema.index({ type: 1, id: 1, initial_date: 1, recurrence: 1 }, { unique: true });
+
+scheduleSchema.pre(["deleteOne", "findOneAndDelete", "updateOne", "findOneAndUpdate"], { document: true, query: true }, async function () {
+    let id;
+    if ('_id' in this) {
+        // Document
+        id = this._id;
+    } else {
+        // Query
+        id = this.getFilter()['_id'];
+    }
+
+    if (!id) {
+        throw new Error('middleware failed to get document ID');
+    }
+
+    const maps = await ScheduleMap.find({ $or: [{ user_sch_id: id }, { item_sch_id: id }] });
+    maps.forEach(async (doc) => {
+        await doc.deleteOne();
+    });
+});
+
+const ScheduleModel = mongoose.model('Schedule', scheduleSchema);
+
+export { ScheduleModel };
+

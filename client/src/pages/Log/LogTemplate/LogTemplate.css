@@ -1,0 +1,43 @@
+.logTemp-table-container {
+    padding: 0 6.6875rem;
+ }
+ .logTempModal-table-container{
+    padding: 0;
+ }
+ 
+ .logTemp-table {
+    min-width: 30rem;
+ }
+ .logTempModal-table{
+    min-width: 30rem;
+ }
+ .logTempModal-modal-body {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+}
+ .logTemp-table th {
+     border: solid var(--table-border-color);
+     text-align: center;
+     height: 4.875rem;
+     vertical-align: middle;
+     background-color: var(--navbar);
+ }
+ .logTempModal-table th{
+    border: solid var(--table-border-color);
+    height: 4.875rem;
+    vertical-align: middle;
+    background-color: var(--navbar);
+ }
+ 
+ .logTemp-table td {
+     text-align: center;
+     vertical-align: middle;
+ }
+ .logTempModal-table td{
+    vertical-align: middle;
+ }
+ .LogTemp-table-icon{
+   cursor: pointer;
+ }
+ 

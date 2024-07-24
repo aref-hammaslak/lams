@@ -1,0 +1,33 @@
+import userRoute from './userRoute.js';
+import laboratoryRoute from './laboratoryRoute.js';
+import departmentRoute from './departmentRoute.js';
+import equipmentRoute from './equipmentRoute.js';
+import thermometerRoute from './thermometerRoute.js';
+import surfaceRoute from './surfaceRoute.js';
+import logTemplateRoute from './logTemplateRoute.js';
+import scheduleRoute from './scheduleRoute.js';
+import scheduleMapRoute from './scheduleMapRoute.js';
+import docRoute from "./docRoute.js";
+import userRoleRouter from "./userRoleRoute.js";
+import calibrationRouter from "./calibrationRoute.js";
+import pmServiceRouter from "./pmServiceRoute.js";
+import equipmentLogRoute from "./equipmentLogRoute.js";
+import surfaceLogRoute from "./surfaceLogRoute.js";
+
+export const setRoutes = (app) => {
+    app.use('/users', userRoute);
+    app.use('/laboratory', laboratoryRoute);
+    app.use('/department', departmentRoute);
+    app.use('/equipment', equipmentRoute);
+    app.use('/thermometer', thermometerRoute);
+    app.use('/surface', surfaceRoute);
+    app.use('/logTemplate', logTemplateRoute);
+    app.use('/schedule', scheduleRoute);
+    app.use('/schedule-map', scheduleMapRoute);
+    app.use('/upload', docRoute);
+    app.use('/user-role', userRoleRouter);
+    app.use('/calibration', calibrationRouter);
+    app.use('/pm-service', pmServiceRouter);
+    app.use('/log/equipment', equipmentLogRoute);
+    app.use('/log/surface', surfaceLogRoute);
+};

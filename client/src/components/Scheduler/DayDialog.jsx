@@ -1,0 +1,323 @@
+import {
+	Chip,
+	Icon,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	Divider,
+	Typography,
+	Grid,
+	Box,
+	Paper,
+	CircularProgress
+} from "@mui/material";
+import dayjs from "dayjs";
+import { ScheduleAPI } from "../../apis/ScheduleAPI.js";
+import { useEffect, useRef, useState } from "react";
+import DeviceThermostatRoundedIcon from "@mui/icons-material/DeviceThermostatRounded.js";
+import TableRestaurantRoundedIcon from "@mui/icons-material/TableRestaurantRounded.js";
+import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded.js";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import { BoxController } from "../BoxController";
+
+const TYPE_COLOR = {
+	'weekly': 'primary',
+	'monthly': 'warning',
+	'quarterly': 'secondary'
+};
+
+const TYPE_ICON = {
+	'thermometer': <DeviceThermostatRoundedIcon />,
+	'surface': <TableRestaurantRoundedIcon />,
+	'equipment': <BiotechRoundedIcon />,
+};
+
+export const DayDialog = ({ open, onClose, day, info }) => {
+	const today = dayjs().startOf('day');
+	const [error, setError] = useState(null);
+	const [assignments, setAssignments] = useState([]);
+	const [items, setItems] = useState([]);
+	const [selectedCount, setSelectedCount] = useState(0);
+	const [toggleReload, setToggleReload] = useState(false);
+	const reload = () => setToggleReload(!toggleReload);
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		loading || setLoading(true);
+		setSelectedCount(0);
+		if (!day) {
+			setAssignments([]);
+			setItems([]);
+			setLoading(false);
+			return;
+		}
+		const assignments = day?.schedules.filter(sch => sch.type === 'user')
+			.map(user => ({
+				...user,
+				...info[user.type]?.[user.id]
+			})) || [];
+		const items = day?.schedules.filter(sch => sch.type !== 'user')
+			.map(item => ({
+				...item,
+				...info[item.type]?.[item.id]
+			})) || [];
+
+		ScheduleAPI.getMaps(
+			day.date.format('YYYY-MM-DD'),
+			day.date.format('YYYY-MM-DD'),
+			false,
+			'user_sch_id'
+		).then(
+			maps => {
+				let itemsToRemove = [];
+				console.log({
+					maps
+				});
+				let newAssignments = assignments;
+				Object.keys(maps).forEach(user_sch_id => {
+					console.log({
+						user_sch_id
+					});
+						newAssignments = newAssignments.map(userSch => {
+							if (userSch._id === user_sch_id) {
+								const user_items = maps[user_sch_id].map(m => ({
+									...items.find(i => i._id === m.item_sch_id),
+									sch_map: m
+								}));
+								console.log({
+									user_items
+								});
+								return {
+									...userSch,
+									items: user_items
+								}
+							} else {
+								return userSch;
+							}
+						})
+					itemsToRemove = itemsToRemove.concat(maps[user_sch_id].map(m => m.item_sch_id))
+				});
+				setAssignments(newAssignments);
+				setItems(
+					items.filter( i => !itemsToRemove.includes(i._id))
+				);
+				setLoading(false);
+			},
+			err => {
+				setError(err);
+				setLoading(false);
+			}
+		);
+	}, [day, toggleReload]);
+
+	const assignTasks = async (user) => {
+		setLoading(true);
+		ScheduleAPI.createMap(
+			day.date.format('YYYY-MM-DD'),
+			user._id,
+			items.filter(i => i.selected).map(i => i._id)
+		).then(
+			_ => reload(),
+			err => {
+				setError(err);
+				setLoading(false);
+			}
+		)
+	}
+	const removeTask = async (user, item) => {
+		setLoading(true);
+		ScheduleAPI.destroyMap(item.sch_map._id)
+			.then(
+				_ => reload(),
+				err => {
+					setError(err);
+					setLoading(false);
+				}
+			)
+	}
+
+	return (
+		<Dialog open={open} fullWidth maxWidth='lg' onClose={onClose}>
+			{loading
+				? <DialogTitle>
+					<CircularProgress
+						// sx={{ px: '0.7rem' }}
+					/>
+				</DialogTitle>
+				: <DialogTitle component={Box}>
+					{day?.date.isSame(today)
+						? <Typography
+							variant='h4' fontWeight='900'
+							color='white' bgcolor='green'
+							px='0.7rem' width='fit-content'
+							borderRadius='50px'
+						>
+							{day?.date.format('D')}
+						</Typography>
+						: <Typography
+							variant='h4' fontWeight='900'
+							px='0.7rem' width='fit-content'
+						>
+							{day?.date.format('D')}
+						</Typography>
+					}
+				</DialogTitle>
+			}
+			<Divider />
+			<DialogContent>
+				<Box height='30rem'>
+				<Grid container justifyContent='space-between' alignItems='start'>
+					<Grid item xs={5.5} mb='1rem'>
+						<Typography variant='h6'>Assignments</Typography>
+						<Divider />
+					</Grid>
+					<Grid item xs={5.5} mb='1rem'>
+						<Typography variant='h6'>Items</Typography>
+						<Divider />
+					</Grid>
+					<Grid item xs={5.5} container>
+						{assignments.map(user => (
+								<Grid
+									item
+									key={user._id}
+									xs={12}
+									sx={{
+										minHeight: '5rem',
+										marginLeft: '1rem',
+										backgroundColor: 'white',
+										'&:hover': selectedCount ? {
+											borderRadius: '5px',
+											filter: 'brightness(70%)'
+										} : null,
+										'&:hover .add-task-icon': selectedCount ? {
+											display: 'block'
+										} : null
+									}}
+									onClick={() => {
+										if (!selectedCount) return;
+										assignTasks(user);
+									}}
+								>
+									<AddRoundedIcon
+										className='add-task-icon'
+										sx={{
+											position: 'absolute',
+											left: '14rem',
+											top: '1.5rem',
+											display: 'none',
+										}}
+										fontSize='large'
+									/>
+									<Typography>{user.name || user.username}</Typography>
+									<Divider/>
+									<Grid container>
+										{user?.items?.map(item => (
+
+											<Grid item key={item._id}>
+												<BoxController
+													componentProps={{
+														deleteIcon: TYPE_ICON[item.type]
+													}}
+													onHoverProps={{
+														deleteIcon: <HighlightOffRoundedIcon />
+													}}
+													renderComponent={(props) => (
+														<Chip
+															{...props}
+															onDelete={() => removeTask(user, item)}
+															label={(() => {
+																let name = '';
+																name += item.name || 'DELETED'
+																switch (item.recurrence) {
+																	case 'quarterly': name += ' [Q]';
+																		break;
+																	case 'semiannual': name += ' [S]';
+																		break;
+																	case 'annually': name += ' [A]';
+																		break;
+																}
+																return name;
+															})()}
+															color={item ? TYPE_COLOR[item.recurrence] : 'error'}
+
+															style={{
+																userSelect: 'none'
+															}}
+															sx={{
+																'&:hover': {
+																	cursor: 'pointer',
+																	boxShadow: '-2px 2px 5px gray'
+																},
+																'&:active': {
+																	cursor: 'pointer',
+																	boxShadow: '-5px 5px 10px gray',
+																}
+															}}
+														/>
+
+													)}
+												/>
+											</Grid>
+										))}
+									</Grid>
+								</Grid>
+							))}
+					</Grid>
+					<Grid item xs={5.5} container spacing='5px'>
+						{items.map(item => (
+								<Grid item key={item._id}>
+									<Chip
+										deleteIcon={TYPE_ICON[item.type]}
+										onDelete={() => {}}
+										label={(() => {
+											let name = '';
+											name += item.name || 'DELETED'
+											switch (item.recurrence) {
+												case 'quarterly': name += ' [Q]';
+													break;
+												case 'semiannual': name += ' [S]';
+													break;
+												case 'annually': name += ' [A]';
+													break;
+											}
+											return name;
+										})()}
+										color={item ? TYPE_COLOR[item.recurrence] : 'error'}
+										onClick={() => {
+											setItems(
+												items.map(i => {
+													if (i._id === item._id) {
+														if (i.selected) setSelectedCount(selectedCount - 1)
+														else setSelectedCount(selectedCount + 1)
+														return {
+															...i,
+															selected: !i.selected
+														}
+													}else
+														return i;
+												})
+											)
+										}}
+										sx={{
+											userSelect: 'none',
+											boxShadow: item.selected ? '-5px 5px 10px gray' : 'none',
+											'&:hover': {
+												cursor: 'pointer',
+												boxShadow: item.selected ? '-5px 5px 10px gray' : '-2px 2px 5px gray',
+											},
+											'&:active': {
+												cursor: 'pointer',
+												boxShadow: item.selected ? '-5px 5px 10px gray' : '-5px 5px 10px gray',
+											}
+										}}
+									/>
+								</Grid>
+							))}
+					</Grid>
+				</Grid>
+				</Box>
+			</DialogContent>
+		</Dialog>
+	)
+}

@@ -1,0 +1,9 @@
+{
+    "port": "LAMS_PORT",
+    "logfile": "LAMS_LOG_PATH",
+    "dbUri": "LAMS_DB_URI",
+    "session": {
+        "secret": "LAMS_SESSION_SECRET"
+    },
+    "https": "LAMS_HTTPS"
+}

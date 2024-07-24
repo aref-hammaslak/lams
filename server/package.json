@@ -1,0 +1,52 @@
+{
+  "name": "lams-x",
+  "version": "1.0.0",
+  "description": "laboratory management system",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js | npx bunyan --color",
+    "dev": "env NODE_ENV=development node --watch server.js | npx bunyan --color",
+    "apa": "env NODE_ENV=development LAMS_DB_URI=mongodb://express:4zhV72BlIxDuPXptAeyl@192.168.1.113:11317/lamsx node --watch server.js | npx bunyan --color",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipthu/LaMS.git"
+  },
+  "keywords": [
+    "management",
+    "laboratory",
+    "automation"
+  ],
+  "author": "VafaTarighi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ipthu/LaMS/issues"
+  },
+  "homepage": "https://github.com/ipthu/LaMS#readme",
+  "dependencies": {
+    "bunyan": "^1.8.15",
+    "bunyan-middleware": "^1.0.2",
+    "config": "^3.3.9",
+    "connect-mongo": "^5.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-session": "^1.17.3",
+    "joi": "^17.9.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "moment-recur": "^1.0.7",
+    "mongoose": "^7.5.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nanoid": "^5.0.4",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^8.0.0",
+    "rotating-file-stream": "^3.1.1",
+    "sanitize-html": "^2.11.0",
+    "uuid": "^9.0.0"
+  }
+}

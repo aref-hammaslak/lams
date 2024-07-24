@@ -1,0 +1,109 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - ".github/workflows/**"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "*.txt"
+      - "*.md"
+  workflow_dispatch:
+
+concurrency: staging
+
+env:
+  PROJ_NAME: lams-x
+  DOCKER_IMAGE_TAG: ghcr.io/${{ github.repository_owner }}/lams-x:latest
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: true
+          tags: ${{ env.DOCKER_IMAGE_TAG }}
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: /tmp/${{ github.sha }}.yml
+
+      MONGODB_VERSION: "7.0.2"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy Compose file to server
+        uses: garygrossgarten/github-action-scp@v0.8.0
+        with:
+          local: docker-compose.yml
+          remote: ${{ env.COMPOSE_FILE }}
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          privateKey: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Deploy app
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          LAMS_DB_URI: "mongodb://${{ secrets.DEPLOY_DB_USER }}:${{ secrets.DEPLOY_DB_PASS }}@db/${{ secrets.DEPLOY_DB_NAME }}"
+          LAMS_SESSION_SECRET: ${{ secrets.DEPLOY_SESSION_SECRET }}
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: DOCKER_IMAGE_TAG,MONGODB_VERSION,LAMS_DB_URI,LAMS_SESSION_SECRET
+          script_stop: true
+          script: |
+            docker login ghcr.io -u "${{ github.repository_owner }}" -p "${{ secrets.GITHUB_TOKEN }}"
+
+            docker compose -p ${{ env.PROJ_NAME }} -f "${{ env.COMPOSE_FILE }}" pull
+            docker compose -p ${{ env.PROJ_NAME }} -f "${{ env.COMPOSE_FILE }}" up -d --remove-orphans
+
+            rm "${{ env.COMPOSE_FILE }}"
+
+  init_db:
+    name: Init DB
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initialize database
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            CONTAINER="${{ env.PROJ_NAME }}-db-1"
+
+            # Wait for MongoDB
+            docker exec "${CONTAINER}" mongosh --quiet --nodb \
+              --eval "let c; do {try {c = new Mongo('127.0.0.1:27017');} catch(Error) {sleep(100)}} while(c === undefined);" > /dev/null
+
+            # Define app user if not defined
+            docker exec "${CONTAINER}" mongosh --quiet \
+              --eval "use ${{ secrets.DEPLOY_DB_NAME }};" --eval 'if (db.getUser("${{ secrets.DEPLOY_DB_USER }}") == null) db.createUser({user: "${{ secrets.DEPLOY_DB_USER }}", pwd: "${{ secrets.DEPLOY_DB_PASS }}", roles: [{role: "readWrite", db: "${{ secrets.DEPLOY_DB_NAME }}"}]});'

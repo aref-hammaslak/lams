@@ -1,0 +1,22 @@
+{
+    "port": 3001,
+    "host": "localhost",
+    "logformat": "combined",
+    "logfile": "lams.log",
+    "upload": {
+        "path": "./public/uploads",
+        "max": 50000000,
+        "destination": "public/uploads",
+        "allowed": [".pdf", ".jpg", ".jpeg", ".png"],
+        "limits": {
+            "fileSize": 50000000
+        }
+    },
+    "dbUri": "mongodb://express:4zhV72BlIxDuPXptAeyl@2.187.36.206:11317/lamsx",
+    "session": {
+        "name": "ssid",
+        "secret": "thisisverysecure",
+        "touchAfter": 86400
+    },
+    "https": false
+}
