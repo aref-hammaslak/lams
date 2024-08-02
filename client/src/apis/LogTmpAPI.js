@@ -23,6 +23,17 @@ export const LogTmpAPI = {
 		});
 		return response.data.payload;
 	},
+	getAllScheduled:async function ( cancel = false) {
+		const response = await api.request({
+			url: `/logTemplate?scheduled=true&group=ture`,
+			method: "GET",
+			
+			signal: cancel
+				? cancelApiObject[this.getAll.name].handleRequestCancellation().signal
+				: undefined,
+		});
+		return response.data.payload;
+	},
 	// create: async function (data, cancel = false) {
 	// 	const response = await api.request({
 	// 		url: "/logTemplate",
