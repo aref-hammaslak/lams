@@ -10,7 +10,7 @@ export const getAll = async (req, res) => {
 }
 
 export const getEqu = async (req, res) => {
-    const { lab_id } = req.user.lab_id;
+    const { lab_id } = req.user;
     const { id } = req.params;
     const equ = await Equipment.findOne({ _id: id, lab_id });
     res.send({
