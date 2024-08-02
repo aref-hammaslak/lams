@@ -10,7 +10,13 @@ import session from './settings/session.js';
 import passport from 'passport';
 import { handle404, basicErrorHandler } from './support.js';
 import { setRoutes } from './routes/index.js';
+import dotenv from 'dotenv'
 
+// Load environment variables from.env file (if it exists)
+dotenv.config({
+    path: '../.env',
+    debug: true,
+});
 
 const app = express();
 
