@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js | npx bunyan --color",
-    "dev": "env NODE_ENV=development node --watch server.js | npx bunyan --color",
-    "apa": "env NODE_ENV=development LAMS_DB_URI=mongodb://express:4zhV72BlIxDuPXptAeyl@192.168.1.113:11317/lamsx node --watch server.js | npx bunyan --color",
+    "dev": "cross-env NODE_ENV=\"development\" node --watch server.js | npx bunyan --color",
+    "apa": "cross-env NODE_ENV=development LAMS_DB_URI=mongodb://express:4zhV72BlIxDuPXptAeyl@192.168.1.113:11317/lamsx node --watch server.js | npx bunyan --color",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
