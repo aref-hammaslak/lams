@@ -1,36 +1,23 @@
 import {
 	Box,
-	Divider,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Paper,
-	FormControlLabel,
 	Button,
-	Stack,
-	Grid,
-	Breadcrumbs,
-	TextField,
-	Typography,
-	Checkbox,
 	Drawer,
 	Tooltip,
 } from "@mui/material";
-import { ThermAPI } from "../../../apis/ThermAPI";
-import { Form } from "react-bootstrap";
 import React, { useEffect, useState } from "react";
 import LogTemplateSelection from "../../../components/LogFilling/LogTemplateSelection";
 import EquipmentDetails from "../../../components/LogFilling/EquipmentDetails";
 import SDEDForm from "../../../components/LogFilling/SDEDForm";
 import LogsPagination from "../../../components/LogFilling/logsPagination";
 import { GridFilterAltIcon } from "@mui/x-data-grid";
+import dayjs from "dayjs";
 
 function LogFilling() {
 	const [selectedLogTemp, setSelcectedLogTemp] = useState({});
-	const [selectdDateRnge, setSelcectedDateRnge] = useState({});
+	const [selectdDateRnge, setSelcectedDateRnge] = useState({
+		startDate: dayjs().add(-30, 'day'),
+		endDate: dayjs()
+	});
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 	const toggleDrawer = (newOpen) => () => {
@@ -40,7 +27,7 @@ function LogFilling() {
 	return (
 		<Box
 			className={
-				"container pt-4  shadow-2xl  bg-blue-50 m-auto   px-4 justify-end  relative"
+				"container pt-4  pb-10  m-auto   px-4 justify-end  relative"
 			}
 		>
 			<div className={"rounded-full mb-4"}>
@@ -57,7 +44,7 @@ function LogFilling() {
 			</div>
 			<Drawer
 				anchor="right"
-				
+
 				className={"p-4 max-w-[200px] "}
 				open={isDrawerOpen}
 				onClose={toggleDrawer(false)}
@@ -77,7 +64,7 @@ function LogFilling() {
 					<Box>
 						<SDEDForm
 							dateRange={selectdDateRnge}
-							setDateRnge={setSelcectedDateRnge}
+							setDateRange={setSelcectedDateRnge}
 						/>
 					</Box>
 				</Box>

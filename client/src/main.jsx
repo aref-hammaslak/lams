@@ -10,6 +10,8 @@ import { CssBaseline } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import theme from "./theme.mui";
+import AlertProvider from "./contexts/AlertProvider";
+import { SnackbarProvider } from 'notistack';
 
 ReactDOM.createRoot(document.getElementById("root")).render(
    <React.StrictMode>
@@ -17,11 +19,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <AuthProvider>
          <BrowserRouter>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-               <ThemeProvider theme={theme}>
-                                 <Routes>
-                  <Route path="/*" element={<App />}/>
-               </Routes>
-               </ThemeProvider>
+               <SnackbarProvider maxSnack={3}>
+                  <AlertProvider>
+                     <ThemeProvider theme={theme}>
+                        <Routes>
+                           <Route path="/*" element={<App />} />
+                        </Routes>
+                     </ThemeProvider>
+                  </AlertProvider>
+               </SnackbarProvider>
 
             </LocalizationProvider>
          </BrowserRouter>
