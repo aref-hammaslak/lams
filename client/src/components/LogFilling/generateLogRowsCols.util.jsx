@@ -1,16 +1,12 @@
 /* eslint-disable react/prop-types */
 import dayjs from "dayjs";
 import { IndeterminateCheckBoxOutlined } from "@mui/icons-material";
-import { GridBooleanCell, GridCheckIcon } from "@mui/x-data-grid";
+import { GridBooleanCell, GridCheckIcon, GridSaveAltIcon, GridSearchIcon } from "@mui/x-data-grid";
 import TextsmsOutlinedIcon from '@mui/icons-material/TextsmsOutlined';
 import Tooltip from "@mui/material/Tooltip";
-import isToday from 'dayjs/plugin/isToday'
-import DeleteIcon from '@mui/icons-material/Delete';
-import SecurityIcon from '@mui/icons-material/Security';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import { GridActionsCellItem } from "@mui/x-data-grid";
-import { GridAddIcon, GridDeleteIcon, useGridApiContext } from "@mui/x-data-grid";
-import EditIcon from '@mui/icons-material/Edit';
+import isToday from 'dayjs/plugin/isToday';
+import RenderActions from "./RenderActions";
+
 
 
 
@@ -136,57 +132,7 @@ function createLogRow(currentDate, logItemElements) {
     };
 }
 
-const RenderActions = ({ row, apiRef }) => {
-   
-    const ref = apiRef.current;
-    if (row.isLoged) {
-        return (
-            <div className="space-x-2" >
-                <Tooltip title='Unlog' >
-                    <GridDeleteIcon onClick={() => {
-                        row.isLoged = false;
-                       
-                       
-                        ref.setCellFocus(row.id + 1, 'actions');
-                        
-                        
-                        ref.updateRows([{id: row.id, _action: 'delete'}]);
-                        ref.forceUpdate();
-                    }} />
-                </Tooltip>
-                <Tooltip title='Edit'>
-                    <EditIcon onClick={() => {
 
-                        const rowMode = ref.getRowMode(row.id);
-                        if (rowMode === "edit") {
-                            ref.stopRowEditMode({ id: row.id });
-                        } else {
-                            ref.startRowEditMode({ id: row.id });
-                        }
-
-                    }} />
-                </Tooltip>
-
-            </div>
-        )
-    } else {
-        return (
-            <Tooltip title="Log">
-                <GridAddIcon onClick={() => {
-                    // ref.setColumnHeaderFocus('options')
-                    row.isLoged = true;
-                    
-                    const rowMode = ref.getRowMode(row.id);
-                    if (rowMode === "edit") {
-                        ref.stopRowEditMode({ id: row.id });
-                    } else {
-                        ref.startRowEditMode({ id: row.id });
-                    }
-                }} />
-            </Tooltip>
-        );
-    }
-};
 
 // Function to generate log column objects based on the given column data
 function generateLogColumns(colData, apiRef) {
@@ -215,10 +161,11 @@ function generateLogColumns(colData, apiRef) {
                 break;
             case 'actions':
                 colItem.renderCell = (params) => {
+                   
                     return <RenderActions {...params} apiRef={apiRef} />
                 }
                 colItem.editable = undefined;
-                colItem.type = "actions";
+                colItem.type = 'actions';
 
                 break;
             case 0:
@@ -231,12 +178,14 @@ function generateLogColumns(colData, apiRef) {
                 break;
             case 2:
                 colItem.type = "number";
+                colItem.renderCell = (params) => renderNumberCell(params.value);
                 break;
             case 3:
             case 4:
             case 5:
                 colItem.type = "singleSelect";
                 colItem.valueOptions = getSingleSelectOptions(column.type);
+                colItem.renderCell = (params) => renderOptinalCell(params.value, column.type);
                 break;
             default:
                 break;
@@ -251,7 +200,15 @@ function renderBooleanCell(value) {
     if (value === undefined) return <IndeterminateCheckBoxOutlined />;
     return value ? <GridCheckIcon /> : <GridBooleanCell />;
 }
+function renderNumberCell(value){
+    if (value === undefined) return 0;
+    return value;
+}
 
+function renderOptinalCell(value, type){
+    if(value === undefined) return getDefaultValue(type);
+    return value;
+}
 // Function to render a text cell with a tooltip based on the given value
 function renderTextCell(value) {
     if (value === undefined) return <TextsmsOutlinedIcon />;
@@ -273,7 +230,7 @@ function getSingleSelectOptions(type) {
         case 5:
             return ["C", "F"];
         default:
-            return [];
+            return ;
     }
 }
 
