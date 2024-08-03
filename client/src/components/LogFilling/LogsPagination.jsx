@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { generateLogColumns, generateLogRows } from "./generateLogRowsCols.util";
@@ -71,7 +71,7 @@ const LogsPagination = (props) => {
 		if (dayjs(date).isToday() && !isLoged) className += " bg-orange-300";
 		else if (isLoged) {
 			className += " bg-green-300"; // Change the background color to gray for even rows
-		
+
 		} else {
 			className += " bg-red-300";
 		}
@@ -91,13 +91,14 @@ const LogsPagination = (props) => {
 		{ label: 'actions', type: 'actions' }
 	];
 	const columns = generateLogColumns(columnsData, apiRef);
-	
+
 	return (
 
-		<Grid className={" outline-none h-[90vh] "} item width="inherit">
+		<Grid className={" outline-none h-[75vh] "} item width="inherit">
 			<DataGrid
 				apiRef={apiRef}
 				columns={columns}
+				density="standard"
 				rows={logRows}
 				getRowHeight={() => 65}
 				className={""}
@@ -105,6 +106,15 @@ const LogsPagination = (props) => {
 				disableColumnSelector
 				getRowClassName={getRowClassName}
 				getCellClassName={getCellClassName}
+				onCellDoubleClick={
+					(params, event) => {
+						event.defaultMuiPrevented = true;
+					}
+				}
+				onRowEditStop={(params, event) => {
+					event.defaultMuiPrevented = true;
+				}}
+
 				editMode="row"
 				sortingOrder={['desc', 'asc']}
 				initialState={{
