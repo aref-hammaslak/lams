@@ -3,6 +3,7 @@ import React from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 
 function CustomDatePicker(props) {
@@ -11,7 +12,9 @@ function CustomDatePicker(props) {
 		<DatePicker
 			{...other}
 			value={value}
+			
 			onChange={onChange}
+			maxDate={dayjs()}
 			className="text-blue-300"
 			slotProps={{
 				textField: {
@@ -24,7 +27,7 @@ function CustomDatePicker(props) {
 	);
 }
 
-function SDEDForm({dateRange, setDateRange,}) {
+function SDEDForm({dateRange, setDateRange}) {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
@@ -36,6 +39,7 @@ function SDEDForm({dateRange, setDateRange,}) {
 			<div  className={"flex items-center sm:justify-between gap-4 mt-4 flex-col justify-end "}>
 				<div className="flex flex-col items-center gap-2 ">
 					<CustomDatePicker
+						// defaultValue={}
 						label="Start"
 						value={dateRange.startDate}
 						onChange={(newValue) =>
@@ -54,8 +58,9 @@ function SDEDForm({dateRange, setDateRange,}) {
                     <div className="w-4 h-[2px] bg-blue-300 rounded rotate-90  my-2 "></div>
 					<CustomDatePicker
 						label="End"
+						defaultValue={dayjs()}
 						value={dateRange.endDate}
-						disabled={!dateRange.startDate}
+						// disabled={!dateRange.startDate}
 						disableFuture
 						onChange={(newValue) =>
 							setDateRange({ ...dateRange, endDate: newValue })
