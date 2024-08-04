@@ -26,7 +26,7 @@ app.set('port', port);
 app.set('host', host);
 
 app.use(cors());
-app.use(logger());
+// app.use(logger());
 app.use(session());
 app.use(express.static('public'))
 

@@ -13,7 +13,7 @@ export function basicErrorHandler(err, req, res, next) {
     }
 
     if (err instanceof ExpressError) {
-        req.log.info(err.message);
+        // req.log.info(err.message);
         return res.status(err.code).send({
             success: false,
             error: process.env.NODE_ENV === 'deployment'
@@ -21,7 +21,7 @@ export function basicErrorHandler(err, req, res, next) {
                 : err
         });
     } else {
-        req.log.error(err);
+        // req.log.error(err);
         return res.status(500).send({
             success: false,
             error: process.env.NODE_ENV === 'deployment'
