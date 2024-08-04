@@ -1,83 +1,105 @@
 /* eslint-disable react/prop-types */
-
-import { GridAddIcon, GridDeleteIcon, useGridApiContext } from "@mui/x-data-grid";
-import EditIcon from '@mui/icons-material/Edit';
-import CancelIcon from '@mui/icons-material/Close';
+import { useCallback } from "react";
+import {
+  GridAddIcon,
+  GridDeleteIcon,
+  GridSaveAltIcon,
+} from "@mui/x-data-grid";
+import { Tooltip } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Close";
 import { useContext } from "react";
 import { AlertContext } from "../../contexts/AlertProvider";
 import { useSnackbar } from "notistack";
-import { Tooltip } from "@mui/material";
-import { GridSaveAltIcon } from "@mui/x-data-grid";
 
+const RenderActions = ({ row, apiRef, ...params }) => {
+  const alertState = useContext(AlertContext);
+  const { enqueueSnackbar } = useSnackbar();
+  const ref = apiRef.current;
+  const rowMode = row.mode;
 
-const RenderActions = ({ row, apiRef ,...params}) => {
-    
+  const getUndefinedRow = useCallback(() => {
+    const undefinedRow = {};
+    ref.getAllColumns()
+      .map((col) => col.field)
+      .forEach((field) => {
+        if (field === "date" || field === "actions") return;
+        undefinedRow[field] = undefined;
+      });
+    return undefinedRow;
+  }, [ref]);
 
-    const alertState = useContext(AlertContext);
-    const {enqueueSnackbar} = useSnackbar();
-    const ref = apiRef.current;
-    const rowMode = row.mode;
-    const undefinedRow ={}
-    ref.getAllColumns().map(col => col.field).forEach(field => {
-        if(field === 'date' && field === 'actions') return;
-        undefinedRow[field] = undefined
-    })
+  const handleSave = useCallback(() => {
+    row.isLoged = true;
+    ref.updateRows([{ id: row.id, mode: "view" }]);
+    ref.stopRowEditMode({ id: row.id });
+    const serverAction = row.action;
 
-    const EditModeIcons = 
-        <div className="space-x-2" >
-            <Tooltip title='Save' >
-                <GridSaveAltIcon onClick={() => {
-                    row.isLoged = true;
-                    ref.updateRows([{ id: row.id, mode: 'view'}]);
-                    console.log(ref.getRowWithUpdatedValues(row.id));
-                    ref.stopRowEditMode({ id: row.id});
-                    const serverAction = row.action;
+    enqueueSnackbar(`Log ${serverAction}ed successfully`, { variant: "success" });
+  }, [enqueueSnackbar, ref, row]);
 
-                    enqueueSnackbar(`Log ${serverAction}ed successfully`, {variant:'success'});
-                }} />
-            </Tooltip>
-            <Tooltip title='Cancel'>
-                <CancelIcon  onClick={() => {
-                    ref.stopRowEditMode({ id: row.id, ignoreModifications: true });
-                    ref.updateRows([{ id: row.id, mode: 'view'}]);
-                }} />
-            </Tooltip>
+  const handleCancel = useCallback(() => {
+    ref.stopRowEditMode({ id: row.id, ignoreModifications: true });
+    ref.updateRows([{ id: row.id, mode: "view" }]);
+  }, [ref, row.id]);
 
-        </div>
-    
-    if (row.isLoged) {
-        return (
-            rowMode === 'edit' ? (EditModeIcons) : (<div className="space-x-2" >
-                <Tooltip title='Unlog' >
-                    <GridDeleteIcon onClick={() => {
-                        
-                        ref.updateRows([{...undefinedRow, id: row.id,isLoged:false , mode: 'view' ,date: row.date}]);
+  const handleDelete = useCallback(() => {
+    const undefinedRow = getUndefinedRow();
+    ref.updateRows([
+      {
+        ...undefinedRow,
+        id: row.id,
+        isLoged: false,
+        mode: "view",
+        date: row.date,
+      },
+    ]);
+    enqueueSnackbar("Log deleted successfully", { variant: "error" });
+  }, [getUndefinedRow, ref]);
 
-                        enqueueSnackbar('Log deleted successfully', {variant:'error'});
-                    }} />
-                </Tooltip>
-                <Tooltip title='Edit'>
-                    <EditIcon onClick={() => {
-                        ref.startRowEditMode({ id: row.id });
-                        ref.updateRows([{ id: row.id, mode: 'edit', action:'update'}]);
-                    }} />
-                </Tooltip>
+  const handleEdit = useCallback(() => {
+    ref.startRowEditMode({ id: row.id });
+    ref.updateRows([{ id: row.id, mode: "edit", action: "update" }]);
+  }, [ref]);
 
-            </div>)
+  const handleAddLog = useCallback(() => {
+    ref.startRowEditMode({ id: row.id });
+    ref.updateRows([{ id: row.id, mode: "edit", action: "create" }]);
+  }, [ref]);
 
-        )
-    } else {
-        return (
-            rowMode === 'edit' ? (EditModeIcons) : (<Tooltip title="Log">
-                <GridAddIcon onClick={() => {
-                   
-                   ref.startRowEditMode({ id: row.id });
-                   ref.updateRows([{ id: row.id, mode: 'edit', action:'create'}]);
-                }} />
-            </Tooltip>)
+  const EditModeIcons = (
+    <div className="space-x-2">
+      <Tooltip title="Save">
+        <GridSaveAltIcon onClick={handleSave} />
+      </Tooltip>
+      <Tooltip title="Cancel">
+        <CancelIcon onClick={handleCancel} />
+      </Tooltip>
+    </div>
+  );
 
-        );
-    }
+  if (row.isLoged) {
+    return rowMode === "edit" ? (
+      EditModeIcons
+    ) : (
+      <div className="space-x-2">
+        <Tooltip title="Unlog">
+          <GridDeleteIcon onClick={handleDelete} />
+        </Tooltip>
+        <Tooltip title="Edit">
+          <EditIcon onClick={handleEdit} />
+        </Tooltip>
+      </div>
+    );
+  } else {
+    return rowMode === "edit" ? (
+      EditModeIcons
+    ) : (
+      <Tooltip title="Log">
+        <GridAddIcon onClick={handleAddLog} />
+      </Tooltip>
+    );
+  }
 };
 
 export default RenderActions;
