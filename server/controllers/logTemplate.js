@@ -146,7 +146,7 @@ export async function getAllLogTemplates(req, res) {
  */
 export async function createLogTemplate(req, res) {
     const { lab_id } = req.user;
-    const data = req.body;
+    const data = req.body.name;
 
     if (!await isEqInLab(lab_id, data.eq_id)) {
         throw new ExpressError('Equipment not found in lab', 400);
