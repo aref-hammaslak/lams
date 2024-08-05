@@ -13,20 +13,33 @@ import RenderActions from "./RenderActions";
 const DATE_FORMAT = 'YYYY-MM-DD';
 
 // Function to generate log rows based on the given initial date, end date, recurrence, and log template
-function generateLogRows(initialDate, endDate, recurrence, logTemp) {
+function generateLogRows(logTempFilters) {
+
+    const { startDate, endDate, logTemp } = logTempFilters;
+    const { initialDate, recurrence } = logTemp.schedule;
     const logRows = [];
     let currentDate = dayjs(initialDate);
 
-    while (currentDate <= dayjs(endDate)) {
-        currentDate = addRecurrence(currentDate, recurrence);
+    while (currentDate.isBefore(dayjs(endDate).add(1, 'day'), 'day')) {
 
-        // Create a log object with default values for the given log template
+
+        //TODO check whether there is a log for currentDate then assign it into log object 
         const log = {};
+
+        //fill the rows with log data if there is no log for current date fill it with default icons
         const logItemElements = createLogItemElements(log, logTemp.items);
 
-        const logRow = createLogRow(currentDate.toDate(), logItemElements);
+        const logRow = {
+            date: currentDate.toDate(),
+            ...logItemElements,
+        }
         logRow.id = logRows.length + 1;
-        logRow.isLoged = true;
+        logRow.isLoged = false;
+
+        currentDate = addRecurrence(currentDate, recurrence);
+        //check the date be in the rage of provided
+        if (currentDate.isBefore(dayjs(startDate).add(1, 'day'), 'day')) continue;
+
         logRows.push(logRow);
     }
 
@@ -36,48 +49,21 @@ function generateLogRows(initialDate, endDate, recurrence, logTemp) {
 // Function to add the specified recurrence to the current date
 function addRecurrence(currentDate, recurrence) {
     switch (recurrence) {
-        case "Daily":
+        case "daily":
             return currentDate.add(1, "day");
-        case "Monthly":
+        case "weekly":
+            return currentDate.add(7, "day");
+        case "monthly":
             return currentDate.add(1, "month");
-        case "Quarterly":
+        case "quarterly":
             return currentDate.add(3, "month");
-        case "SemiAnnually":
+        case "semiAnnually":
             return currentDate.add(6, "month");
-        case "Annually":
+        case "annually":
             return currentDate.add(1, "year");
         default:
             throw new Error("Invalid recurrence type");
     }
-}
-
-// Function to create a log object with default values for the given log template
-function createLog(logTemp) {
-    return {
-        _id: {
-            $oid: "658ede388f63bc70fa43e56b",
-        },
-        date: {
-            $date: "2024-04-04T00:00:00.000Z",
-        },
-        user_id: {
-            $oid: "6578300c56b16be110f25b10",
-        },
-        temp_id: {
-            $oid: "654a2d913939a46996332ee3",
-        },
-        items: {
-            "Number of cassettes": 23,
-            "Paraffin Temperate (60°c - 62°c)": 60,
-            "Perform the Retort Clean Cycle": true,
-            "Wipe dry the retort and lid": true,
-            "check ground": true,
-            "clean pipes": "ok slkdfioewiska ooisajdfoijeioodjkjdsoijwwioEOJAOEGOIRJGPOWPOERJEPOOPIrw            oiwoedijois",
-            "count pipes": 3,
-            "options": 'R'
-        },
-        __v: 0,
-    };
 }
 
 // Function to create log item elements based on the log and log template items
@@ -124,16 +110,6 @@ function getDefaultValue(type) {
     }
 }
 
-// Function to create a log row object with the given current date and log item elements
-function createLogRow(currentDate, logItemElements) {
-    return {
-        date: currentDate,
-        ...logItemElements,
-    };
-}
-
-
-
 // Function to generate log column objects based on the given column data
 function generateLogColumns(colData, apiRef) {
     return colData.map((column) => {
@@ -161,7 +137,7 @@ function generateLogColumns(colData, apiRef) {
                 break;
             case 'actions':
                 colItem.renderCell = (params) => {
-                   
+
                     return <RenderActions {...params} apiRef={apiRef} />
                 }
                 colItem.editable = undefined;
@@ -200,13 +176,13 @@ function renderBooleanCell(value) {
     if (value === undefined) return <IndeterminateCheckBoxOutlined />;
     return value ? <GridCheckIcon /> : <GridBooleanCell />;
 }
-function renderNumberCell(value){
+function renderNumberCell(value) {
     if (value === undefined) return 0;
     return value;
 }
 
-function renderOptinalCell(value, type){
-    if(value === undefined) return getDefaultValue(type);
+function renderOptinalCell(value, type) {
+    if (value === undefined) return getDefaultValue(type);
     return value;
 }
 // Function to render a text cell with a tooltip based on the given value
@@ -230,7 +206,7 @@ function getSingleSelectOptions(type) {
         case 5:
             return ["C", "F"];
         default:
-            return ;
+            return;
     }
 }
 
