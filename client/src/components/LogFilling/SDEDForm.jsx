@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { Schedule } from "@mui/icons-material";
 
 
 function CustomDatePicker(props) {
@@ -12,9 +13,9 @@ function CustomDatePicker(props) {
 		<DatePicker
 			{...other}
 			value={value}
-			
+
 			onChange={onChange}
-			maxDate={dayjs()}
+	
 			className="text-blue-300"
 			slotProps={{
 				textField: {
@@ -27,23 +28,30 @@ function CustomDatePicker(props) {
 	);
 }
 
-function SDEDForm({dateRange, setDateRange}) {
+function SDEDForm({logTempFilters , setLogTempFilters}) {
 
-	const handleSubmit = (event) => {
-		event.preventDefault();
-		console.log("Form Data:", dateRange);
-	};
+
+	
+	const schedule = logTempFilters?.logTemp?.schedule;
+	const scheduleInitialDate = schedule?.initial_date;
+	const scheduleEndDate = schedule?.end_date;
+	console.log(scheduleInitialDate, scheduleEndDate)
+	
 
 	return (
-		<form onSubmit={handleSubmit}>
+		
+		<div >
 			<div  className={"flex items-center sm:justify-between gap-4 mt-4 flex-col justify-end "}>
 				<div className="flex flex-col items-center gap-2 ">
 					<CustomDatePicker
-						// defaultValue={}
+						defaultValue={dayjs(scheduleInitialDate)}
+						minDate={dayjs(scheduleInitialDate)}
+						disabled={!schedule}
 						label="Start"
-						value={dateRange.startDate}
+						disableFuture
+						value={logTempFilters.startDate}
 						onChange={(newValue) =>
-							setDateRange({ ...dateRange, startDate: newValue })
+							setLogTempFilters({ ...logTempFilters, startDate: newValue })
 						}
 						renderInput={(params) => (
 							<TextField
@@ -58,12 +66,13 @@ function SDEDForm({dateRange, setDateRange}) {
                     <div className="w-4 h-[2px] bg-blue-300 rounded rotate-90  my-2 "></div>
 					<CustomDatePicker
 						label="End"
-						defaultValue={dayjs()}
-						value={dateRange.endDate}
-						// disabled={!dateRange.startDate}
-						disableFuture
+						defaultValue={dayjs(scheduleEndDate)}
+						maxDate={dayjs(scheduleEndDate)}
+						value={logTempFilters.endDate}
+						disabled={!schedule}
+
 						onChange={(newValue) =>
-							setDateRange({ ...dateRange, endDate: newValue })
+							setLogTempFilters({ ...logTempFilters, endDate: newValue })
 						}
 						renderInput={(params) => (
 							<TextField
@@ -73,21 +82,12 @@ function SDEDForm({dateRange, setDateRange}) {
 								margin="normal"
 							/>
 						)}
-						minDate={dateRange.startDate}
+						minDate={logTempFilters.startDate}
 					/>
 				</div>
-				<Button
-					type="submit"
-					variant="contained"
-					color="primary"
-					margin="normal"
-                    className={"px-12"}
-                    sx={{width: "100px"}}
-				>
-					Go!
-				</Button>
+				
 			</div>
-		</form>
+		</div>
 	);
 }
 
