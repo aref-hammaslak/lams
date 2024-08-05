@@ -8,117 +8,58 @@ import { MenuItem, FormControl, Select, InputLabel, Box } from "@mui/material";
 import { useEffect } from "react";
 import { LogTmpAPI } from "../../apis/LogTmpAPI";
 import PropTypes from "prop-types";
+import useLogTemp from "../../hooks/useLogTemp";
+import { reccurencs } from "../../consts";
 
-const reccurencs = [
-	"daily",
-	"monthly",
-	"quarterly",
-	"semi-annually",
-	"annually",
-];
 
-function LogTemplateSelection({ selectedLogTemp, setSelcectedLogTemp }) {
-	const [scheduledLogTems, setScheduledLogTemps] = useState(null);
-	const [equipments, setEquipments] = useState([]);
-	const [reccTypeCodes, setReccTypeCodes] = useState([]);
-	const [logSchedules, setLogSchedules] = useState([]);
 
-	useEffect(() => {
-		async function fetchData() {
-			try {
-				setScheduledLogTemps(await LogTmpAPI.getAllScheduled());
-			} catch (error) {
-				console.log(error);
-			}
-		}
-		fetchData();
-	}, []);
-	
-	useEffect(() => {
-		function deserializeLogTemps() {
-			if (!scheduledLogTems) return;
-			const equipments = scheduledLogTems.map(({ _id }) => _id);
-			setEquipments(equipments);
-
-			if (!selectedLogTemp.equipment) return;
-
-			// lists all the reccurenc types specified for an equipment
-			const reccTypeCodes = scheduledLogTems
-				.find(({ _id }) => _id === selectedLogTemp.equipment)
-				.types.map(({ type }) => type);
-
-			setReccTypeCodes(reccTypeCodes);
-
-			if (!selectedLogTemp.reccurence) return;
-
-			//all the scheduled logs for ech "equipment" , "reccurence" pairs
-
-			const logSchedules = scheduledLogTems
-				.find(({ _id }) => _id === selectedLogTemp.equipment)
-				.types.find(({ type }) => type === selectedLogTemp.reccurence)
-				?.documents.map((document) => document);
-			console.log(logSchedules);
-			setLogSchedules(logSchedules);
-		}
-		deserializeLogTemps();
-	}, [
-		selectedLogTemp,
-		scheduledLogTems
-	]);
-
-	function findEqId(eqName) {
-		const id = scheduledLogTems.find(({ _id }) => _id === eqName)?.types[0]
-			.documents[0].eq_id;
-		console.log(id);
-		return id;
-	}
+function LogTemplateSelection({ logTempFilters, setLogTempFilters }) {
+	const { equipments, logSchedules, setLogSchedules, recurrenceTypeCodes, setRecurrenceTypeCodes, findEquipmentId, loading } = useLogTemp(logTempFilters, setLogTempFilters);
 
 	return (
 		<Box className={"flex gap-4 sm:justify-between font-[Roboto] justify-center flex-wrap "}>
+			{loading && <div>Loading...</div>}
 			<FormControl className={"w-[220px] bg-white "}>
 				<InputLabel id="">Choose Equipment</InputLabel>
+
 				<Select
-					labelId="demo-simple-select-label"
-					id=""
-					value={selectedLogTemp.equipment}
+
+					value={logTempFilters.equipment}
+
 					label="Choose an option"
 					onChange={(e) => {
-						setSelcectedLogTemp({
-							...selectedLogTemp,
+						setLogTempFilters({
+							...logTempFilters,
 							equipment: e.target.value,
-							eq_id: findEqId(e.target.value),
-							reccurence: null,
-							logTemp: null,
+							eq_id: findEquipmentId(e.target.value),
 						});
-						setReccTypeCodes([]);
+						setRecurrenceTypeCodes([]);
 						setLogSchedules([]);
 					}}
 				>
-					{equipments.map((eq) => (
-						<MenuItem key={eq} value={eq}>
+					{equipments.map((eq, index) => (
+						<MenuItem key={index} value={eq}>
 							{eq}
 						</MenuItem>
 					))}
 				</Select>
 			</FormControl>
 			<FormControl className={"w-[220px] bg-white "}>
-				<InputLabel id="">Choose Reccurenc</InputLabel>
+				<InputLabel >Choose Reccurenc</InputLabel>
 				<Select
-					labelId=""
-					value={selectedLogTemp.reccurence}
-					id="demo-simple-select"
+					value={logTempFilters.reccurence}
 					label="Choose an option"
 					onChange={(e) => {
-						setSelcectedLogTemp({
-							...selectedLogTemp,
+						setLogTempFilters({
+							...logTempFilters,
 							reccurence: e.target.value,
-							logTemp: null,
+							// logTemp: null,
 						});
 						setLogSchedules([]);
 					}}
 				>
-					{reccTypeCodes?.map((reccTypeCode) => (
-						<MenuItem key={reccTypeCode} value={reccTypeCode}>
+					{recurrenceTypeCodes?.map((reccTypeCode, index) => (
+						<MenuItem key={index} value={reccTypeCode}>
 							{reccurencs[reccTypeCode]}
 						</MenuItem>
 					))}
@@ -127,19 +68,17 @@ function LogTemplateSelection({ selectedLogTemp, setSelcectedLogTemp }) {
 			<FormControl className={"w-[220px] bg-white "}>
 				<InputLabel id="">Choose Schedule</InputLabel>
 				<Select
-					labelId=""
-					id="demo-simple-select"
 					label="Choose an option"
-					value={selectedLogTemp.logTemp}
+					value={logTempFilters.logTemp}
 					onChange={(e) =>
-						setSelcectedLogTemp({
-							...selectedLogTemp,
+						setLogTempFilters({
+							...logTempFilters,
 							logTemp: e.target.value,
 						})
 					}
 				>
 					{logSchedules?.map((logSchedule, index) => (
-						<MenuItem key={logSchedule} value={logSchedule}>
+						<MenuItem key={index} value={logSchedule}>
 							{logSchedule.schedule.initial_date.split("T")[0]}
 						</MenuItem>
 					))}
@@ -150,12 +89,12 @@ function LogTemplateSelection({ selectedLogTemp, setSelcectedLogTemp }) {
 }
 
 LogTemplateSelection.proptypes = {
-	selectedLogTemp: {
+	logTempFilters: {
 		equipment: PropTypes.string,
 		reccurence: PropTypes.number,
 		logTemp: PropTypes.object,
 	},
-	setSelcectedLogTemp: PropTypes.func,
+	setLogTempFilters: PropTypes.func,
 };
 
 export default LogTemplateSelection;
