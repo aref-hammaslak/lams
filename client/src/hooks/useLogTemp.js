@@ -10,93 +10,131 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const data = await LogTmpAPI.getAllScheduled();
-                setScheduledLogTemps(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        const deserializeLogTemps = () => {
-            if (!scheduledLogTemps) return;
-
-            const equipmentIds = scheduledLogTemps.map(({ _id }) => _id);
-            setEquipments(equipmentIds);
-
-            if (!logTempFilters.equipment) return;
-
-            const selectedEquipment = scheduledLogTemps.find(({ _id }) => _id === logTempFilters.equipment);
-            if (!selectedEquipment) return;
-
-            const types = selectedEquipment.types.map(({ type }) => type);
-            setRecurrenceTypeCodes(types);
-
-            if (!logTempFilters.reccurence && logTempFilters.reccurence !== 0) return;
-
-            const logSchedules = scheduledLogTemps
-				.find(({ _id }) => _id === logTempFilters.equipment)
-				.types.find(({ type }) => type === logTempFilters.reccurence)
-				?.documents.map((document) => document);
-			
-            setLogSchedules(logSchedules);
-
-
-        };
-
-        deserializeLogTemps();
-    }, [logTempFilters, scheduledLogTemps]);
-
-    const setDefaultFilters = () => {
-        if (!logTempFilters.equipment && equipments.length > 0) {
-            setLogTempFilters(prev => ({
-                ...prev,
-                equipment: equipments[0],
-                recurrence: undefined,
-            }));
-        }
-
-        if (logTempFilters.equipment && !logTempFilters.recurrence && recurrenceTypeCodes.length > 0) {
-            setLogTempFilters(prev => ({
-                ...prev,
-                recurrence: recurrenceTypeCodes[0],
-                schedule: undefined,
-            }));
-        }
-
-        if (logTempFilters.equipment && logTempFilters.recurrence && !logTempFilters.schedule && logSchedules.length > 0) {
-            setLogTempFilters(prev => ({
-                ...prev,
-                schedule: logSchedules[0],
-            }));
+        // if(logTempFilters.equipment)  return;
+            const fetchData = async () => {
+        setLoading(true);
+        try {
+            const data = await LogTmpAPI.getAllScheduled();
+            setScheduledLogTemps(data);
+            updateSetDefaults({ type: 0, data })
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
+        fetchData();
 
-    const findEquipmentId = (equipmentName) => {
+    }, []);
+
+    const findEquipmentId = (equipmentName, data = false) => {
+        if (data) {
+            const equipment = data.find(({ _id }) => _id === equipmentName);
+            const equipmentId = equipment?.types[0].documents[0].eq_id;
+            return equipmentId;
+        }
         const equipment = scheduledLogTemps.find(({ _id }) => _id === equipmentName);
         const equipmentId = equipment?.types[0].documents[0].eq_id;
         console.log(equipmentId);
         return equipmentId;
-    };
+    }
+
+    const updateSetDefaults = ({ type, value, data }) => {
+
+        switch (type) {
+            case 0: {
+                const scheduledLogTemps = data;
+                const equipments = scheduledLogTemps.map(({ _id }) => _id);
+                setEquipments(equipments);
+
+                let selectedEquipment = scheduledLogTemps.find(({ _id }) => _id === equipments[0]);
+
+                const types = selectedEquipment.types.map(({ type }) => type);
+                setRecurrenceTypeCodes(types);
+
+                const logSchedules = scheduledLogTemps
+                    .find(({ _id }) => _id === equipments[0])
+                    .types.find(({ type }) => type === types[0])
+                    ?.documents.map((document) => document);
+
+                setLogSchedules(logSchedules);
+
+                setLogTempFilters({
+                    ...logTempFilters,
+                    equipment: equipments[0],
+                    reccurence: types[0],
+                    logTemp: logSchedules[0],
+                    startDate: logSchedules[0].schedule.initial_date,
+                    endDate: logSchedules[0].schedule.end_date,
+                    eq_id: findEquipmentId(equipments[0], data)
+                });
+                break;
+            }
+            case 1: {
+                let selectedEquipment = scheduledLogTemps.find(({ _id }) => _id === value);
+
+                const types = selectedEquipment.types.map(({ type }) => type);
+                setRecurrenceTypeCodes(types);
+
+                const logSchedules = scheduledLogTemps
+                    .find(({ _id }) => _id === value)
+                    .types.find(({ type }) => type === types[0])
+                    ?.documents.map((document) => document);
+
+                setLogSchedules(logSchedules);
+
+                setLogTempFilters({
+                    ...logTempFilters,
+                    equipment: value,
+                    reccurence: types[0],
+                    logTemp: logSchedules[0],
+                    eq_id: findEquipmentId(value),
+                    startDate: logSchedules[0].schedule.initial_date,
+                    endDate: logSchedules[0].schedule.end_date,
+                });
+                break;
+            }
+            case 2: {
+                const logSchedules = scheduledLogTemps
+                    .find(({ _id }) => _id === logTempFilters.equipment)
+                    .types.find(({ type }) => type === value)
+                    ?.documents.map((document) => document);
+
+                setLogSchedules(logSchedules);
+
+                setLogTempFilters({
+                    ...logTempFilters,
+
+                    reccurence: value,
+                    startDate: logSchedules[0].schedule.initial_date,
+                    endDate: logSchedules[0].schedule.end_date,
+                    logTemp: logSchedules[0],
+                });
+                break;
+
+            }
+            case 3: {
+                setLogTempFilters({
+                    ...logTempFilters,
+                    logTemp: value,
+                    startDate: value.schedule.initial_date,
+                    endDate: value.schedule.end_date,
+                });
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
     return {
         equipments,
         recurrenceTypeCodes,
         logSchedules,
         setLogTempFilters,
-        setEquipments,
-        setRecurrenceTypeCodes,
         loading,
-        setDefaultFilters,
-        findEquipmentId,
+        updateSetDefaults
     };
 };
 
