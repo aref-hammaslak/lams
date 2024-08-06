@@ -21,6 +21,7 @@ import { Box } from "@mui/material";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Scheduler from "./pages/Scheduler";
 import Users from "./pages/Users";
+import LogFillingProvider from "./contexts/LogFillingProvider.jsx";
 
 function App() {
 	return (
@@ -53,7 +54,9 @@ function App() {
 						<Route path="users2/*" element={<Users />} />
 						<Route path="log">
 							<Route path="config" element={<LogConfig />} />
-							<Route path="logfilling" element={<LogFilling />} />
+							<Route path="logfilling" element={<LogFillingProvider>
+								<LogFilling />
+							</LogFillingProvider>} />
 							<Route path="autolog" element={<AutoLog />} />
 						</Route>
 
