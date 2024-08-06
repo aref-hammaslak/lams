@@ -16,7 +16,7 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 function generateLogRows(logTempFilters) {
 
     const { startDate, endDate, logTemp } = logTempFilters;
-    const { initialDate, recurrence } = logTemp.schedule;
+    const { initial_date:initialDate , recurrence } = logTemp.schedule;
     const logRows = [];
     let currentDate = dayjs(initialDate);
 
