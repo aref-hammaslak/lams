@@ -1,15 +1,18 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo } from "react";
 import Grid from "@mui/material/Grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { generateLogColumns, generateLogRows } from "./generateLogRowsCols.util";
 import dayjs from "dayjs";
 import isToday from 'dayjs/plugin/isToday';
 import { useGridApiRef } from "@mui/x-data-grid";
+import { logFillingContext } from "../../contexts/LogFillingProvider";
 
 
 const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs } = props;
+	const { logTempFilters, displayLogs } = useContext(logFillingContext);
+
+	
 	const apiRef = useGridApiRef();
 
 	const rows = useMemo(() => {
@@ -31,7 +34,7 @@ const LogsPagination = (props) => {
 			]
 		}
 		return generateLogColumns(columnsData, apiRef);
-	}, [apiRef, logTempFilters])
+	}, [apiRef, displayLogs, logTempFilters.logTemp?.items])
 
 	const getRowClassName = (params) => {
 		const { isLoged, date } = params.row;

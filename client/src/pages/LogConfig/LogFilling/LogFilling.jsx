@@ -4,21 +4,23 @@ import {
 	Drawer,
 	Tooltip,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import LogsPagination from "../../../components/LogFilling/LogsPagination";
 import { GridFilterAltIcon } from "@mui/x-data-grid";
 import LogTempFilters from "../../../components/LogFilling/LogTempFilters";
+import LogFillingProvider from "../../../contexts/LogFillingProvider";
+import { logFillingContext } from "../../../contexts/LogFillingProvider";
 
 function LogFilling() {
-	const [logTempFilters, setLogTempFilters] = useState({});
-	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-	const [displayLogs, setDisplayLogs] = useState(false);
+
+	const { setIsDrawerOpen, isDrawerOpen } = useContext(logFillingContext)
 
 	const toggleDrawer = (newOpen) => () => {
 		setIsDrawerOpen(newOpen);
 	};
 
 	return (
+
 		<Box
 			className={
 				"container pt-4  pb-10  m-auto   px-4 justify-end  relative"
@@ -42,13 +44,14 @@ function LogFilling() {
 				open={isDrawerOpen}
 				onClose={toggleDrawer(false)}
 			>
-				<LogTempFilters logTempFilters={logTempFilters}
-					setLogTempFilters={setLogTempFilters} setDisplayLogs={setDisplayLogs} />
+				<LogTempFilters />
 			</Drawer>
 			<Box className={"bg-white mt-4  "}>
-				<LogsPagination displayLogs={displayLogs} logTempFilters={logTempFilters} />
+				<LogsPagination />
 			</Box>
 		</Box>
+
+
 	);
 }
 export default LogFilling;
