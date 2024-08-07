@@ -19,11 +19,12 @@ export async function getAllEquipmentLogs(req, res) {
     const { _id: userId, lab_id } = req.user;
 
     const queries = {
-        userId: req.query['user-id'] ? new mongoose.Types.ObjectId(req.query['user-id']) : undefined,
-        tempId: req.query['temp-id'] ? new mongoose.Types.ObjectId(req.query['temp-id']) : undefined,
-        startDate: req.query['start-date'] ? new Date(req.query['start-date']) : undefined,
-        endDate: req.query['end-date'] ? new Date(req.query['end-date']) : undefined,
-        groupBy: req.query['group-by'],
+        userId: req.query['user_id'] ? new mongoose.Types.ObjectId(req.query['user_id']) : undefined,
+        tempId: req.query['temp_id'] ? new mongoose.Types.ObjectId(req.query['temp_id']) : undefined,
+        schID: req.query['sch_id'] ? new mongoose.Types.ObjectId(req.query['sch_id']) : undefined,
+        startDate: req.query['start_date'] ? new Date(req.query['start_date']) : undefined,
+        endDate: req.query['end_date'] ? new Date(req.query['end_date']) : undefined,
+        groupBy: req.query['group_by'],
         self: (req.query['self'] === 'true') ? true : false
     };
 
@@ -105,6 +106,15 @@ export async function getAllEquipmentLogs(req, res) {
                 }
             }
         });
+    }
+    if(queries.schID){
+        pipeline.push({
+            $match:{
+                sch_id: {
+                    $eq: queries.schID
+                }
+            }
+        })
     }
 
     const result = await EquipmentLogModel.aggregate(pipeline);

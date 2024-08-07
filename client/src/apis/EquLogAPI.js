@@ -5,7 +5,7 @@ import { defineCancelApiObject } from "./configs/axiosUtils.js";
 const EquLogAPI = {
 
 
-    async fetchAll(cancel = false, params ={}) {
+    async fetchAll(params ={}, cancel = false) {
         try {
             const response = await api.request({
                 url: '/log/equipment',
@@ -58,8 +58,9 @@ const EquLogAPI = {
   async update(id, data, cancel = false) {
         try {
             const response = await api.request({
-                url: '/log/equipment',
+                url: `/log/equipment/${id}`,
                 method: 'PATCH',
+                data,
                 signal: cancel
                     ? cancelApiObject[this.updateEqu.name].handleRequestCancellation().signal
                     : undefined,
@@ -98,7 +99,7 @@ const EquLogAPI = {
   handleError(error) {
         if (error.response) {
             console.error('Server responded with an error:', error.response.data);
-            throw new Error(error.response.data.payload || 'API request failed');
+            throw new Error(error.response.data.error._message || 'API request failed');
         } else if (error.request) {
             console.error('No response received:', error.request);
             throw new Error('No response received');

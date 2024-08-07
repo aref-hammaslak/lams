@@ -25,13 +25,9 @@ const EquipmentDetails = ({ eq_id }) => {
 	return (
 		<>
 			{equipment && eq_id && (
-				<Box className={" flex w-full  justify-center font "}>
-					<Box
-						className={
-							"flex flex-col justify-center sm:flex-row sm:justify-between sm:w-full py-4 overflow-y-auto bg-white w-[300px]    "
-						}
-					>
-						<Stack className="flex-1 px-4 bg-white rounded ">
+				<Box className={" flex flex-col  justify-center font mt-4 "}>
+
+						<Stack className="flex-1 bg-white rounded ">
 							{[
 								["Equipment Name", equipment.name],
 								["Manufacture", equipment.manufacture],
@@ -47,7 +43,7 @@ const EquipmentDetails = ({ eq_id }) => {
 								);
 							})}
 						</Stack>
-						<Stack className="flex-1 px-4 bg-white border-l rounded">
+						<Stack className="flex-1 bg-white rounded">
 							{[
 								["RSC Name", equipment.rsc_name],
 								["RSC Phone Number", equipment.rsc_phone],
@@ -63,7 +59,6 @@ const EquipmentDetails = ({ eq_id }) => {
 								);
 							})}
 						</Stack>
-					</Box>
 				</Box>
 			)}
 		</>

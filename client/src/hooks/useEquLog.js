@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import EquLogAPI from '../apis/EquLogAPI';
 
-const useEquLog = () => {
+const useEquLog = (logTempFilters) => {
   const api = EquLogAPI;
   const [equLogs, setEquLogs] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
@@ -17,16 +17,17 @@ const useEquLog = () => {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const fetchAllEquLogs = useCallback(async () => {
+
+  const fetchAllEquLogs = useCallback(async (params) => {
     setFetchLoading(true);
     setFetchError(null);
     try {
-      const data = await api.fetchAll();
+      const data = await api.fetchAll(params);
       setEquLogs(data);
-      enqueueSnackbar('EquLogs fetched successfully!', { variant: 'success' });
+      // enqueueSnackbar('EquLogs fetched successfully!', { variant: 'success' });
     } catch (err) {
       setFetchError(err.message);
-      enqueueSnackbar(`Error fetching equLogs: ${err.message}`, { variant: 'error' });
+      enqueueSnackbar(`Error fetching Logs: ${err.message}`, { variant: 'error' });
     } finally {
       setFetchLoading(false);
     }
@@ -35,13 +36,16 @@ const useEquLog = () => {
   const createEquLog = async (data) => {
     setCreateLoading(true);
     setCreateError(null);
+    
     try {
       const newEquLog = await api.create(data);
       setEquLogs((prev) => [...prev, newEquLog]);
-      enqueueSnackbar('EquLog created successfully!', { variant: 'success' });
+      enqueueSnackbar('Log created successfully!', { variant: 'success' });
+      return newEquLog;
     } catch (err) {
       setCreateError(err.message);
-      enqueueSnackbar(`Error creating entity: ${err.message}`, { variant: 'error' });
+      enqueueSnackbar(`Error creating log: ${err.message}`, { variant: 'error' });
+     
     } finally {
       setCreateLoading(false);
     }
@@ -53,12 +57,12 @@ const useEquLog = () => {
     try {
       const updatedEquLog = await api.update(id, data);
       setEquLogs((prev) =>
-        prev.map((entity) => (entity.id === id ? updatedEquLog : entity))
+        prev.map((log) => (log._id === id ? updatedEquLog : log))
       );
-      enqueueSnackbar('EquLog updated successfully!', { variant: 'success' });
+      enqueueSnackbar('Log updated successfully!', { variant: 'success' });
     } catch (err) {
       setUpdateError(err.message);
-      enqueueSnackbar(`Error updating entity: ${err.message}`, { variant: 'error' });
+      enqueueSnackbar(`Error updating log: ${err.message}`, { variant: 'error' });
     } finally {
       setUpdateLoading(false);
     }
@@ -67,21 +71,22 @@ const useEquLog = () => {
   const deleteEquLog = async (id) => {
     setDeleteLoading(true);
     setDeleteError(null);
+    let error = null;
     try {
       await api.delete(id);
-      setEquLogs((prev) => prev.filter((entity) => entity.id !== id));
-      enqueueSnackbar('EquLog deleted successfully!', { variant: 'success' });
+      setEquLogs((prev) => prev.filter((log) => log._id !== id));
+      enqueueSnackbar('Log deleted successfully!', { variant: 'success' });
     } catch (err) {
       setDeleteError(err.message);
-      enqueueSnackbar(`Error deleting entity: ${err.message}`, { variant: 'error' });
+      enqueueSnackbar(`Error deleting log: ${err.message}`, { variant: 'error' });
+      error = err;
     } finally {
       setDeleteLoading(false);
     }
+    return error;
   };
 
-  useEffect(() => {
-    fetchAllEquLogs();
-  }, [fetchAllEquLogs]);
+
 
   return {
     equLogs,

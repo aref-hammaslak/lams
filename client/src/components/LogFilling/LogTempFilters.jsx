@@ -11,8 +11,8 @@ const LogTempFilters = () => {
     const { logTempFilters, setLogTempFilters, setDisplayLogs } = useContext(logFillingContext);
 
     return (
-        <Box className={"w-[300px] flex p-8 justify-center flex-col  shadow-inner "}>
-            <Box className={" w-full "}>
+        <Box className={"w-[280px] flex py-6 px-8 justify-center flex-col  shadow-inner "}>
+            <Box >
                 <LogTemplateSelection
                    
                 />
@@ -21,7 +21,7 @@ const LogTempFilters = () => {
                 <SDEDForm
                 />
             </Box>
-            <Box>
+            {/* <Box>
                 <Button
                     type="submit"
                     variant="contained"
@@ -35,7 +35,7 @@ const LogTempFilters = () => {
                 >
                     Go!
                 </Button>
-            </Box>
+            </Box> */}
             <Box>
                 {logTempFilters?.eq_id && (
                     <EquipmentDetails eq_id={logTempFilters.eq_id} />

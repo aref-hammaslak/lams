@@ -13,18 +13,27 @@ import RenderActions from "./RenderActions";
 const DATE_FORMAT = 'YYYY-MM-DD';
 
 // Function to generate log rows based on the given initial date, end date, recurrence, and log template
-function generateLogRows(logTempFilters) {
-
+function generateLogRows(logTempFilters, equLogs , apiRef) {
+    
+    const ref = apiRef.current;
     const { startDate, endDate, logTemp } = logTempFilters;
     const { initial_date:initialDate , recurrence } = logTemp.schedule;
     const logRows = [];
     let currentDate = dayjs(initialDate);
 
-    while (currentDate.isBefore(dayjs(endDate).add(1, 'day'), 'day')) {
-
+    while (currentDate.isBefore(dayjs(endDate), 'day')) {
 
         //TODO check whether there is a log for currentDate then assign it into log object 
-        const log = {};
+        let log = {};
+        const matchedLog = equLogs.find(log =>  currentDate.isSame(dayjs(log.date), 'day'))
+        if (matchedLog) {
+            log = {
+                date: matchedLog.date,
+                items: matchedLog.items,
+                isLoged: true
+            }
+        }
+        
 
         //fill the rows with log data if there is no log for current date fill it with default icons
         const logItemElements = createLogItemElements(log, logTemp.items);
@@ -34,7 +43,10 @@ function generateLogRows(logTempFilters) {
             ...logItemElements,
         }
         logRow.id = logRows.length + 1;
-        logRow.isLoged = false;
+        logRow.isLoged = matchedLog ? true : false;
+
+        // assign the log database id to the row to be able to delete the log via _id
+        logRow._id = matchedLog?._id;
 
         currentDate = addRecurrence(currentDate, recurrence);
         //check the date be in the rage of provided

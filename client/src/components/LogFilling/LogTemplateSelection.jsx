@@ -16,9 +16,9 @@ function LogTemplateSelection() {
 	return (
 		<>
 
-			(<Box className={"flex gap-4 sm:justify-between font-[Roboto] justify-center flex-wrap "}>
+			<Box className={"flex gap-4  justify-center  flex-col"}>
 
-				<FormControl className={"w-[220px] bg-white "}>
+				<FormControl className={" bg-white "}>
 					<InputLabel id="">Choose Equipment</InputLabel>
 
 					<Select
@@ -39,7 +39,7 @@ function LogTemplateSelection() {
 						))}
 					</Select>
 				</FormControl>
-				<FormControl className={"w-[220px] bg-white "}>
+				<FormControl className={" bg-white "}>
 					<InputLabel >Choose Reccurenc</InputLabel>
 					<Select
 						value={logTempFilters.reccurence}
@@ -55,7 +55,7 @@ function LogTemplateSelection() {
 						))}
 					</Select>
 				</FormControl>
-				<FormControl className={"w-[220px] bg-white "}>
+				<FormControl className={" bg-white "}>
 					<InputLabel >Choose Schedule</InputLabel>
 					<Select
 						label="Choose an option"
@@ -72,7 +72,7 @@ function LogTemplateSelection() {
 						))}
 					</Select>
 				</FormControl>
-			</Box>)
+			</Box>
 
 		</>
 

@@ -11,13 +11,18 @@ import CancelIcon from "@mui/icons-material/Close";
 import { useContext } from "react";
 import { AlertContext } from "../../contexts/AlertProvider";
 import { useSnackbar } from "notistack";
+import { logFillingContext } from "../../contexts/LogFillingProvider";
+import useEquLog from "../../hooks/useEquLog";
 
 const RenderActions = ({ row, apiRef, ...params }) => {
   const alertState = useContext(AlertContext);
   const { enqueueSnackbar } = useSnackbar();
+  const { logTempFilters, equLog } = useContext(logFillingContext);
+  const { items: logItems, _id: temp_id, schedule, startDate, endDate } = logTempFilters.logTemp;
+
+  const { createEquLog, updateEquLog, createError, deleteEquLog, deleteError } = equLog;
   const ref = apiRef.current;
   const rowMode = row.mode;
-
   const getUndefinedRow = useCallback(() => {
     const undefinedRow = {};
     ref.getAllColumns()
@@ -29,13 +34,55 @@ const RenderActions = ({ row, apiRef, ...params }) => {
     return undefinedRow;
   }, [ref]);
 
-  const handleSave = useCallback(() => {
-    row.isLoged = true;
-    ref.updateRows([{ id: row.id, mode: "view" }]);
-    ref.stopRowEditMode({ id: row.id });
-    const serverAction = row.action;
+  const handleSave = useCallback(async () => {
+    const updatedRow = ref.getRowWithUpdatedValues(row.id);
 
-    enqueueSnackbar(`Log ${serverAction}ed successfully`, { variant: "success" });
+    const labels = logItems.map(item => item.label);
+    const items = {}
+    labels.forEach(label => {
+      items[label] = updatedRow[label];
+    })
+    const data = {
+      date: updatedRow.date,
+      sch_id: schedule._id,
+      temp_id,
+      items
+
+    }
+    const serverAction = row.action;
+    switch (serverAction) {
+      case 'create':{
+        const newLog = await createEquLog(data);
+        if (newLog) {
+          ref.updateRows([{ id: row.id, _id: newLog._id, mode: "view", isLoged: true }]);
+          ref.stopRowEditMode({ id: row.id });
+        } else {
+          ref.updateRows([{ id: row.id, mode: "view", isLoged: false }]);
+          ref.stopRowEditMode({ id: row.id, ignoreModifications: true });
+        }
+        break;
+      }
+      case 'update': {
+        const newLog = await updateEquLog(row._id,data);
+        if (newLog) {
+          ref.stopRowEditMode({ id: row.id });
+        } else {
+          ref.stopRowEditMode({ id: row.id, ignoreModifications: true });
+        }
+        ref.updateRows([{ id: row.id, mode: "view"}]);
+        break;
+      }
+      default:
+        break;
+    }
+
+
+
+
+
+
+
+
   }, [enqueueSnackbar, ref, row]);
 
   const handleCancel = useCallback(() => {
@@ -43,19 +90,27 @@ const RenderActions = ({ row, apiRef, ...params }) => {
     ref.updateRows([{ id: row.id, mode: "view" }]);
   }, [ref, row.id]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     const undefinedRow = getUndefinedRow();
-    ref.updateRows([
-      {
-        ...undefinedRow,
-        id: row.id,
-        isLoged: false,
-        mode: "view",
-        date: row.date,
-      },
-    ]);
-    enqueueSnackbar("Log deleted successfully", { variant: "error" });
-  }, [getUndefinedRow, ref]);
+
+    const error = await deleteEquLog(row._id);
+    console.log(row);
+    console.error(error);
+    if (error == null) {
+      console.log('update')
+      ref.updateRows([
+        {
+          ...undefinedRow,
+          id: row.id,
+          edited: true,
+          isLoged: false,
+          mode: "view",
+          date: row.date,
+        },
+      ]);
+    }
+
+  }, [deleteEquLog, getUndefinedRow, ref, row]);
 
   const handleEdit = useCallback(() => {
     ref.startRowEditMode({ id: row.id });

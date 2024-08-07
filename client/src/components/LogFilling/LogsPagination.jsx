@@ -10,29 +10,44 @@ import { logFillingContext } from "../../contexts/LogFillingProvider";
 
 
 const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs } = useContext(logFillingContext);
+	const { logTempFilters, displayLogs, equLog, loading } = useContext(logFillingContext);
+	const { fetchAllEquLogs, equLogs, fetchLoading, deleteError, deleteLoading, updateLoading, createLoading } = equLog;
+	const { _id: temp_id, schedule, startDate, endDate } = logTempFilters?.logTemp ?? {};
 
-	
+	const fecthQueryParams = {
+		temp_id,
+		sch_id: schedule?._id,
+		start_date: startDate,
+		end_date: endDate
+	}
+
+	useEffect(() => {
+		fetchAllEquLogs(fecthQueryParams);
+	}, [logTempFilters]);
+
 	const apiRef = useGridApiRef();
 
 	const rows = useMemo(() => {
-		if (!displayLogs) return [];
-		return generateLogRows(logTempFilters)
-	}, [displayLogs, logTempFilters]);
+
+		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef);
+		return [];
+	}, [equLogs, deleteError]);
 
 	const columns = useMemo(() => {
 		let columnsData = [
 			{ label: 'Date', type: 'date' },
 			{ label: 'actions', type: 'actions' }
 		];
-
-		if(displayLogs) {
-			columnsData = [
-				columnsData[0],
-				...logTempFilters.logTemp.items,
-				columnsData[1]
-			]
+		if (!logTempFilters.logTemp) {
+			// if (!displayLogs) return [];
+			return columnsData;
 		}
+		columnsData = [
+			columnsData[0],
+			...logTempFilters.logTemp.items,
+			columnsData[1]
+		]
+
 		return generateLogColumns(columnsData, apiRef);
 	}, [apiRef, displayLogs, logTempFilters.logTemp?.items])
 
@@ -55,13 +70,31 @@ const LogsPagination = (props) => {
 		let className = "h-auto overflow-hidden ";
 		return className;
 	};
-	
+
 	return (
 		<Grid className={" outline-none h-[75vh] "} item width="inherit">
 			<DataGrid
 				apiRef={apiRef}
 				columns={columns}
 				density="standard"
+				loading={fetchLoading || deleteLoading || createLoading || updateLoading|| loading}
+				emptyRowsMessage={loading ? "Loading..." : "No Logs found"}
+
+
+				slotProps={{
+					loadingOverlay: {
+						variant: 'linear-progress',
+						noRowsVariant: 'skeleton',
+					},
+					noRowsOverlay:{
+						children: fetchLoading ? <sapn>Loading...</sapn> : <span>
+							No log found
+						</span>
+					}
+						
+
+
+				}}
 				rows={rows}
 				getRowHeight={() => 65}
 				className={""}

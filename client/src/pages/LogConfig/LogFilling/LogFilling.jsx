@@ -10,10 +10,11 @@ import { GridFilterAltIcon } from "@mui/x-data-grid";
 import LogTempFilters from "../../../components/LogFilling/LogTempFilters";
 import LogFillingProvider from "../../../contexts/LogFillingProvider";
 import { logFillingContext } from "../../../contexts/LogFillingProvider";
+import { GridCloseIcon } from "@mui/x-data-grid";
 
 function LogFilling() {
 
-	const { setIsDrawerOpen, isDrawerOpen } = useContext(logFillingContext)
+	const { setIsDrawerOpen, isDrawerOpen, loading } = useContext(logFillingContext)
 
 	const toggleDrawer = (newOpen) => () => {
 		setIsDrawerOpen(newOpen);
@@ -44,10 +45,12 @@ function LogFilling() {
 				open={isDrawerOpen}
 				onClose={toggleDrawer(false)}
 			>
+				<GridCloseIcon onClick={() => setIsDrawerOpen(false)} sx={{width:30, height:30, m:1}}/>
 				<LogTempFilters />
 			</Drawer>
 			<Box className={"bg-white mt-4  "}>
-				<LogsPagination />
+				{ <LogsPagination />}
+				
 			</Box>
 		</Box>
 

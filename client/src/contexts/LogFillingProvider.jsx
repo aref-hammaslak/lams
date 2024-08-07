@@ -2,6 +2,7 @@
 import React from 'react'
 import { useState , createContext} from 'react';
 import useLogTemp from '../hooks/useLogTemp';
+import useEquLog from '../hooks/useEquLog';
 
 
 
@@ -13,9 +14,12 @@ const LogFillingProvider = ({children}) => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const [displayLogs, setDisplayLogs] = useState(false);
 	const { equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading, } = useLogTemp(logTempFilters, setLogTempFilters);
+  const equLog = useEquLog(logTempFilters);
+
+
   return (
     <logFillingContext.Provider value={{ logTempFilters, setLogTempFilters, equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading,
-        isDrawerOpen, setIsDrawerOpen,displayLogs, setDisplayLogs
+        isDrawerOpen, setIsDrawerOpen,displayLogs, setDisplayLogs, equLog
      }} >
     {children}
     </logFillingContext.Provider>
