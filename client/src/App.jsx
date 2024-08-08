@@ -22,12 +22,20 @@ import UserProfile from "./pages/UserProfile/UserProfile";
 import Scheduler from "./pages/Scheduler";
 import Users from "./pages/Users";
 import LogFillingProvider from "./contexts/LogFillingProvider.jsx";
+import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
+import { LogLayout } from "./layouts/LogLayout/LogLayout.jsx";
+
+const ROLES = {
+	admin: 2005,
+	supervisor: 1923,
+	staff: 1001
+}
 
 function App() {
 	return (
 		<>
 			<Routes>
-				<Route element={<RequireAuth />}>
+				<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor, ROLES.staff]} />}>
 					<Route
 						path="calendar"
 						element={
@@ -38,41 +46,44 @@ function App() {
 					/>
 					<Route path="/" element={<RootLayout />}>
 						<Route path="home" element={<Home />} />
-						<Route path="laboratory" element={<AdminLabs />} />
-						<Route path="adminprofile" element={<AdminProfile />} />
-						<Route path="lab">
-							<Route path="users" element={<UserProfile />} />
-							<Route path="schedule" element={<Scheduler />} />
-						</Route>
-						<Route path="settings">
-							<Route path="equipment" element={<Equipment />} />
-							<Route path="department" element={<Department />} />
-							<Route path="surface" element={<Surface />} />
-							<Route path="thermometer" element={<Thermometer />} />
+						<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor]} />} >
+							<Route element={<RequireAuth allowedRolse={[ROLES.admin]} />}>	
+								
+								<Route path="laboratory" element={<AdminLabs />} />
+								<Route path="adminprofile" element={<AdminProfile />} />
+							</Route>
+							<Route path="lab">
+								<Route path="users" element={<UserProfile />} />
+								<Route path="schedule" element={<Scheduler />} />
+							</Route>
+							<Route path="settings">
+								<Route path="equipment" element={<Equipment />} />
+								<Route path="department" element={<Department />} />
+								<Route path="surface" element={<Surface />} />
+								<Route path="thermometer" element={<Thermometer />} />
+							</Route>
 						</Route>
 
 						<Route path="users2/*" element={<Users />} />
-						<Route path="log">
-							<Route path="config" element={<LogConfig />} />
+						<Route path="log" >
+							<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor]} />} >
+								<Route path="autolog" element={<AutoLog />} />
+								<Route path="config" element={<LogConfig />} />
+								<Route />
+							</Route>
 							<Route path="logfilling" element={<LogFillingProvider>
 								<LogFilling />
 							</LogFillingProvider>} />
-							<Route path="autolog" element={<AutoLog />} />
-						</Route>
 
-						<Route path="management">
-							<Route path="calibration" element={<Calibration />} />
-							<Route path="pmservice" element={<PMService />} />
-						</Route>
-						<Route path="report">
-							<Route path="surface-report" element={<Reports />} />
 						</Route>
 					</Route>
 				</Route>
 
+
 				{/* PUBLIC ROUTES */}
 				<Route path="/login" element={<Login />} />
 				{/*<Route path="*" element={<NotFound />} /> */}
+				<Route path="/unauthorized" element={<Unauthorized />} />
 			</Routes>
 		</>
 	);

@@ -1,4 +1,3 @@
-import Navbar from "../../components/Navbar/Navbar.jsx";
 import {Outlet} from "react-router-dom";
 import { Breadcrumbs, Link } from "@mui/material";
 
