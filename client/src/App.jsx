@@ -24,12 +24,8 @@ import Users from "./pages/Users";
 import LogFillingProvider from "./contexts/LogFillingProvider.jsx";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { LogLayout } from "./layouts/LogLayout/LogLayout.jsx";
+import {ROLES} from "./consts/index.js"
 
-const ROLES = {
-	admin: 2005,
-	supervisor: 1923,
-	staff: 1001
-}
 
 function App() {
 	return (

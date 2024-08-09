@@ -13,7 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import useAuth from "../../hooks/useAuth.js";
 import { LabAPI } from "../../apis/LabAPI.js";
@@ -124,7 +124,7 @@ export const Navbar = () => {
 		setReportAnchorEl(null);
 	};
 	return (
-		<AppBar position="static">
+		<AppBar position="static" className="bg-blue-600">
 			<Container maxWidth="endregion">
 				<Toolbar disableGutters>
 					<BiotechIcon
@@ -386,6 +386,8 @@ export const Navbar = () => {
 						</Button>
 					</Box>
 					{/* <Box sx={{ flexGrow: 0 }}> */}
+
+					{/* user profile and logout button*/}
 					<Box sx={{ display: "flex", alignItems: "center" }}>
 						<Typography
 							variant="h6"
