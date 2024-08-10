@@ -21,7 +21,6 @@ const EquipmentDetails = ({ eq_id }) => {
 		fetchData();
 
 	}, [eq_id]);
-
 	return (
 		<>
 			{equipment && eq_id && (

@@ -37,6 +37,9 @@ export function isDateInSchedule(schedule, date) {
         const endDate = (schedule.end_date) ? moment(schedule.end_date) : null;
         let interval = m.recur(m, endDate);
         switch (schedule.recurrence) {
+            case 'daily':
+                interval = interval.every(1).day();
+                break;
             case 'weekly':
                 interval = interval.every(1).week();
                 break;

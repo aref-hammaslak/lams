@@ -211,6 +211,9 @@ function expandAssignment(val, startDate, endDate, raw = false, includeId = fals
 
         let interval = m.recur(null, moment(endDate));
         switch (val.recurrence) {
+            case 'daily':
+                interval = interval.every(1).day();
+                break;
             case 'weekly':
                 // const end = moment(new Date(val.initial_date.getFullYear(), val.initial_date.getMonth() + 1, 0));
                 // interval = m.recur(null, end).every(1).week();

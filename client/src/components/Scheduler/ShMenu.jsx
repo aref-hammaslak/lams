@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 
 const LOG_TYPE = [
 	'Daily',
+	'weekly',
 	'Monthly',
 	'Quarterly',
 	'Semiannually',
@@ -232,7 +233,7 @@ export const ShMenu = ({ date, item, onSubmit, onClose }) => {
 						required: true
 					}}
 				>
-					<ToggleButton value={'none'}>Once</ToggleButton>
+					<ToggleButton value={'daily'}>Daily</ToggleButton>
 					<ToggleButton value={'weekly'} color='primary'>Weekly</ToggleButton>
 					<ToggleButton value={'monthly'} color='secondary'>Monthly</ToggleButton>
 					<ToggleButton value={'quarterly'} color='warning'>Quarterly</ToggleButton>

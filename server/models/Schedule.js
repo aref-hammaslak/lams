@@ -38,7 +38,7 @@ const scheduleSchema = new mongoose.Schema({
          * - annually: recur + 1yr
          */
         type: String,
-        enum: ['weekly', 'monthly', 'quarterly', 'semiannually', 'annually'],
+        enum: ['daily', 'weekly', 'monthly', 'quarterly', 'semiannually', 'annually'],
     },
     offsets: [offsetSchema]
 });
