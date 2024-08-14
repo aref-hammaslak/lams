@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { catchAsync } from "../utils/catchAsync.js";
 import auth, { isLoggedIn, isAdmin, isSup } from '../middlewares/auth.js';
+import userTaskRouter from './userTaskRoute.js'
 
 import {
     getAll, getUser,
@@ -25,6 +26,8 @@ const upload = multer({
     fileFilter,
     limits
 });
+
+router.use('/task', userTaskRouter);
 
 router.get('/', isLoggedIn, isSup, catchAsync(getAll))
     .post('/login', auth, login)
