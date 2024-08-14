@@ -3,6 +3,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import passportLocalMongoose from 'passport-local-mongoose';
 
+
 const userSchema = new Schema({
     name: String,
     position: String,
@@ -75,4 +76,5 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+export {userSchema, User}
 export default User;
