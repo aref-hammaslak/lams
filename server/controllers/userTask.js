@@ -17,7 +17,7 @@ export const getAllUserTasks = async (req, res) => {
         // Send the fetched user tasks as a response
         res.status(200).json({
             success: true,
-            data: userTasks,
+            payload: userTasks,
             message: "User tasks fetched successfully"
         });
     } catch (error) {
@@ -49,7 +49,7 @@ export const getUserTaskById = async (req, res) => {
         if (userTasks.length === 0) {
             // If the user task is not found, send a not found response
             return res.status(200).json({
-                success: false,
+                success: true,
                 data:[],
                 message: "No tasks found",
             });
@@ -58,7 +58,7 @@ export const getUserTaskById = async (req, res) => {
         // Send the fetched user task as a response
         res.status(200).json({
             success: true,
-            data: userTasks,
+            payload: userTasks,
             message: "User task fetched successfully",
         });
     } catch (error) {
