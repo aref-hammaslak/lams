@@ -235,8 +235,10 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
                 _id: 0,
                 user: "$_id",
                 schedulemaps: 1
+                     
             }
         }
+
 
     ];
     try {
@@ -267,19 +269,10 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
         },
         {
             $match: {
-                "schedulemaps.date": { $gte: startDate, $lte: endDate },
-            }
-        },
-        {
-            $group: {
-                _id: {
-                    _id: "$_id",
-                    name: "$name",
-                    username: "$username",
-                    lab_id: "$lab_id",
-                },
-
-                schedulemaps: { $push: "$schedulemaps" },
+                "schedulemaps.date": {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+},
             }
         },
         {
@@ -288,11 +281,48 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
                 user: {
                     _id: "$_id",
                     name: "$name",
-                    username: "$username",
+                    username: "$username"
                 },
                 schedulemaps: 1
             }
+        },
+        { $unwind: "$schedulemaps.tasks" },
+
+        // Project necessary fields
+        {
+            $project: {
+                date: "$schedulemaps.date",
+                // user: "$user",
+                // task: "$schedulemaps.tasks"
+                task: {
+                    user: "$user",
+                    eq_sch: "$schedulemaps.tasks.eq_sch",
+                    log_temp: "$schedulemaps.tasks.log_temp",
+                    eq_details:"$schedulemaps.tasks.eq_details",
+                    done: "$schedulemaps.tasks.done"
+                }
+            }
+        },
+
+        // Group by date and user
+        {
+            $group: {
+                _id: {
+                    date: "$date",
+                },
+                tasks: { $push: "$task" }
+            }
+        },
+
+        // Final formatting of the output document
+        {
+            $project: {
+                _id: 0,
+                date: { $toDate: "$_id.date" },  // Convert string to Date object
+                tasks: 1
+            }
         }
+
     ];
 
     try {

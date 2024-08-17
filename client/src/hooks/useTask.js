@@ -4,13 +4,13 @@ import { userTaskAPI } from '../apis/userTaskAPI';
 import dayjs from 'dayjs';
 import useAuth from './useAuth';
 
-const useTask = ({isAdmin}) => {
+const useTask = ({ isAdmin }) => {
   const { days, setDays, currDate } = useContext(DayContext);
   const [loading, setLoading] = useState(false);
   const [tasksmap, setTasksmap] = useState([]);
-  const [labID, setLabID] = useState(null);
-  // const { user_id } = useAuth();
-  const user_id = '66af4cb82e3da1ed76442b7b'
+  // const [labID, setLabID] = useState(null);
+  const { lab_id } = useAuth();
+  const user_id = '66af4cb82e3da1ed76442b7b';
 
 
   useEffect(() => {
@@ -18,33 +18,40 @@ const useTask = ({isAdmin}) => {
       setLoading(true);
       const sm = currDate.startOf('month');
       const sc = sm.subtract(sm.weekday(), 'day');
-      const params= {
+      const params = {
         startDate: sc.toDate(),
         endDate: sc.add(42, 'day').toDate(),
       }
-      let userTasks ;
+      let userTasks;
       if (isAdmin) {
-        params.lab_id = labID
-        userTasks = await userTaskAPI.fetchById(user_id, params);
-      } else {
+        params.lab_id = lab_id;
         userTasks = await userTaskAPI.fetchAllInLab(params);
+        setTasksmap(userTasks);
+        console.log(userTasks)
+
+      } else {
+        userTasks = await userTaskAPI.fetchById(user_id, params);
+        setTasksmap(userTasks?.schedulemaps);
       }
 
-      setTasksmap(userTasks.schedulemaps)
     }
-    fetchTasks();
+    try {
+      fetchTasks();
+    } catch (error) {
+      console.error(error);
+    }
 
-  }, [currDate , labID]);
+  }, [currDate]);
 
   useEffect(() => {
-    if (!tasksmap) return;
+    if (!tasksmap) return setLoading(false);
     const daysmap = new Map();
     let i = 0;
     days.forEach((dayValue, day) => {
       const dayTasks = tasksmap.find(tasksDay => {
         return dayjs(day).isSame(dayjs(tasksDay.date), 'day');
       })
-      
+
       const mute = ((dayValue.date.date() > 24 && i < 8) || (dayValue.date.date() < 13 && i > 24)) ? true : false;
       i++;
       daysmap.set(day, {
@@ -57,7 +64,7 @@ const useTask = ({isAdmin}) => {
 
     setDays(daysmap);
     setLoading(false);
-  }, [tasksmap])
+  }, [tasksmap, currDate])
 
 
 
