@@ -38,19 +38,20 @@ export const getUserTaskById = async (req, res) => {
 
    try {
         // Fetch the user task with the given ID from the database
-        // const userTask = await UserTask.aggregate(pipline);
+       // const userTask = await UserTask.aggregate(pipline);
+
        const userTasks = await UserTask.getUserTasksById(id, {
            startDate: req.query.startDate,
            endDate: req.query.endDate,
            lab_id
        });
-       console.log(userTasks)
+       console.log(req.query.endDate)
 
         if (userTasks.length === 0) {
             // If the user task is not found, send a not found response
             return res.status(200).json({
                 success: true,
-                data:[],
+                data:{},
                 message: "No tasks found",
             });
         }

@@ -196,8 +196,9 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
 
     const { startDate = firstDayOfMonth, endDate = lastDayOfMonth, lab_id } = options;
 
-    console.log(startDate, endDate);
-
+    if (!moment(startDate).isValid() && !moment(endDate).isValid()) {
+        throw new Error('Invalid date provided');
+    }
     const pipline = [
         {
             $match: {
@@ -211,7 +212,10 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
         },
         {
             $match: {
-                "schedulemaps.date": { $gte: startDate, $lte: endDate },
+                "schedulemaps.date": {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+                },
             }
         },
         {
