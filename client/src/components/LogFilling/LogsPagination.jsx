@@ -10,7 +10,7 @@ import { logFillingContext } from "../../contexts/LogFillingProvider";
 
 
 const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs, equLog, loading } = useContext(logFillingContext);
+	const { logTempFilters, displayLogs, equLog, loading, navigatedFromDashboard } = useContext(logFillingContext);
 	const { fetchAllEquLogs, equLogs, fetchLoading, deleteError, deleteLoading, updateLoading, createLoading } = equLog;
 	const { _id: temp_id, schedule, startDate, endDate } = logTempFilters?.logTemp ?? {};
 
@@ -118,6 +118,7 @@ const LogsPagination = (props) => {
 						paginationModel: { pageSize: 25 },
 					},
 				}}
+				hideFooter={navigatedFromDashboard}
 			/>
 		</Grid>
 

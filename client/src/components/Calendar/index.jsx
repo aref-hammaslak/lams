@@ -1,2 +1,2 @@
-import {Calendar} from './Calendar.jsx';
-export {Calendar};
+import { Calendar } from './Calendar.jsx';
+export { Calendar  };

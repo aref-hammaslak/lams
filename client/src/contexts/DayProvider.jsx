@@ -39,7 +39,7 @@ function generateDays(date) {
 	return days;
 }
 
-export const DayProvider = ({ date }) => {
+export const DayProvider = ({ children,  date  }) => {
 	const [days, setDays] = useState(generateDays(dayjs(date)));
 	const [currDate, setCurrDate] = useState(dayjs(date));
 
@@ -55,7 +55,8 @@ export const DayProvider = ({ date }) => {
 	}
 
 	return (
-		<DayContext.Provider value={{ days, currDate, setDays, nextMonth, prevMonth }}>
+		<DayContext.Provider value={{ days, currDate, setCurrDate, setDays, nextMonth, prevMonth }}>
+			{children}
 			<Outlet />
 		</DayContext.Provider>
 	)

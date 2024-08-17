@@ -24,7 +24,8 @@ import Users from "./pages/Users";
 import LogFillingProvider from "./contexts/LogFillingProvider.jsx";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { LogLayout } from "./layouts/LogLayout/LogLayout.jsx";
-import {ROLES} from "./consts/index.js"
+import { ROLES } from "./consts/index.js"
+import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 
 
 function App() {
@@ -40,11 +41,13 @@ function App() {
 							</Box>
 						}
 					/>
+
 					<Route path="/" element={<RootLayout />}>
+						<Route path="/" element={<Dashboard />} />
 						<Route path="home" element={<Home />} />
 						<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor]} />} >
-							<Route element={<RequireAuth allowedRolse={[ROLES.admin]} />}>	
-								
+							<Route element={<RequireAuth allowedRolse={[ROLES.admin]} />}>
+
 								<Route path="laboratory" element={<AdminLabs />} />
 								<Route path="adminprofile" element={<AdminProfile />} />
 							</Route>
@@ -67,10 +70,7 @@ function App() {
 								<Route path="config" element={<LogConfig />} />
 								<Route />
 							</Route>
-							<Route path="logfilling" element={<LogFillingProvider>
-								<LogFilling />
-							</LogFillingProvider>} />
-
+							<Route path="logfilling" element={<LogFilling />}/>
 						</Route>
 					</Route>
 				</Route>

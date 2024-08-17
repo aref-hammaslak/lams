@@ -11,14 +11,26 @@ import LogTempFilters from "../../../components/LogFilling/LogTempFilters";
 import LogFillingProvider from "../../../contexts/LogFillingProvider";
 import { logFillingContext } from "../../../contexts/LogFillingProvider";
 import { GridCloseIcon } from "@mui/x-data-grid";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { useNavigate } from "react-router-dom";
 
 function LogFilling() {
 
-	const { setIsDrawerOpen, isDrawerOpen, loading } = useContext(logFillingContext)
+	const { setIsDrawerOpen, isDrawerOpen, loading, navigatedFromDashboard, setNavigatedFromDashboard } = useContext(logFillingContext)
+	const navigate = useNavigate();
+
+
 
 	const toggleDrawer = (newOpen) => () => {
 		setIsDrawerOpen(newOpen);
 	};
+
+	useEffect(() => {
+		return () => {
+			// if (navigatedFromDashboard) setNavigatedFromDashboard(false);
+		};
+	}, []);
+
 
 	return (
 
@@ -28,16 +40,26 @@ function LogFilling() {
 			}
 		>
 			<div className={"rounded-full mb-4"}>
-				<Tooltip title={"filters"}>
-					<Button
+				{
+					!navigatedFromDashboard ? (<Button
 						endIcon={<GridFilterAltIcon />}
 						className={" "}
 						variant="contained"
 						onClick={toggleDrawer(true)}
 					>
 						Filters
+					</Button>) : (<Button
+						startIcon={<ArrowBackIosIcon />}
+						className={" "}
+						variant="contained"
+						onClick={() => navigate('/')}
+					>
+						back to dashboard
 					</Button>
-				</Tooltip>
+
+					)
+				}
+
 			</div>
 			<Drawer
 				anchor="right"
@@ -45,12 +67,12 @@ function LogFilling() {
 				open={isDrawerOpen}
 				onClose={toggleDrawer(false)}
 			>
-				<GridCloseIcon onClick={() => setIsDrawerOpen(false)} sx={{width:30, height:30, m:1}}/>
+				<GridCloseIcon onClick={() => setIsDrawerOpen(false)} sx={{ width: 30, height: 30, m: 1 }} />
 				<LogTempFilters />
 			</Drawer>
 			<Box className={"bg-white mt-4  "}>
-				{ <LogsPagination />}
-				
+				{<LogsPagination />}
+
 			</Box>
 		</Box>
 
