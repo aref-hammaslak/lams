@@ -1,3 +1,3 @@
 import {Navbar} from './Navbar.jsx';
-import StaffNavbar from './StaffNavbar.jsx';
-export {Navbar , StaffNavbar};
+import NewNavbar from './NewNavbar.jsx';
+export {Navbar , NewNavbar};
