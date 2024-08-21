@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useCallback, useEffect, useReducer, useState } from "react";
 import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 import { Outlet } from "react-router-dom";
@@ -28,30 +28,32 @@ export class DayMap extends Map {
 	}
 }
 
-function generateDays(date) {
-	const days = new DayMap();
-	const sm = date.startOf('month');
-	const sc = sm.subtract(sm.weekday(), 'day');
-	for (let i = 0; i < 42; i++) {
-		const day = sc.add(i, 'day');
-		days.set(day, { date: day });
-	}
-	return days;
-}
 
-export const DayProvider = ({ children,  date  }) => {
+
+export const DayProvider = ({ children, date }) => {
+
+	const generateDays = useCallback(function (date) {
+		const days = new DayMap();
+		const sm = date.startOf('month');
+		const sc = sm.subtract(sm.weekday(), 'day');
+		for (let i = 0; i < 42; i++) {
+			const day = sc.add(i, 'day');
+			days.set(day, { date: day });
+		}
+		return days;
+	},[])
 	const [days, setDays] = useState(generateDays(dayjs(date)));
 	const [currDate, setCurrDate] = useState(dayjs(date));
 
 	useEffect(() => {
-		setDays( generateDays(currDate) )
+		setDays(generateDays(currDate))
 	}, [currDate]);
 
 	const prevMonth = () => {
-		setCurrDate( currDate.subtract(1, 'month') );
+		setCurrDate(currDate.subtract(1, 'month'));
 	}
 	const nextMonth = () => {
-		setCurrDate( currDate.add(1, 'month') );
+		setCurrDate(currDate.add(1, 'month'));
 	}
 
 	return (

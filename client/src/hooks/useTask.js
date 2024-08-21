@@ -8,14 +8,13 @@ const useTask = ({ isAdmin }) => {
   const { days, setDays, currDate } = useContext(DayContext);
   const [loading, setLoading] = useState(false);
   const [tasksmap, setTasksmap] = useState([]);
-  // const [labID, setLabID] = useState(null);
-  const { lab_id } = useAuth();
-  const user_id = '66af4cb82e3da1ed76442b7b';
+  const { lab_id, _id } = useAuth();
+  const user_id = _id;
 
 
   useEffect(() => {
     async function fetchTasks() {
-      setLoading(true);
+      
       const sm = currDate.startOf('month');
       const sc = sm.subtract(sm.weekday(), 'day');
       const params = {
@@ -27,7 +26,6 @@ const useTask = ({ isAdmin }) => {
         params.lab_id = lab_id;
         userTasks = await userTaskAPI.fetchAllInLab(params);
         setTasksmap(userTasks);
-        console.log(userTasks)
 
       } else {
         userTasks = await userTaskAPI.fetchById(user_id, params);
@@ -35,7 +33,9 @@ const useTask = ({ isAdmin }) => {
       }
 
     }
+    
     try {
+      setLoading(true);
       fetchTasks();
     } catch (error) {
       console.error(error);
@@ -60,11 +60,10 @@ const useTask = ({ isAdmin }) => {
         date: dayValue.date,
       })
     });
-    console.log(daysmap)
 
     setDays(daysmap);
     setLoading(false);
-  }, [tasksmap, currDate])
+  }, [tasksmap])
 
 
 

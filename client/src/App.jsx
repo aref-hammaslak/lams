@@ -14,63 +14,43 @@ import Thermometer from "./pages/LabManagement/Termometer";
 import Calibration from "./pages/Management/Calibration/Calibration";
 import PMService from "./pages/Management/PMService/PMService";
 import Reports from "./pages/Reports/Reports";
-import LogFilling from "./pages/LogConfig/LogFilling/LogFilling";
+import LogFilling from "./pages/log/LogFilling/";
 import AutoLog from "./pages/LogConfig/AutoLog/AutoLog";
 import { Calendar } from "./components/Calendar";
 import { Box } from "@mui/material";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Scheduler from "./pages/Scheduler";
 import Users from "./pages/Users";
-import LogFillingProvider from "./contexts/LogFillingProvider.jsx";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
-import { LogLayout } from "./layouts/LogLayout/LogLayout.jsx";
 import { ROLES } from "./consts/index.js"
-import Dashboard from "./pages/Dashboard/Dashboard.jsx";
-
-
+import { LogsAssignment } from "./pages/log/LogsAssignment.jsx";
 function App() {
 	return (
 		<>
 			<Routes>
 				<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor, ROLES.staff]} />}>
-					<Route
-						path="calendar"
-						element={
-							<Box margin="5rem" height="90vh">
-								<Calendar />
-							</Box>
-						}
-					/>
+
 
 					<Route path="/" element={<RootLayout />}>
-						<Route path="/" element={<Dashboard />} />
-						<Route path="home" element={<Home />} />
-						<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor]} />} >
-							<Route element={<RequireAuth allowedRolse={[ROLES.admin]} />}>
+						<Route path="" element={<Home />} />
+						<Route path="profile" element={<AdminProfile />} />
+						<Route path="schedule" element={<Scheduler />} />
+						<Route path="setting">
+							<Route path="staff" element={<UserProfile />} />
+							<Route path="laboratory" element={<AdminLabs />} />
 
-								<Route path="laboratory" element={<AdminLabs />} />
-								<Route path="adminprofile" element={<AdminProfile />} />
-							</Route>
-							<Route path="lab">
-								<Route path="users" element={<UserProfile />} />
-								<Route path="schedule" element={<Scheduler />} />
-							</Route>
-							<Route path="settings">
-								<Route path="equipment" element={<Equipment />} />
-								<Route path="department" element={<Department />} />
-								<Route path="surface" element={<Surface />} />
-								<Route path="thermometer" element={<Thermometer />} />
-							</Route>
+							<Route path="equipment" element={<Equipment />} />
+							<Route path="department" element={<Department />} />
+							<Route path="surface" element={<Surface />} />
+							<Route path="thermometer" element={<Thermometer />} />
 						</Route>
 
 						<Route path="users2/*" element={<Users />} />
 						<Route path="log" >
-							<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor]} />} >
-								<Route path="autolog" element={<AutoLog />} />
-								<Route path="config" element={<LogConfig />} />
-								<Route />
-							</Route>
-							<Route path="logfilling" element={<LogFilling />}/>
+							<Route path="auto-fill" element={<AutoLog />} />
+							<Route path="config" element={<LogConfig />} />
+							<Route path="status" element={<LogsAssignment />} />
+							<Route path="fill" element={<LogFilling />} />
 						</Route>
 					</Route>
 				</Route>

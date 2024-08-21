@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { LogTmpAPI } from '../apis/LogTmpAPI';
 import { reccurencs } from '../consts';
+import { SliderValueLabel } from '@mui/material';
+import dayjs from 'dayjs';
 
 const useLogTemp = (logTempFilters, setLogTempFilters) => {
     const [scheduledLogTemps, setScheduledLogTemps] = useState(null);
@@ -41,6 +43,7 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
     }
 
     const updateSetDefaults = ({ type, value, data }) => {
+        
 
         switch (type) {
             case 0: {
@@ -60,13 +63,18 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
 
                 setLogSchedules(logSchedules);
 
+                const { startDate, endDate } = getDefaultDate({
+                    initial_date: logSchedules[0].schedule.initial_date,
+                    end_date: logSchedules[0].schedule.end_date
+                })
+
                 setLogTempFilters({
                     ...logTempFilters,
                     equipment: equipments[0],
                     reccurence: types[0],
                     logTemp: logSchedules[0],
-                    startDate: logSchedules[0].schedule.initial_date,
-                    endDate: logSchedules[0].schedule.end_date,
+                    startDate,
+                    endDate,
                     eq_id: findEquipmentId(equipments[0], data)
                 });
                 break;
@@ -84,14 +92,19 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
 
                 setLogSchedules(logSchedules);
 
+                const { startDate, endDate } = getDefaultDate({
+                    initial_date: logSchedules[0].schedule.initial_date,
+                    end_date: logSchedules[0].schedule.end_date
+                })
+
                 setLogTempFilters({
                     ...logTempFilters,
                     equipment: value,
                     reccurence: types[0],
                     logTemp: logSchedules[0],
                     eq_id: findEquipmentId(value),
-                    startDate: logSchedules[0].schedule.initial_date,
-                    endDate: logSchedules[0].schedule.end_date,
+                    startDate,
+                    endDate,
                 });
                 break;
             }
@@ -103,29 +116,51 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
 
                 setLogSchedules(logSchedules);
 
+                const { startDate, endDate } = getDefaultDate({
+                    initial_date: logSchedules[0].schedule.initial_date,
+                    end_date: logSchedules[0].schedule.end_date
+                })
+
                 setLogTempFilters({
                     ...logTempFilters,
 
                     reccurence: value,
-                    startDate: logSchedules[0].schedule.initial_date,
-                    endDate: logSchedules[0].schedule.end_date,
+                    startDate,
+                    endDate,
                     logTemp: logSchedules[0],
                 });
                 break;
 
             }
             case 3: {
+                const { startDate, endDate } = getDefaultDate({
+                    initial_date: value.initial_date,
+                    end_date: value.end_date
+                })
                 setLogTempFilters({
                     ...logTempFilters,
                     logTemp: value,
-                    startDate: value.schedule.initial_date,
-                    endDate: value.schedule.end_date,
+                    startDate,
+                    endDate,
                 });
                 break;
             }
             default:
                 break;
         }
+    }
+
+    const getDefaultDate = ({ initial_date, end_date }) => {
+        const initilaDate = dayjs(initial_date);
+        const endSchDate = dayjs(end_date);
+        const startOfMonth = dayjs().startOf('month');
+        const today = dayjs();
+
+        // the code itself is clear, no need for comment
+        const startDate = initilaDate.isBefore(startOfMonth) ? startOfMonth : initilaDate;
+        const endDate = endSchDate.isBefore(today) ? endSchDate:today;
+
+        return { startDate, endDate };
     }
 
     return {

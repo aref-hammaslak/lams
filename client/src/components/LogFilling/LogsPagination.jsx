@@ -10,7 +10,7 @@ import { logFillingContext } from "../../contexts/LogFillingProvider";
 
 
 const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs, equLog, loading, navigatedFromDashboard } = useContext(logFillingContext);
+	const { logTempFilters, displayLogs, equLog, loading, navigatedFromDashboard, } = useContext(logFillingContext);
 	const { fetchAllEquLogs, equLogs, fetchLoading, deleteError, deleteLoading, updateLoading, createLoading } = equLog;
 	const { _id: temp_id, schedule, startDate, endDate } = logTempFilters?.logTemp ?? {};
 
@@ -23,7 +23,7 @@ const LogsPagination = (props) => {
 
 	useEffect(() => {
 		fetchAllEquLogs(fecthQueryParams);
-	}, [logTempFilters]);
+	}, [logTempFilters, navigatedFromDashboard]);
 
 	const apiRef = useGridApiRef();
 
@@ -70,14 +70,13 @@ const LogsPagination = (props) => {
 		let className = "h-auto overflow-hidden ";
 		return className;
 	};
-
 	return (
-		<Grid className={" outline-none h-[75vh] "} item width="inherit">
+		<Grid className={`outline-none ${navigatedFromDashboard ? '': 'max-h-[75vh]'}  ` } item width="inherit">
 			<DataGrid
 				apiRef={apiRef}
 				columns={columns}
 				density="standard"
-				loading={fetchLoading || deleteLoading || createLoading || updateLoading|| loading}
+				loading={fetchLoading || deleteLoading || createLoading || updateLoading || loading}
 				emptyRowsMessage={loading ? "Loading..." : "No Logs found"}
 
 
@@ -86,12 +85,12 @@ const LogsPagination = (props) => {
 						variant: 'linear-progress',
 						noRowsVariant: 'skeleton',
 					},
-					noRowsOverlay:{
+					noRowsOverlay: {
 						children: fetchLoading ? <sapn>Loading...</sapn> : <span>
 							No log found
 						</span>
 					}
-						
+
 
 
 				}}
@@ -117,6 +116,9 @@ const LogsPagination = (props) => {
 					pagination: {
 						paginationModel: { pageSize: 25 },
 					},
+					sorting: {
+						sortModel: [{ field: "date", sort: "desc" }],
+					},
 				}}
 				hideFooter={navigatedFromDashboard}
 			/>
@@ -125,4 +127,4 @@ const LogsPagination = (props) => {
 	);
 };
 
-export default LogsPagination;
+export { LogsPagination };

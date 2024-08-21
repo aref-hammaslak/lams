@@ -57,8 +57,8 @@ function NewNavbar(props) {
     const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
-        <Box className={''}>
-            <AppBar position='static' className={'bg-blue-600 '} component="nav">
+        <Box className={'relative'}>
+            <AppBar position='fixed' className={'bg-blue-600 w-full'} component="nav">
                 <Toolbar>
                     <IconButton onClick={handleDrawerToggle} edge='start' className={'sm:hidden'}>
                         <MenuIcon className='w-8 h-8 text-white' />
@@ -76,23 +76,26 @@ function NewNavbar(props) {
                         </li>
 
                         <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu>
+                            <Menu animate={{
+                                mount: { y: 0 },
+                                unmount: { y: 25 },
+                            }}>
                                 <MenuHandler>
                                     <div className='flex items-center gap-1 cursor-pointer p-2'>
                                         <AssignmentIcon className='w-5 h-5' />
                                         <span className='p-0 translate-y-[1px]'>
                                             Log
                                         </span>
-                                        <ArrowDropDownIcon className='pr-0'/>
+                                        <ArrowDropDownIcon className='pr-0' />
                                     </div>
 
                                 </MenuHandler>
-                                <MenuList className='mt-3 '>
+                                <MenuList >
                                     {
-                                        [['Assignments', 'log/assignment'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
+                                        [['status', 'log/status'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
                                         ].map(([label, path], i) => (
-                                            <MenuItem key={i} className='hover:text-primary' >
-                                                <Link className='inline-block w-full hover:text-primary' to={path}>
+                                            <MenuItem key={i} className='hover:text-primary py-0' >
+                                                <Link className='inline-block w-full hover:text-primary py-2' to={path}>
                                                     {label}
                                                 </Link>
                                             </MenuItem>
@@ -113,7 +116,10 @@ function NewNavbar(props) {
                             </Link>
                         </li>
                         <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu>
+                            <Menu animate={{
+                                mount: { y: 0 },
+                                unmount: { y: 25 },
+                            }}>
                                 <MenuHandler>
                                     <div className='flex items-center gap-1 cursor-pointer p-2'>
                                         <SettingsIcon className='w-5 h-5' />
@@ -124,19 +130,19 @@ function NewNavbar(props) {
                                     </div>
 
                                 </MenuHandler>
-                                <MenuList className='mt-3 '>
+                                <MenuList>
                                     {
                                         [['Laboratory', 'setting/laboratory'], ['Department', 'setting/department'], ['Equipment', 'setting/equipment'],
                                         ['staff', 'setting/staff'], ['Surface', 'setting/surface'], ['Thermometer', 'setting/thermometer'],].map(([label, path], i) => (
-                                            <MenuItem key={i} className='hover:text-primary' >
-                                                <Link className='inline-block w-full hover:text-primary' to={path}>
+                                            <MenuItem key={i} className='hover:text-primary py-0' >
+                                                <Link className='inline-block w-full hover:text-primary py-2' to={path}>
                                                     {label}
                                                 </Link>
                                             </MenuItem>
                                         ))
 
                                     }
-                                    
+
                                 </MenuList>
                             </Menu>
                         </li>
@@ -166,12 +172,18 @@ function NewNavbar(props) {
                             mount: { y: 0 },
                             unmount: { y: 25 },
                         }}>
-                            <MenuHandler className={'w-6 h-6 '}>
+                            <MenuHandler className={'w-8 h-8 '}>
                                 <AccountCircle />
                             </MenuHandler>
                             <MenuList >
-                                <MenuItem><AccountBoxIcon /> Profile</MenuItem>
-                                <MenuItem><LogoutIcon />Logout</MenuItem>
+                                <MenuItem className='py-0'>
+                                    <Link className='inline-block py-2 w-full hover:text-primary' to='/profile'>
+                                        <AccountBoxIcon /> Profile
+                                    </Link>
+                                </MenuItem>
+
+                                <MenuItem  className='py-0'>
+                                    <a className=' py-2 hover:text-primary w-full inline-block space-x-1'><LogoutIcon /><span>Logout</span></a></MenuItem>
                             </MenuList>
                         </Menu>
                     </div>

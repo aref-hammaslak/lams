@@ -45,4 +45,4 @@ const LogTempFilters = () => {
     )
 }
 
-export default LogTempFilters
+export  {LogTempFilters}

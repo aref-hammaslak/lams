@@ -1,5 +1,6 @@
 import {
     Grid, Paper, Stack, Typography, Divider, Breadcrumbs,
+    
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
@@ -22,19 +23,17 @@ const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const Calendar = (props) => {
     const { days, currDate, setCurrDate, setDays, nextMonth, prevMonth } = useContext(DayContext);
     const role = useGetUserRole();
-    // const role = 'staff';
-    const { loading } = useTask({isAdmin:  role === 'admin' || role === 'supervisor' ? true: false});
+    const { loading } = useTask({ isAdmin: role === 'admin' || role === 'supervisor' ? true : false });
     const today = dayjs().startOf("day");
-    console.log(role);
 
     return (
         <>
 
             <Grid
-                container direction="column" padding="1rem" alignItems="center" justifyContent="center" marginTop="2rem" color={{}} className="!bg-white min-w-[1000px] overflow-x-scroll"
+                container direction="column" padding="1rem" alignItems="center" justifyContent="center"  color={{}} className="!bg-white min-w-[980px] "
             >
                 {/*render date peaker , schedule type selector , the current month typography */}
-                <Grid item alignSelf="stretch" mb="2rem" >
+                <Grid item alignSelf="stretch" alignItems='center' mb="2rem" className="">
 
                     <Stack direction="row" spacing="2rem">
                         <IconButton size="large" onClick={prevMonth} color="primary">
@@ -55,30 +54,25 @@ export const Calendar = (props) => {
                             marginLeft="auto !important"
                             color="primary"
                             fontWeight="800"
+                            alignContent='center'
                         >
                             {currDate.format("MMMM YYYY")}
                         </Typography>
                     </Stack>
                 </Grid>
 
-                {/*render week days on top of grid*/}
                 <Grid
-                    item container columns={7} component={Paper} className="py-2 rounded-none bg-secondry" >
+                    item container columns={7} flexGrow={1} className=' rounded' component={Paper} >
                     {daysOfWeek.map((day, index) => (
-                        <Grid item xs={1} key={index} className='border-x'>
+                        <Grid  item xs={1} key={index} className='border-x bg-secondry py-2'>
                             <Typography className='font-bold text-center ' fontWeight="bold" >{day}</Typography>
                         </Grid>
                     ))}
-                </Grid>
-
-                {/*render the calendar grid and handling user interactions for adding, editing, and deleting schedules*/}
-                <Grid
-                    item container columns={7} flexGrow={1} className='overflow-x-scroll rounded-none' component={Paper} >
                     {
                         Array.from(days, (([, day], key) => (
                             <Grid
                                 item key={key} xs={1}
-                                className=' pt-2 border border-secondry min-w-[130px] h-[86px]  relative '
+                                className=' pt-2 border border-secondry min-w-[130px] flex flex-col h-[86px]  relative '
                             >
                                 <div className={`absolute ${!day.mute && 'hidden'} inset-0 z-10 backdrop-blur-sm bg-white/30`} />
                                 <p className='mr-2 text-end'>
@@ -87,9 +81,10 @@ export const Calendar = (props) => {
                                     }
                                 </p>
                                 <Divider />
-                                {loading ?
-                                    <div className="flex items-center justify-center h-[100px] !text-secondry"><Spinner className="w-5 h-5" /></div> :
-                                    <CalendarDay key={key} content={day} />}
+                                <CalendarDay key={key} content={day} />
+                                {/* {loading ?
+                                    <div className="flex items-center justify-center flex-1 !text-secondry"><Spinner className="w-5 h-5" /></div> :
+                                    <CalendarDay key={key} content={day} />} */}
 
                             </Grid>
                         )))

@@ -5,19 +5,20 @@ import {
 	Tooltip,
 } from "@mui/material";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import LogsPagination from "../../../components/LogFilling/LogsPagination";
-import { GridFilterAltIcon } from "@mui/x-data-grid";
-import LogTempFilters from "../../../components/LogFilling/LogTempFilters";
-import LogFillingProvider from "../../../contexts/LogFillingProvider";
-import { logFillingContext } from "../../../contexts/LogFillingProvider";
+import { LogsPagination } from "../../components/LogFilling/LogsPagination";
+import { GridFilterAltIcon, unstable_gridTabIndexColumnGroupHeaderSelector } from "@mui/x-data-grid";
+import { LogTempFilters } from "../../components/LogFilling/LogTempFilters";
+import { logFillingContext } from "../../contexts/LogFillingProvider";
 import { GridCloseIcon } from "@mui/x-data-grid";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { DailyLogsStepper } from "../../components/LogFilling/DailyLogsStepper";
 
 function LogFilling() {
 
 	const { setIsDrawerOpen, isDrawerOpen, loading, navigatedFromDashboard, setNavigatedFromDashboard } = useContext(logFillingContext)
 	const navigate = useNavigate();
+	const location = useLocation();
 
 
 
@@ -25,13 +26,7 @@ function LogFilling() {
 		setIsDrawerOpen(newOpen);
 	};
 
-	useEffect(() => {
-		return () => {
-			// if (navigatedFromDashboard) setNavigatedFromDashboard(false);
-		};
-	}, []);
-
-
+	
 	return (
 
 		<Box
@@ -52,22 +47,26 @@ function LogFilling() {
 						startIcon={<ArrowBackIosIcon />}
 						className={" "}
 						variant="contained"
-						onClick={() => navigate('/')}
+							onClick={() => { navigate(-1); setNavigatedFromDashboard(false) }}
 					>
-						back to dashboard
+						back to Assignments
 					</Button>
 
 					)
 				}
 
 			</div>
+			{
+				navigatedFromDashboard && <DailyLogsStepper/>
+			}
+			
 			<Drawer
-				anchor="right"
+				anchor="left"
 				className={"p-4 max-w-[200px] "}
 				open={isDrawerOpen}
 				onClose={toggleDrawer(false)}
 			>
-				<GridCloseIcon onClick={() => setIsDrawerOpen(false)} sx={{ width: 30, height: 30, m: 1 }} />
+				<GridCloseIcon onClick={() => setIsDrawerOpen(false)} className="w-10 h-10 m-2 ml-[260px]"  />
 				<LogTempFilters />
 			</Drawer>
 			<Box className={"bg-white mt-4  "}>

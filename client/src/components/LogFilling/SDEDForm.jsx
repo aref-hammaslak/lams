@@ -65,7 +65,7 @@ function SDEDForm() {
 				maxDate={dayjs(scheduleEndDate)}
 				value={dayjs(logTempFilters.endDate)}
 				disabled={!schedule}
-
+				disableFuture
 				onChange={(newValue) =>
 					setLogTempFilters({ ...logTempFilters, endDate: newValue })
 				}

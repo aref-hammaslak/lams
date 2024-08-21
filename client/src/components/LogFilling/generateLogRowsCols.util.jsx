@@ -21,9 +21,7 @@ function generateLogRows(logTempFilters, equLogs , apiRef) {
     const logRows = [];
     let currentDate = dayjs(initialDate);
 
-    while (currentDate.isBefore(dayjs(endDate), 'day')) {
-
-        //TODO check whether there is a log for currentDate then assign it into log object 
+    while (currentDate.isBefore(dayjs(endDate).add(1, 'day'), 'day')) {
         let log = {};
         const matchedLog = equLogs.find(log =>  currentDate.isSame(dayjs(log.date), 'day'))
         if (matchedLog) {
@@ -55,7 +53,7 @@ function generateLogRows(logTempFilters, equLogs , apiRef) {
         logRows.push(logRow);
     }
 
-    return logRows;
+    return logRows.sort((a, b) => b.date - a.date);
 }
 
 // Function to add the specified recurrence to the current date
@@ -126,8 +124,8 @@ function getDefaultValue(type) {
 function generateLogColumns(colData, apiRef) {
     return colData.map((column) => {
         const colItem = {
-            field: column.label.toLowerCase(),
-            headerName: column.label,
+            field: column.label.toLowerCase(), 
+            headerName: column.label.at(0).toUpperCase() + column.label.slice(1),
             description: column.label,
             editable: column.label === "Date" ? false : true,
             flex: 1,
