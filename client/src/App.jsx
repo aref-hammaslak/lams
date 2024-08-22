@@ -17,13 +17,12 @@ import Reports from "./pages/Reports/Reports";
 import LogFilling from "./pages/log/LogFilling/";
 import AutoLog from "./pages/LogConfig/AutoLog/AutoLog";
 import { Calendar } from "./components/Calendar";
-import { Box } from "@mui/material";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Scheduler from "./pages/Scheduler";
 import Users from "./pages/Users";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { ROLES } from "./consts/index.js"
-import { LogsAssignment } from "./pages/log/LogsAssignment.jsx";
+import { LogsStatus } from "./pages/log/LogsStatus.jsx";
 function App() {
 	return (
 		<>
@@ -49,7 +48,7 @@ function App() {
 						<Route path="log" >
 							<Route path="auto-fill" element={<AutoLog />} />
 							<Route path="config" element={<LogConfig />} />
-							<Route path="status" element={<LogsAssignment />} />
+							<Route path="status" element={<LogsStatus />} />
 							<Route path="fill" element={<LogFilling />} />
 						</Route>
 					</Route>

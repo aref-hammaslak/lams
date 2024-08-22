@@ -1,13 +1,13 @@
 import {
     Grid, Paper, Stack, Typography, Divider, Breadcrumbs,
-    
+
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft.js";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight.js";
 import dayjs from "dayjs";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import useAuth from "../../../hooks/useAuth.js";
@@ -18,19 +18,61 @@ import CalendarDay from "./CalendarDay.jsx";
 import { Spinner } from "@material-tailwind/react";
 import { useGetUserRole } from "../../../hooks/useGetUserRole.js";
 
+
+
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = (props) => {
-    const { days, currDate, setCurrDate, setDays, nextMonth, prevMonth } = useContext(DayContext);
+    const { filter } = props;
+    const { days, setDays, currDate, setCurrDate, nextMonth, prevMonth } = useContext(DayContext);
+    console.log('days :', days);
+    const [filteredDays, seFilteredDays] = useState(days);
+    console.log('filteredDays :', filteredDays);
     const role = useGetUserRole();
     const { loading } = useTask({ isAdmin: role === 'admin' || role === 'supervisor' ? true : false });
     const today = dayjs().startOf("day");
+
+    const applyFilter = useCallback(function (day) {
+        const { tasks } = day;
+        if (!filter.type) return day;
+        console.log(filter);
+        const newTasks = tasks?.filter((task) => {
+            switch (filter?.type) {
+                case 'equip':
+                    return task.eq_details._id === filter.id;
+                case 'staff':
+                    return task.user._id === filter.id;
+
+                default:
+                    break;
+            }
+        })
+        
+        return {
+            ...day,
+            tasks:newTasks
+        }
+    }, [filter]);
+
+    useEffect(() => {
+        const newDays = new Map(
+            Array.from(days, ([key, value]) => [key, applyFilter(value, key, days)])
+        );
+        seFilteredDays(newDays)
+    }, [days])
+    useEffect(() => {
+        const newDays = new Map(
+            Array.from(days, ([key, value]) => [key, applyFilter(value, key, days)])
+        );
+        seFilteredDays(newDays);
+
+    }, [filter])
 
     return (
         <>
 
             <Grid
-                container direction="column" padding="1rem" alignItems="center" justifyContent="center"  color={{}} className="!bg-white min-w-[980px] "
+                container direction="column" padding="1rem" alignItems="center" justifyContent="center" color={{}} className="!bg-white min-w-[980px] "
             >
                 {/*render date peaker , schedule type selector , the current month typography */}
                 <Grid item alignSelf="stretch" alignItems='center' mb="2rem" className="">
@@ -64,12 +106,12 @@ export const Calendar = (props) => {
                 <Grid
                     item container columns={7} flexGrow={1} className=' rounded' component={Paper} >
                     {daysOfWeek.map((day, index) => (
-                        <Grid  item xs={1} key={index} className='border-x bg-secondry py-2'>
+                        <Grid item xs={1} key={index} className='border-x bg-secondry py-2'>
                             <Typography className='font-bold text-center ' fontWeight="bold" >{day}</Typography>
                         </Grid>
                     ))}
                     {
-                        Array.from(days, (([, day], key) => (
+                        Array.from(filteredDays, (([, day], key) => (
                             <Grid
                                 item key={key} xs={1}
                                 className=' pt-2 border border-secondry min-w-[130px] flex flex-col h-[86px]  relative '
