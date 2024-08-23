@@ -76,7 +76,7 @@ function AdminLabs() {
 	}, []);
 	const goToLab = (lab) => {
 		if (lab._id === auth.lab_id) {
-			navigate("/home");
+			navigate("/");
 			// console.log("labName",selectedLab)
 			return;
 		}
@@ -84,7 +84,7 @@ function AdminLabs() {
 			(user) => {
 				setAuth(user);
 				// window.flash(`Laboratory switched to ${lab.name}`, "success");
-				navigate("/home");
+				navigate("/");
 			},
 			(error) => window.flash(error.message, "error")
 		);

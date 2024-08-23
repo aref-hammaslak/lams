@@ -25,7 +25,7 @@ function Login() {
 		UserAPI.login(username, password).then(
 			(user) => {
 				setAuth(user);
-				navigate("/laboratory");
+				navigate("/setting/laboratory");
 			},
 			(error) => setError(error)
 		);

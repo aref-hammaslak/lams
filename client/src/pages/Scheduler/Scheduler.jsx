@@ -178,7 +178,7 @@ function Scheduler() {
 					sx={{ marginRight: "10px",textDecoration:"none" }}
 					component="button"
 					variant="body2"
-					onClick={() => navigate("/home")}
+					onClick={() => navigate("/")}
 				>
 					Home
 				</Link>

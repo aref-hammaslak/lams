@@ -10,7 +10,7 @@ import { logFillingContext } from "../../contexts/LogFillingProvider";
 
 
 const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs, equLog, loading, navigatedFromDashboard, } = useContext(logFillingContext);
+	const { logTempFilters, displayLogs, equLog, loading, navigatedFromLogsStatus, } = useContext(logFillingContext);
 	const { fetchAllEquLogs, equLogs, fetchLoading, deleteError, deleteLoading, updateLoading, createLoading } = equLog;
 	const { _id: temp_id, schedule, startDate, endDate } = logTempFilters?.logTemp ?? {};
 
@@ -23,7 +23,7 @@ const LogsPagination = (props) => {
 
 	useEffect(() => {
 		fetchAllEquLogs(fecthQueryParams);
-	}, [logTempFilters, navigatedFromDashboard]);
+	}, [logTempFilters, navigatedFromLogsStatus]);
 
 	const apiRef = useGridApiRef();
 
@@ -38,7 +38,7 @@ const LogsPagination = (props) => {
 			{ label: 'Date', type: 'date' },
 			{ label: 'actions', type: 'actions' }
 		];
-		if (!logTempFilters.logTemp) {
+		if (!logTempFilters?.logTemp) {
 			// if (!displayLogs) return [];
 			return columnsData;
 		}
@@ -49,7 +49,7 @@ const LogsPagination = (props) => {
 		]
 
 		return generateLogColumns(columnsData, apiRef);
-	}, [apiRef, displayLogs, logTempFilters.logTemp?.items])
+	}, [apiRef, displayLogs, logTempFilters?.logTemp?.items])
 
 	const getRowClassName = (params) => {
 		const { isLoged, date } = params.row;
@@ -71,7 +71,7 @@ const LogsPagination = (props) => {
 		return className;
 	};
 	return (
-		<Grid className={`outline-none ${navigatedFromDashboard ? '': 'max-h-[75vh]'}  ` } item width="inherit">
+		<Grid className={`outline-none ${navigatedFromLogsStatus ? '': 'max-h-[75vh]'}  ` } item width="inherit">
 			<DataGrid
 				apiRef={apiRef}
 				columns={columns}
@@ -120,7 +120,7 @@ const LogsPagination = (props) => {
 						sortModel: [{ field: "date", sort: "desc" }],
 					},
 				}}
-				hideFooter={navigatedFromDashboard}
+				hideFooter={navigatedFromLogsStatus}
 			/>
 		</Grid>
 

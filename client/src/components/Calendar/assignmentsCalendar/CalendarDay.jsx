@@ -15,7 +15,7 @@ import { Tooltip, } from '@mui/material';
 
 const CalendarDay = ({ content }) => {
 
-    const {  setNavigatedFromDashboard, stepperDispatch } = useContext(logFillingContext);
+    const { setNavigatedFromLogsStatus, stepperDispatch } = useContext(logFillingContext);
     const navigate = useNavigate();
     const role = useGetUserRole();
     // const role = 'staff';
@@ -44,21 +44,23 @@ const CalendarDay = ({ content }) => {
             return filter;
         })
 
+
         stepperDispatch({
             type: 'setFilters',
-            filters,
-            selectedIndex
+            filters: filters,
+            activeStep: selectedIndex,
+            date: content.date,
         })
 
         navigate('/log/fill', { preventScrollReset: false });
-        setNavigatedFromDashboard(true);
+        setNavigatedFromLogsStatus(true);
         window.scrollTo(0, 0);
     }
 
     if (!content.tasks || content.tasks.length === 0) return (
         <div className='text-center w-full flex-1  justify-center flex items-center text-gray-700 '>
             <Typography>
-                No Assignment
+                No Log Found
             </Typography>
 
         </div>
@@ -70,7 +72,7 @@ const CalendarDay = ({ content }) => {
             <Menu>
                 <MenuHandler>
                     <div className='flex flex-wrap justify-center gap-3 cursor-pointer '>
-                        <Tooltip title='Tasks Count'>
+                        <Tooltip title='Logs Count'>
                             <Badge className='w-4 h-4 bg-blue-300' content={taskCount + ''} >
                                 <AssignmentIcon className='w-7 h-7 text-primary' />
                             </Badge>

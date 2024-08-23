@@ -344,7 +344,7 @@ function UserProfile() {
 					}}
 					component="button"
 					variant="body2"
-					onClick={() => navigate("/home")}
+					onClick={() => navigate("/")}
 				>
 					Home
 				</MUILink>

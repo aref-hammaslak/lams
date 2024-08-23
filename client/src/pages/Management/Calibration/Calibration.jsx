@@ -259,7 +259,7 @@ function Calibration() {
 					sx={{ marginRight: "26px",fontSize:"16px",textDecoration:"none" }}
 					component="button"
 					variant="body2"
-					onClick={() => navigate("/home")}
+					onClick={() => navigate("/")}
 				>
 					Home
 				</MUILink>

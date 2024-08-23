@@ -13,8 +13,6 @@ const LogsStatus = () => {
   }
 
   return (
-    <DayProvider date={new Date()}>
-
       <section className='flex items-start '>
         <div className='w-[270px] fixed h-screen overflow-y-scroll '>
           <LogsStatusSidebar filter={filter} onFilterChange={ handleFilterCahnge} />
@@ -25,8 +23,6 @@ const LogsStatus = () => {
           <Calendar filter={filter} />
         </div>
       </section>
-
-    </DayProvider>
   )
 }
 

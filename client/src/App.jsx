@@ -23,6 +23,8 @@ import Users from "./pages/Users";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { ROLES } from "./consts/index.js"
 import { LogsStatus } from "./pages/log/LogsStatus.jsx";
+import { LogFillingProvider } from "./contexts/LogFillingProvider.jsx";
+import { DayProvider } from "./contexts/DayProvider.jsx";
 function App() {
 	return (
 		<>
@@ -45,7 +47,7 @@ function App() {
 						</Route>
 
 						<Route path="users2/*" element={<Users />} />
-						<Route path="log" >
+						<Route path="log"  element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
 							<Route path="auto-fill" element={<AutoLog />} />
 							<Route path="config" element={<LogConfig />} />
 							<Route path="status" element={<LogsStatus />} />

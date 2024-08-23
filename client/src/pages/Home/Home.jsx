@@ -51,31 +51,31 @@ function Home() {
 				columns={{ xs: 4, sm: 8, md: 12 }}
 			>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/settings/department")}>
+					<Item onClick={() => navigate("/setting/department")}>
 						{" "}
 						Department
 					</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/settings/equipment")}>
+					<Item onClick={() => navigate("/setting/equipment")}>
 						Equipment
 					</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/report/surface-report")}>
+					<Item>
 						Reports
 					</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/log/logfilling")}>
+					<Item onClick={() => navigate("/log/fill")}>
 						Log Filling
 					</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/log/autolog")}>Auto Log</Item>
+					<Item onClick={() => navigate("/log/auto-fill")}>Auto Log</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/lab/users")}>
+					<Item onClick={() => navigate("/setting/staff")}>
 						Users Profile
 					</Item>
 				</Grid>

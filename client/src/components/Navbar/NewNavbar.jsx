@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -7,7 +8,7 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
-import { Badge } from '@mui/material';
+import { Badge, Typography } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -21,6 +22,8 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import useAuth from '../../hooks/useAuth';
+import { LabAPI } from '../../apis/LabAPI';
 
 
 
@@ -29,10 +32,22 @@ const navItems = [['Home', '/log/logfilling'], ['Schedule', '/log/today']];
 
 function NewNavbar(props) {
     const { window } = props;
+    const [labs, setLabs] = useState([]);
+    const [currentLab, setCurrentLab] = useState(null);
+    const { auth, setAuth } = useAuth();
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
+    useEffect(() => {
+        LabAPI.getAll().then((labs) => {
+            setLabs(labs);
+            const lab = labs.find((lab) => lab._id === auth.lab_id);
+            setCurrentLab(lab);
+        });
+    }, [ auth.lab_id]);
+    console.log(currentLab);
+
 
     const drawer = (
         <Box onClick={handleDrawerToggle} className='w-[240px]'>
@@ -57,8 +72,8 @@ function NewNavbar(props) {
     const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
-        <Box className={'relative'}>
-            <AppBar position='fixed' className={'bg-blue-600 w-full'} component="nav">
+        <Box className={' fixed top-0 left-0 right-0 z-50'}>
+            <AppBar className={'bg-blue-600 w-full '} component="nav">
                 <Toolbar>
                     <IconButton onClick={handleDrawerToggle} edge='start' className={'sm:hidden'}>
                         <MenuIcon className='w-8 h-8 text-white' />
@@ -76,10 +91,7 @@ function NewNavbar(props) {
                         </li>
 
                         <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu animate={{
-                                mount: { y: 0 },
-                                unmount: { y: 25 },
-                            }}>
+                            <Menu >
                                 <MenuHandler>
                                     <div className='flex items-center gap-1 cursor-pointer p-2'>
                                         <AssignmentIcon className='w-5 h-5' />
@@ -116,10 +128,7 @@ function NewNavbar(props) {
                             </Link>
                         </li>
                         <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu animate={{
-                                mount: { y: 0 },
-                                unmount: { y: 25 },
-                            }}>
+                            <Menu >
                                 <MenuHandler>
                                     <div className='flex items-center gap-1 cursor-pointer p-2'>
                                         <SettingsIcon className='w-5 h-5' />
@@ -159,6 +168,10 @@ function NewNavbar(props) {
                     </ul>
                     <Box sx={{ flexGrow: 1 }} />
                     <div className='flex items-center gap-1'>
+
+                        <Typography>
+                            Lab : {currentLab?.name ? currentLab.name : 'Not Selected'}
+                        </Typography>
                         <IconButton
                             size="large"
                             color="inherit"
@@ -172,7 +185,7 @@ function NewNavbar(props) {
                             mount: { y: 0 },
                             unmount: { y: 25 },
                         }}>
-                            <MenuHandler className={'w-8 h-8 '}>
+                            <MenuHandler className={'w-8 h-8 cursor-pointer'}>
                                 <AccountCircle />
                             </MenuHandler>
                             <MenuList >
@@ -182,7 +195,7 @@ function NewNavbar(props) {
                                     </Link>
                                 </MenuItem>
 
-                                <MenuItem  className='py-0'>
+                                <MenuItem className='py-0'>
                                     <a className=' py-2 hover:text-primary w-full inline-block space-x-1'><LogoutIcon /><span>Logout</span></a></MenuItem>
                             </MenuList>
                         </Menu>

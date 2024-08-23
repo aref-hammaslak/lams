@@ -12,7 +12,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import useAuth from "../../../hooks/useAuth.js";
 import { LabAPI } from "../../../apis/LabAPI.js";
-import DayContext from "../../../contexts/DayProvider.jsx";
+import DayContext, { DayMap } from "../../../contexts/DayProvider.jsx";
 import useTask from "../../../hooks/useTask.js";
 import CalendarDay from "./CalendarDay.jsx";
 import { Spinner } from "@material-tailwind/react";
@@ -24,10 +24,8 @@ const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = (props) => {
     const { filter } = props;
-    const { days, setDays, currDate, setCurrDate, nextMonth, prevMonth } = useContext(DayContext);
-    console.log('days :', days);
-    const [filteredDays, seFilteredDays] = useState(days);
-    console.log('filteredDays :', filteredDays);
+    const { days, setDays, currDate, setCurrDate, nextMonth, prevMonth, filteredDays, seFilteredDays } = useContext(DayContext);
+    
     const role = useGetUserRole();
     const { loading } = useTask({ isAdmin: role === 'admin' || role === 'supervisor' ? true : false });
     const today = dayjs().startOf("day");
@@ -55,14 +53,14 @@ export const Calendar = (props) => {
     }, [filter]);
 
     useEffect(() => {
-        const newDays = new Map(
-            Array.from(days, ([key, value]) => [key, applyFilter(value, key, days)])
+        const newDays = new DayMap(
+            Array.from(days, ([key, value]) => [dayjs(key), applyFilter(value, key, days)])
         );
         seFilteredDays(newDays)
     }, [days])
     useEffect(() => {
-        const newDays = new Map(
-            Array.from(days, ([key, value]) => [key, applyFilter(value, key, days)])
+        const newDays = new DayMap(
+            Array.from(days, ([key, value]) => [dayjs(key), applyFilter(value, key, days)])
         );
         seFilteredDays(newDays);
 
