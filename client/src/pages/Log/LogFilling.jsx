@@ -14,7 +14,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useNavigate, useLocation } from "react-router-dom";
 import { DailyLogsStepper } from "../../components/LogFilling/DailyLogsStepper";
 
-function LogFilling() {
+export function LogFilling() {
 
 	const { setIsDrawerOpen, isDrawerOpen, loading, navigatedFromLogsStatus, setNavigatedFromLogsStatus , stepperState, setLogTempFilters, } = useContext(logFillingContext)
 	const navigate = useNavigate();
@@ -82,4 +82,3 @@ function LogFilling() {
 		</Box>
 	);
 }
-export default LogFilling;

@@ -14,7 +14,7 @@ import Thermometer from "./pages/LabManagement/Termometer";
 import Calibration from "./pages/Management/Calibration/Calibration";
 import PMService from "./pages/Management/PMService/PMService";
 import Reports from "./pages/Reports/Reports";
-import LogFilling from "./pages/log/LogFilling/";
+import { LogFilling } from "./pages/Log/LogFilling.jsx";
 import AutoLog from "./pages/LogConfig/AutoLog/AutoLog";
 import { Calendar } from "./components/Calendar";
 import UserProfile from "./pages/UserProfile/UserProfile";
@@ -22,7 +22,10 @@ import Scheduler from "./pages/Scheduler";
 import Users from "./pages/Users";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { ROLES } from "./consts/index.js"
-import { LogsStatus } from "./pages/log/LogsStatus.jsx";
+import {
+	LogsStatus
+	
+ } from "./pages/Log/LogsStatus.jsx";
 import { LogFillingProvider } from "./contexts/LogFillingProvider.jsx";
 import { DayProvider } from "./contexts/DayProvider.jsx";
 function App() {
