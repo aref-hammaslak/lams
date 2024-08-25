@@ -1,5 +1,6 @@
 import moment from "moment";
 import "moment-recur";
+import dayjs from 'dayjs';
 
 import { ScheduleModel } from "../models/Schedule.js";
 
@@ -10,6 +11,7 @@ import Surface from "../models/Surface.js";
 import Equipment from "../models/Equipment.js";
 
 import { groupBy } from "../utils/arrayUtils.js";
+import mongoose from "mongoose";
 
 /**
  * @type {import("express").RequestHandler}
@@ -131,32 +133,50 @@ export async function setScheduleAssignment(req, res) {
 
     const initial_date = new Date(req.body['initial_date']);
     const end_date = (req.body.end_date) ? new Date(req.body['end_date']) : undefined;
+    try {
+        if (! await validateItem(type, id, lab_id)) {
+            res.status(404);
+            res.send({
+                success: false,
+                error: 'Item not found'
+            });
 
-    if (! await validateItem(type, id, lab_id)) {
-        res.status(404);
-        res.send({
-            success: false,
-            error: 'Item not found'
+            return;
+        }
+        
+        
+        //make sure there is no overlap with same schedules
+        if (await isOverlappingWithOtherSchedules({lab_id, id, type, recurrence,initial_date, end_date})) {
+            return res.status(400).send({
+                success: false,
+                error: 'There is overlap with other schedules'
+            })
+        }
+
+        const sched = new ScheduleModel({
+            lab_id,
+            initial_date,
+            recurrence,
+            end_date,
+            type,
+            id,
+            offsets
         });
+        await sched.save();
 
-        return;
+
+        res.send({
+            success: true,
+            payload: sched
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            success: false,
+            error
+        })
     }
 
-    const sched = new ScheduleModel({
-        lab_id,
-        initial_date,
-        recurrence,
-        end_date,
-        type,
-        id,
-        offsets
-    });
-    await sched.save();
-
-    res.send({
-        success: true,
-        payload: sched
-    });
 }
 
 /**
@@ -200,6 +220,59 @@ export async function deleteScheduleAssignment(req, res) {
         success: true,
         payload: sched
     });
+}
+
+async function isOverlappingWithOtherSchedules({ lab_id, id, type, recurrence, initial_date, end_date }) {
+    const { ObjectId } = mongoose.Types;
+
+    const result = await ScheduleModel.aggregate([
+        {
+            $match: {
+                lab_id: new ObjectId(lab_id),
+                type: type,
+                id: new ObjectId(id),
+                recurrence: recurrence,
+                $or: [
+                    // Case 1: The document's initial_date is within the given range
+                    {
+                        $and: [
+                            {
+                                initial_date: { $gte: new Date(initial_date) }
+                            },
+                            {
+                                initial_date: { $lt: new Date(end_date) }
+                            }
+                        ]
+                    },
+                    // Case 2: The document's end_date is within the given range
+                    {
+                        $and: [
+                            {
+                                end_date: { $gt: new Date(initial_date) }
+                            },
+                            {
+                                end_date: { $lte: new Date(end_date) }
+                            }
+                        ]
+                    },
+                    // Case 3: The document's range entirely covers the given range
+                    {
+                        $and: [
+                            {
+                                initial_date: { $lte: new Date(initial_date) }
+                            },
+                            {
+                                end_date: { $gte: new Date(end_date) }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }]);
+    console.log(result);
+    console.log(result.length > 0);
+    
+    return result.length > 0;
 }
 
 function expandAssignment(val, startDate, endDate, raw = false, includeId = false) {
