@@ -42,7 +42,7 @@ function App() {
 						<Route path="setting">
 							<Route path="staff" element={<UserProfile />} />
 							<Route path="laboratory" element={<AdminLabs />} />
-
+							<Route path="log-config" element={<LogConfig />} />
 							<Route path="equipment" element={<Equipment />} />
 							<Route path="department" element={<Department />} />
 							<Route path="surface" element={<Surface />} />
@@ -52,7 +52,6 @@ function App() {
 						<Route path="users2/*" element={<Users />} />
 						<Route path="log"  element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
 							<Route path="auto-fill" element={<AutoLog />} />
-							<Route path="config" element={<LogConfig />} />
 							<Route path="status" element={<LogsStatus />} />
 							<Route path="fill" element={<LogFilling />} />
 						</Route>
