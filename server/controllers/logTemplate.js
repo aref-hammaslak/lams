@@ -4,14 +4,23 @@ import LogTemplate from "../models/LogTemplate.js";
 import Equipment from "../models/Equipment.js";
 import ExpressError from "../utils/ExpressError.js";
 
+export const RECCURENCES = [
+    "daily",
+    "weekly",
+    "monthly",
+    "quarterly",
+    "semi-annually",
+    "annually",
+];
+
 /**
  * Request handler for retrieving all log templates
  * @type {import("express").RequestHandler}
  */
 export async function getAllLogTemplates(req, res) {
     const { lab_id } = req.user;
-    const { eq_id, type , scheduled, group} = req.query;
-    
+    const { eq_id, type, scheduled, group } = req.query;
+
     console.log(scheduled);
     const pipeline =
         [
@@ -61,74 +70,76 @@ export async function getAllLogTemplates(req, res) {
     }
 
     //add the all log templates which has allready scheduled and are active
-    if(scheduled) {
-        console.log("stage added!")
+    if (scheduled) {
         pipeline.push({
-            $lookup:{
+            $lookup: {
                 from: "schedules",
                 localField: "_id",
                 foreignField: "id",
                 as: "schedule",
-                pipeline:[
-                  {
-                    $project:{
-                      initial_date:1,
-                      end_date:1,
-                      recurrence:1,
-                      type:1
+                pipeline: [
+                    {
+                        $project: {
+                            initial_date: 1,
+                            end_date: 1,
+                            recurrence: 1,
+                            type: 1
+                        }
                     }
-                  }
                 ]
-                
+
             },
+
+        },
+                {
+                $unwind:{
+                    path: "$schedule"
+                }
+            }
             
-        },{
-            $unwind:{
-                path: "$schedule"
-            }
-        },{
-            $match:{
-                "schedule.initial_date":{$lte:new Date()},
-                "schedule.end_date":{$gte:new Date()},
-                "schedule.recurrence":{$ne:null}
-            }
-        }
+        //     {
+        //     $match:{
+        //         "schedule.initial_date":{$lte:new Date()},
+        //         "schedule.end_date":{$gte:new Date()},
+        //         "schedule.recurrence":{$ne:null}
+        //     }
+        // }
     )
     }
-    if(group) {
+    if (group) {
         pipeline.push(
             {
                 $unwind: "$eq_details"
-              },
-              {
+            },
+            {
                 $group: {
-                  _id: "$eq_details.name",
-                  documents: { $push: "$$ROOT" }
+                    _id: "$eq_details.name",
+                    documents: { $push: "$$ROOT" }
                 }
-              },
-              {
+            },
+            {
                 $unwind: "$documents"
-              },
-              {
+            },
+            {
                 $group: {
-                  _id: {
-                    eq_name: "$_id",
-                    type: "$documents.type"
-                  },
-                  documents: { $push: "$documents" }
+                    _id: {
+                        eq_name: "$_id",
+                        type: "$documents.type"
+                    },
+                    documents: { $push: "$documents" }
                 }
-              },
-              {
+            },
+            {
                 $group: {
-                  _id: "$_id.eq_name",
-                  types: {
-                    $push: {
-                      type: "$_id.type",
-                      documents: "$documents"
+                    _id: "$_id.eq_name",
+                    types: {
+                        $push: {
+                            type: "$_id.type",
+                            documents: "$documents"
+                        }
                     }
-                  }
                 }
-              }
+            }
         )
     }
 

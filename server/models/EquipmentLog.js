@@ -124,3 +124,4 @@ logSchema.path('items').validate(async function (items) {
 const EquipmentLogModel = mongoose.model('EquipmentLog', logSchema);
 
 export default EquipmentLogModel;
+export {EquipmentLogModel}

@@ -62,3 +62,34 @@ export function isDateInSchedule(schedule, date) {
         return m.isSame(date);
     }
 }
+
+export function generateScheduleIntervals(startDate, endDate, recurrence) {
+    const dates = [];
+    let currentDate = moment(startDate);
+    console.log()
+    while (currentDate.isBefore(endDate)) {
+        dates.push(currentDate.clone().format('YYYY-MM-DD')); // Format as needed
+        switch (recurrence) {
+            case 'daily':
+                currentDate.add(1, 'day');
+                break;
+            case 'weekly':
+                currentDate.add(1, 'week');
+                break;
+            case 'monthly':
+                currentDate.add(1, 'month');
+                break;
+            case 'quarterly':
+                currentDate.add(3, 'month');
+                break;
+            case 'semiannually':
+                currentDate.add(6, 'month');
+                break;
+            case 'annually':
+                currentDate.add(1, 'year')
+                break;
+        }
+    }
+
+    return dates;
+}
