@@ -12,6 +12,7 @@ import Equipment from "../models/Equipment.js";
 
 import { groupBy } from "../utils/arrayUtils.js";
 import mongoose from "mongoose";
+import { RECCURENCES } from "./logTemplate.js";
 
 /**
  * @type {import("express").RequestHandler}
@@ -144,6 +145,15 @@ export async function setScheduleAssignment(req, res) {
             return;
         }
         
+        if (type === 'equipment') {
+            const logTemp = await LogTemplate.findById(id);
+            if (RECCURENCES[logTemp.type] !== recurrence) {
+                return res.status(400).send({
+                    success: false,
+                    error: `You can not set a ${recurrence} schedule for ${RECCURENCES[logTemp.type]} log template`
+                })
+            }
+        }
         
         //make sure there is no overlap with same schedules
         if (await isOverlappingWithOtherSchedules({lab_id, id, type, recurrence,initial_date, end_date})) {
@@ -152,6 +162,8 @@ export async function setScheduleAssignment(req, res) {
                 error: 'There is overlap with other schedules'
             })
         }
+
+        
 
         const sched = new ScheduleModel({
             lab_id,
