@@ -15,7 +15,7 @@ import Calibration from "./pages/Management/Calibration/Calibration";
 import PMService from "./pages/Management/PMService/PMService";
 import Reports from "./pages/Reports/Reports";
 import { LogFilling } from "./pages/Log/LogFilling.jsx";
-import AutoLog from "./pages/LogConfig/AutoLog/AutoLog";
+import {AutoLog} from "./pages/Log/AutoLog.jsx";
 import { Calendar } from "./components/Calendar";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Scheduler from "./pages/Scheduler";

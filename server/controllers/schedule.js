@@ -1,6 +1,5 @@
 import moment from "moment";
 import "moment-recur";
-import dayjs from 'dayjs';
 
 import { ScheduleModel } from "../models/Schedule.js";
 

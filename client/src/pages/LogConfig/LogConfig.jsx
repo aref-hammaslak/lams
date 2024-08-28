@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import {
 	Button,
 	Grid,
@@ -10,6 +11,7 @@ import {
 	Breadcrumbs,
 	Link,
 	Box,
+	Checkbox,
 	Chip,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +36,7 @@ import { LabAPI } from "../../apis/LabAPI.js";
 
 export const LOG_TYPES = [
 	"Daily",
+	"weekly",
 	"Monthly",
 	"Quarterly",
 	"SemiAnnually",
@@ -58,6 +61,7 @@ export function dialogReducer(state, action) {
 				equipment: null,
 				type: null,
 				itemLabel: "",
+				itemDefaultValue: null,
 				itemType: null,
 				items: [],
 				errors: {},
@@ -102,6 +106,11 @@ export function dialogReducer(state, action) {
 				...state,
 				itemType: action.itemType,
 			};
+		case "itemDefaultValue":
+			return {
+				...state,
+				itemDefaultValue: action.itemDefaultValue
+			}
 		case "error":
 			return {
 				...state,
@@ -202,8 +211,8 @@ function LogConfig() {
 		dispatch({ type: "type", logType });
 	};
 	const handleAddItem = () => {
-		const { itemLabel, itemType } = dialogState;
-		if (!itemLabel || itemType === null) return;
+		const { itemLabel, itemType, itemDefaultValue } = dialogState;
+		if (!itemLabel || itemType === null || itemDefaultValue === null) return;
 
 		if (
 			dialogState.items.find(
@@ -213,8 +222,9 @@ function LogConfig() {
 			return;
 
 		itemLabelInput.current.value = "";
+		dispatch({ type: 'itemDefaultValue', itemDefaultValue: null })
 		console.log(itemLabelInput.current);
-		dispatch({ type: "add", item: { label: itemLabel, type: itemType } });
+		dispatch({ type: "add", item: { label: itemLabel, type: itemType, default_value: itemDefaultValue } });
 	};
 	const handleDeleteItem = (item) => {
 		const { label, type } = item;
@@ -376,6 +386,12 @@ function LogConfig() {
 				flex: 0.5,
 			},
 			{
+				field: "default_value",
+				headerName: "Default Value",
+				headerClassName: "table-secondary--header",
+				flex: 0.5
+			},
+			{
 				field: "delete",
 				headerName: "Actions",
 				headerClassName: "table-secondary--header",
@@ -403,6 +419,70 @@ function LogConfig() {
 	};
 	const closeScheduler = () => setSchedule(null);
 
+	const renderItemDefaultInput = () => {
+
+		switch (dialogState.itemType) {
+			case 0:
+				return (
+					<div className="flex items-center">
+						<span className="text-lg text-gray-800 ">
+							Defaulte Value:
+						</span>
+						<Checkbox className="!inline-block" checked={Boolean(dialogState.itemDefaultValue)} onChange={(e) => dispatch({
+							type: 'itemDefaultValue',
+							itemDefaultValue: e.target.checked
+						})} label='Default Value' color="secondary" size='medium' 
+
+						/>
+
+					</div>
+				)
+			case 1:
+				return (
+					<TextField value={dialogState.itemDefaultValue || ''} onChange={(e) => dispatch({
+						type: 'itemDefaultValue',
+						itemDefaultValue: e.target.value
+					})} label='Default Value' color="secondary" size='small' disabled={dialogState.itemType == null} />
+				)
+			case 2:
+				return (
+					<TextField type="number" value={dialogState.itemDefaultValue || ''} onChange={(e) => dispatch({
+						type: 'itemDefaultValue',
+						itemDefaultValue: e.target.value
+					})} label='Default Value' color="secondary" size='small' disabled={dialogState.itemType == null} />
+				)
+			case 3: case 4: case 5:
+				return (
+					<Autocomplete
+						className="w-[232px] "
+						options={ITEM_TYPES[dialogState.itemType].slice(8, -1).split('/')}
+						value={dialogState.itemDefaultValue || ''}
+						onChange={(e, newValue) => {
+							console.log(newValue);
+							dispatch({
+								type: "itemDefaultValue",
+								itemDefaultValue: newValue ? String(newValue) : null
+							});
+						}}
+						size="small"
+						fullWidth
+						renderInput={(params) => (
+							<TextField
+								{...params}
+								label="Default Value"
+								color="secondary"
+								className=""
+							/>
+						)}
+					/>
+				)
+
+			default:
+				return null
+		}
+
+	}
+
 	return (
 		<>
 			<Box
@@ -426,7 +506,7 @@ function LogConfig() {
 					<Typography color="text.primary">Configuration</Typography>
 				</Breadcrumbs>
 				<Link
-					
+
 
 					sx={{
 						marginRight: "26px",
@@ -479,7 +559,7 @@ function LogConfig() {
 				</Grid>
 			</Grid>
 			<Dialog
-				open={dialogState.open}
+				open={dialogState?.open}
 				onClose={handleCloseDialog}
 				fullWidth
 				fullScreen={fullScreen}
@@ -556,12 +636,13 @@ function LogConfig() {
 									Add Log Items
 								</Typography>
 							</Grid>
-							<Grid item container spacing={"1rem"}>
-								<Grid item sm={6} xs={12}>
+							<div className="flex gap-10 w-full justify-between ">
+								<div className="space-y-4">
 									<TextField
 										label="Label"
 										inputRef={itemLabelInput}
 										color="secondary"
+										size="small"
 										defaultValue={dialogState.itemLabel}
 										onBlur={(e) =>
 											dispatch({
@@ -571,12 +652,14 @@ function LogConfig() {
 										}
 										fullWidth
 									/>
-								</Grid>
-								<Grid item sm={4} xs={6}>
 									<Autocomplete
 										options={ITEM_TYPES}
 										value={ITEM_TYPES[dialogState.itemType] || null}
 										onChange={(_e, newValue) => {
+											dispatch({
+												type: 'itemDefaultValue',
+												itemDefaultValue: newValue === ITEM_TYPES[0] ? false : null
+											});
 											dispatch({
 												type: "itemType",
 												itemType: newValue
@@ -584,6 +667,7 @@ function LogConfig() {
 													: null,
 											});
 										}}
+										size="small"
 										fullWidth
 										renderInput={(params) => (
 											<TextField
@@ -593,8 +677,12 @@ function LogConfig() {
 											/>
 										)}
 									/>
-								</Grid>
-								<Grid item xs={2} ml="auto" alignSelf="center">
+								</div>
+								<div className="flex flex-col items-end  justify-between ">
+									{
+										renderItemDefaultInput()
+									}
+
 									<Button
 										variant="contained"
 										onClick={handleAddItem}
@@ -604,8 +692,8 @@ function LogConfig() {
 									>
 										<AddIcon />
 									</Button>
-								</Grid>
-							</Grid>
+								</div>
+							</div>
 							<Grid
 								item
 								mt="2rem"

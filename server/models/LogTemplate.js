@@ -8,12 +8,13 @@ const LogTemplateSchema = new Schema({
     },
     type: {
         type: Number,
-        enum: [0, 1, 2, 3, 4], // daily, monthly, quarterly, semiannually, annually
+        enum: [0, 1, 2, 3, 4,5], // daily,weekly, monthly, quarterly, semiannually, annually
         immutable: true
     },
     items: [
         {
             label: String,
+            default_value: Schema.Types.Mixed,
             type: {
                 type: Number,
                 enum: [0, 1, 2, 3, 4, 5] // CheckBox, Text, Number, Option{C,R,F}, Options{C,R,C&R}, Options{C,F}
@@ -128,7 +129,8 @@ LogTemplateSchema.statics.getAllLogTemplateSchedules = async function ({ lab_id,
             }
         ];
     const result = await this.aggregate(pipeline).exec();
-
+    console.log('result :', result);
+    
     return result[0];
 }
 

@@ -1,29 +1,40 @@
 import EquipmentLogModel from "../models/EquipmentLog.js";
 import LogTemplate from "../models/LogTemplate.js";
 import { generateScheduleIntervals } from "../services/schedule.js";
+import moment from "moment";
 
 
 export async function autoFillLogTemplateWithId(req, res) {
     try {
         const { start_date, end_date } = req.query;
-        // console.log('start_date :', start_date);
         const { logTemp_id } = req.params;
-        // console.log('req.param :', req.param);
         const { lab_id, id:user_id } = req.user;
-        const {schedules} = await LogTemplate.getAllLogTemplateSchedules({ lab_id, logTemp_id, start_date, end_date })
+        
+        // console.log('{ lab_id, logTemp_id, start_date, end_date } :', { lab_id, logTemp_id, start_date, end_date });
+
+        const { schedules } = await LogTemplate.getAllLogTemplateSchedules({ lab_id, logTemp_id, start_date, end_date }) ?? [];
+
+        if (!schedules) {
+            return res.send({
+                success: false,
+                error: {
+                    message: 'No logs found for this month'
+                }
+            })
+        }
         const logTemp = await LogTemplate.findById(logTemp_id);
         // console.log('logTemp :', logTemp);
 
-        const logs = await autoFill(logTemp, schedules, user_id);
+        const logs = await autoFill(logTemp, schedules, user_id, start_date, end_date);
         // console.log(logs);
         res.send({
-            succsus: true,
+            success: true,
             payload: logs,
         })
     } catch (error) {
         console.log(error);
         res.status(400).send({
-            succsus: false,
+            success: false,
             error: {
                 message:error.message
             }
@@ -31,10 +42,10 @@ export async function autoFillLogTemplateWithId(req, res) {
     }
 }
 
-async function autoFill(logTemp, schedules, user_id) {
+async function autoFill(logTemp, schedules, user_id, rangeStartDate, rangeEndDate) {
     const autoFilledLogs = [];
     const items = logTemp.items.reduce((acc, item) => {
-        acc[item.label] = item.default ?? 'some random value';
+        acc[item.label] = item.default_value ?? 'some random value';
         return acc;
     }, {});
     const newLog = {
@@ -49,7 +60,10 @@ async function autoFill(logTemp, schedules, user_id) {
         // console.log('start_date, end_date, reccurence :', start_date, end_date, recurrence);
         newLog.sch_id = schedule._id;
 
-        const intervals = generateScheduleIntervals(start_date, end_date, recurrence);
+        const intervals = generateScheduleIntervals(
+            moment(start_date).isBefore(rangeStartDate, 'day') ? rangeStartDate : start_date,
+            moment(end_date).isAfter(rangeEndDate, 'day') ? moment(rangeEndDate).add(1, 'day') : end_date,
+            recurrence);
         // console.log(intervals);
         for(const date of intervals) {
             const log = await EquipmentLogModel.findOne({
