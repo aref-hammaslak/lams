@@ -49,7 +49,7 @@ const TYPE_ICON = {
 	equipment: <BiotechRoundedIcon />,
 };
 
-function Scheduler() {
+export const ScheduleAssign= () => {
 	const navigate = useNavigate();
 	const [labs, setLabs] = useState([]);
 	const [currentLab, setCurrentLab] = useState(null);
@@ -480,4 +480,3 @@ function Scheduler() {
 	);
 }
 
-export default Scheduler;

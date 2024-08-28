@@ -104,7 +104,7 @@ function NewNavbar(props) {
                                 </MenuHandler>
                                 <MenuList >
                                     {
-                                        [['status', 'log/status'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
+                                        [['View Status', 'log/status'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
                                         ].map(([label, path], i) => (
                                             <MenuItem key={i} className='hover:text-primary py-0' >
                                                 <Link className='inline-block w-full hover:text-primary py-2' to={path}>
@@ -119,14 +119,35 @@ function NewNavbar(props) {
                             </Menu>
                         </li>
 
-                        <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Link to='/schedule' className='flex items-center gap-1 p-2'>
-                                <ScheduleIcon className='w-5 h-5' />
-                                <span className='p-0 translate-y-[1px]'>
-                                    Schedule
-                                </span>
-                            </Link>
+                        <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
+                            <Menu >
+                                <MenuHandler>
+                                    <div className='flex items-center gap-1 cursor-pointer p-2'>
+                                        <ScheduleIcon className='w-5 h-5' />
+                                        <span className='p-0 translate-y-[1px]'>
+                                            Schedule
+                                        </span>
+                                        <ArrowDropDownIcon className='pr-0' />
+                                    </div>
+
+                                </MenuHandler>
+                                <MenuList >
+                                    {
+                                        [['Define', 'schedule/define'], ['Assign', 'schedule/assign'],
+                                        ].map(([label, path], i) => (
+                                            <MenuItem key={i} className='hover:text-primary py-0' >
+                                                <Link className='inline-block w-full hover:text-primary py-2' to={path}>
+                                                    {label}
+                                                </Link>
+                                            </MenuItem>
+                                        ))
+
+                                    }
+
+                                </MenuList>
+                            </Menu>
                         </li>
+
                         <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
                             <Menu >
                                 <MenuHandler>

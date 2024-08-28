@@ -30,7 +30,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import * as React from "react";
-import Scheduler from "../Scheduler";
+import { ScheduleAssign as Scheduler } from "../Schedule/ScheduleAssign.jsx";
 import useAuth from "../../hooks/useAuth.js";
 import { LabAPI } from "../../apis/LabAPI.js";
 

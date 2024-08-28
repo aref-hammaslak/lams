@@ -18,7 +18,6 @@ import { LogFilling } from "./pages/Log/LogFilling.jsx";
 import {AutoLog} from "./pages/Log/AutoLog.jsx";
 import { Calendar } from "./components/Calendar";
 import UserProfile from "./pages/UserProfile/UserProfile";
-import Scheduler from "./pages/Scheduler";
 import Users from "./pages/Users";
 import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { ROLES } from "./consts/index.js"
@@ -28,6 +27,8 @@ import {
  } from "./pages/Log/LogsStatus.jsx";
 import { LogFillingProvider } from "./contexts/LogFillingProvider.jsx";
 import { DayProvider } from "./contexts/DayProvider.jsx";
+import { ScheduleDefine } from "./pages/Schedule/ScheduleDefine.jsx";
+import { ScheduleAssign } from "./pages/Schedule/ScheduleAssign.jsx";
 function App() {
 	return (
 		<>
@@ -38,7 +39,6 @@ function App() {
 					<Route path="/" element={<RootLayout />}>
 						<Route path="" element={<Home />} />
 						<Route path="profile" element={<AdminProfile />} />
-						<Route path="schedule" element={<Scheduler />} />
 						<Route path="setting">
 							<Route path="staff" element={<UserProfile />} />
 							<Route path="laboratory" element={<AdminLabs />} />
@@ -54,6 +54,10 @@ function App() {
 							<Route path="auto-fill" element={<AutoLog />} />
 							<Route path="status" element={<LogsStatus />} />
 							<Route path="fill" element={<LogFilling />} />
+						</Route>
+						<Route path="schedule">
+							<Route path="define" element={<ScheduleDefine />} />
+							<Route path="assign" element={<ScheduleAssign/>}/>
 						</Route>
 					</Route>
 				</Route>
