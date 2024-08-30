@@ -1,5 +1,6 @@
 import { colors } from "@mui/material";
-import  withMT from "@material-tailwind/react/utils/withMT";
+import withMT from "@material-tailwind/react/utils/withMT";
+import tailwindscrollbar from "tailwind-scrollbar";
  
 export default withMT( {
   content: [
@@ -16,5 +17,7 @@ export default withMT( {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    tailwindscrollbar
+  ],
 });
