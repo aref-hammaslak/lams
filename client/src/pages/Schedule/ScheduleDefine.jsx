@@ -1,12 +1,12 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { Tabs, TabsHeader, Tab, IconButton, List, ListItem } from '@material-tailwind/react'
-import { GridCloseIcon, GridFilterAltIcon, GridFilterListIcon } from '@mui/x-data-grid';
+import { List, ListItem } from '@material-tailwind/react'
 import { LogTmpAPI } from '../../apis/LogTmpAPI';
 import { useSnackbar } from 'notistack';
 import { SurfAPI } from '../../apis/SurfAPI';
 import { ThermAPI } from '../../apis/ThermAPI';
 import { Scheduler } from '../../components/Scheduler/Scheduler';
 import { reccurencs } from '../../consts';
+import { TabsSidebarLayout } from '../../layouts/TabsSidebarLayout';
 
 const scheduleReducer = (prevState, action) => {
   console.log(action.itemType)
@@ -63,7 +63,8 @@ export const ScheduleDefine = () => {
   const [items, setItems] = useState(null);
   const [scheduleState, dispatchSchedule] = useReducer(scheduleReducer, null);
   const { enqueueSnackbar } = useSnackbar();
-
+  
+  console.log('hi');
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -161,65 +162,23 @@ export const ScheduleDefine = () => {
     })
   }, [items]);
 
+  const sidebarElement = <List>
+    {items?.map(({ name, id, type, recurrence }) => (
+      <ListItem key={id} color='bg-primary' className={` border-b hover:text-white hover:bg-primary focus:bg-primary  focus:text-white ${scheduleState?.id === id && 'bg-primary text-white'}  `}
+        onClick={() => handelItemClick(id, name, type, recurrence)}
+      >
+        {name}
+      </ListItem>
+    ))}
+  </List>
+  
 return (
   <>
-
-    {/* Nav tabs */}
-    <Tabs value={activeTab} className='w-full border-b fixed z-10 bg-white'>
-      <IconButton onClick={toggleSidebar}  className='!absolute left-2 top-2 z-20  bg-primaryDark' >
-        {
-          isSidebarOpen ? 
-            <GridCloseIcon /> :
-            <GridFilterListIcon/>
-        }
-      </IconButton>
-      <TabsHeader
-        className=" w-[600px] m-auto rounded-none  border-blue-gray-50 bg-transparent p-0"
-        indicatorProps={{
-          className:
-            " border-b-2  border-primary shadow-none rounded-none",
-          }}
-        >
-
-          {tabs.map(({ label, value }) => (
-            <Tab
-              key={value}
-              value={value}
-              onClick={() => handleTabChange(value)}
-              className={`${activeTab === value ? "text-primary" : ""} py-4`}
-            >
-              {label}
-            </Tab>
-          ))}
-        </TabsHeader>
-      </Tabs>
-
-      <div className="flex  overflow-hidden">
-        {/* Sidebar */}
-        <div
-          className={`fixed top-[122px] bottom-0 left-0 w-64 text-black transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-64'
-            } transition-transform duration-300 ease-in-out`}
-        >
-
-          <div className="p-4 -ml-2 ">
-            <List>
-              {items?.map(({ name, id ,type, recurrence}) => (
-                <ListItem key={id} color='bg-primary' className={` border-b hover:text-white hover:bg-primary focus:bg-primary  focus:text-white ${scheduleState?.id === id && 'bg-primary text-white'}  `}
-                  onClick={() => handelItemClick(id, name, type , recurrence)}
-                >
-                  {name}
-                </ListItem>
-              ))}
-            </List>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className={`${isSidebarOpen ? 'w-[calc(100vw-256px)] ml-64' : 'w-full'} mt-[58px] h-screen flex flex-col bg-gray-100 duration-300 ease-in-out transition-all`}>
+    <TabsSidebarLayout tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarElement={
+      sidebarElement
+    } >
         <Scheduler scheduleState={scheduleState} dispatchSchedule={dispatchSchedule} />
-        </div>
-      </div>
-
+    </TabsSidebarLayout>
     </>
   )
 }

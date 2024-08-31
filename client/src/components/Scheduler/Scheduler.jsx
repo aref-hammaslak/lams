@@ -77,7 +77,7 @@ export const Scheduler = (props) => {
         </TabsHeader>
       </Tabs>
       <CustomDateRangPicker className='space-y-8 border shadow rounded-lg bg-white' onRangeChange={handelRangeChange} />
-      <div className='bg-white space-y-8 p-4  rounded-lg '>
+      <div className='bg-white  p-4  rounded-lg '>
         <div className='space-y-4'>
           <Typography className='flex justify-between'>
             <span className='mr-4 text-sm font-normal text-gray-600'>
@@ -101,7 +101,7 @@ export const Scheduler = (props) => {
 
           </Typography>
         </div>
-
+        <Divider className='mt-4 mb-8'/>
 
         <Button className='w-full bg-primaryDark' onClick={handelAddSchedule} disabled={loading}>
           Add schedule

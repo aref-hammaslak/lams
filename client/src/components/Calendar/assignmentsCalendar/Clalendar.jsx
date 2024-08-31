@@ -70,7 +70,7 @@ export const Calendar = (props) => {
         <>
 
             <Grid
-                container direction="column" padding="1rem" alignItems="center" justifyContent="center" color={{}} className="!bg-white min-w-[980px] "
+                container direction="column" padding="1rem" alignItems="center" justifyContent="center" color={{}} className=" min-w-[980px] p-0 !pb-10"
             >
                 {/*render date peaker , schedule type selector , the current month typography */}
                 <Grid item alignSelf="stretch" alignItems='center' mb="2rem" className="">
@@ -80,6 +80,7 @@ export const Calendar = (props) => {
                             <ChevronLeftIcon />
                         </IconButton>
                         <DatePicker
+                            className="bg-white"
                             format="YYYY-MM"
                             views={["year", "month"]}
                             value={currDate}

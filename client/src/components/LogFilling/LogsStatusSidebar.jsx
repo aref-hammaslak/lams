@@ -90,7 +90,7 @@ export const LogsStatusSidebar = (props) => {
                       <TabPanel key={i} value={value}>
                           <List>
                               {items.map(({ name, id }) => (
-                                  <ListItem key={id} onClick={onFilterChange.bind(null, id, value)} className={  `${filter.id === id && 'bg-primary text-white' } border-b hover:text-white hover:bg-primary focus:text-white focus:bg-primary  `}>
+                                  <ListItem key={id} onClick={onFilterChange.bind(null, id, value)} className={`${filter.id === id && 'bg-primary text-white'} border-b hover:text-white hover:bg-primary focus:text-white focus:bg-primary  `}>
                                       {name}
                                   </ListItem>
                               ))}
@@ -101,5 +101,36 @@ export const LogsStatusSidebar = (props) => {
               }
           </TabsBody>
       </Tabs>
+    //   <Tabs value={filter.type === null ? 'all' : filter.type}>
+    //       <TabsHeader className='px-4 py-4 border-b shadow-md !rounded-none'>
+    //           {
+    //               sidebarData.map(({ label, value }, i) => (
+    //                   <Tab key={i} value={value} onClick={onFilterChange.bind(null, null, null)}>
+    //                       {label}
+    //                   </Tab>
+    //               ))
+    //           }
+    //       </TabsHeader>
+    //       <TabsBody animate={{
+    //           initial: { y: 250 },
+    //           mount: { y: 0 },
+    //           unmount: { y: 250 },
+    //       }}>
+    //           {
+    //               sidebarData.map(({ value, items }, i) => (
+    //                   <TabPanel key={i} value={value}>
+    //                       <List>
+    //                           {items.map(({ name, id }) => (
+    //                               <ListItem key={id} onClick={onFilterChange.bind(null, id, value)} className={  `${filter.id === id && 'bg-primary text-white' } border-b hover:text-white hover:bg-primary focus:text-white focus:bg-primary  `}>
+    //                                   {name}
+    //                               </ListItem>
+    //                           ))}
+    //                       </List>
+
+    //                   </TabPanel>
+    //               ))
+    //           }
+    //       </TabsBody>
+    //   </Tabs>
   )
 }
