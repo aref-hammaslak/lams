@@ -82,12 +82,12 @@ export const ScheduleAPI = {
 		})
 		return response.data.payload;
 	},
-	createMap: async function (date, user_sch_id, item_sch_ids, cancel = false) {
+	createMap: async function (date, user_id, sch_ids, cancel = false) {
 		const response = await api.request({
 			url: 'schedule-map',
 			method: "POST",
 			params: { bulk: true },
-			data: { date, user_sch_id, item_sch_ids },
+			data: { date, user_id, sch_ids },
 			signal: cancel
 				? cancelApiObject[this.createMap.name].handleRequestCancellation().signal
 				: undefined,

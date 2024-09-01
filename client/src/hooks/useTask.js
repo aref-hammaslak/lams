@@ -25,7 +25,9 @@ const useTask = ({ isAdmin }) => {
       if (isAdmin) {
         params.lab_id = lab_id;
         userTasks = await userTaskAPI.fetchAllInLab(params);
+        console.log("🚀 ~ fetchTasks ~ userTasks:", userTasks)
         setTasksmap(userTasks);
+        
 
       } else {
         userTasks = await userTaskAPI.fetchById(user_id, params);

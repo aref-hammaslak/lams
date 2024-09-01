@@ -36,6 +36,7 @@ import useAuth from "../../hooks/useAuth.js";
 import { LabAPI } from "../../apis/LabAPI.js";
 
 const REC_COLOR = {
+	daily: "primary",
 	weekly: "primary",
 	monthly: "warning",
 	quarterly: "secondary",
@@ -49,20 +50,9 @@ const TYPE_ICON = {
 	equipment: <BiotechRoundedIcon />,
 };
 
-export const ScheduleAssign= () => {
+export const ScheduleAssign = () => {
 	const navigate = useNavigate();
-	const [labs, setLabs] = useState([]);
-	const [currentLab, setCurrentLab] = useState(null);
 	const { auth, setAuth } = useAuth();
-
-	useEffect(() => {
-		LabAPI.getAll().then((labs) => {
-			setLabs(labs);
-			const lab = labs.find((lab) => lab._id === auth.lab_id);
-			setCurrentLab(lab);
-		});
-	}, []);
-
 	const today = dayjs().startOf("day");
 	const { error, setError } = useState(null);
 	const {
@@ -97,42 +87,42 @@ export const ScheduleAssign= () => {
 		changeScheduleType(schType.toLowerCase());
 	}, [schType]);
 
-	const handleSubmit = (data) => {
-		if (item) {
-			console.log(data);
-			ScheduleAPI.update(item._id, {
-				initial_date: data.initial_date.format("YYYY-MM-DD"),
-				recurrence: data.recurrence === "none" ? null : data.recurrence,
-				end_date: data.end_date
-					? data.end_date.add(1, "day").format("YYYY-MM-DD")
-					: null,
-			}).then(
-				(_) => {
-					refresh();
-					endEdit();
-					selectDay(null);
-					selectSchedule(null);
-				},
-				(err) => setError(err)
-			);
-		} else {
-			ScheduleAPI.create(
-				data.type,
-				data.item._id,
-				data.initial_date.format("YYYY-MM-DD"),
-				data.end_date
-					? data.end_date.add(1, "day").format("YYYY-MM-DD")
-					: undefined,
-				data.recurrence === "none" ? undefined : data.recurrence
-			).then(
-				(_) => {
-					refresh();
-					selectDay(null);
-				},
-				(err) => setError(error)
-			);
-		}
-	};
+	// const handleSubmit = (data) => {
+	// 	if (item) {
+	// 		console.log(data);
+	// 		ScheduleAPI.update(item._id, {
+	// 			initial_date: data.initial_date.format("YYYY-MM-DD"),
+	// 			recurrence: data.recurrence === "none" ? null : data.recurrence,
+	// 			end_date: data.end_date
+	// 				? data.end_date.add(1, "day").format("YYYY-MM-DD")
+	// 				: null,
+	// 		}).then(
+	// 			(_) => {
+	// 				refresh();
+	// 				endEdit();
+	// 				selectDay(null);
+	// 				selectSchedule(null);
+	// 			},
+	// 			(err) => setError(err)
+	// 		);
+	// 	} else {
+	// 		ScheduleAPI.create(
+	// 			data.type,
+	// 			data.item._id,
+	// 			data.initial_date.format("YYYY-MM-DD"),
+	// 			data.end_date
+	// 				? data.end_date.add(1, "day").format("YYYY-MM-DD")
+	// 				: undefined,
+	// 			data.recurrence === "none" ? undefined : data.recurrence
+	// 		).then(
+	// 			(_) => {
+	// 				refresh();
+	// 				selectDay(null);
+	// 			},
+	// 			(err) => setError(error)
+	// 		);
+	// 	}
+	// };
 
 	const [delConf, setDelConf] = useState(false);
 	const handleDeleteSchedule = () => {
@@ -153,43 +143,15 @@ export const ScheduleAssign= () => {
 
 	return (
 		<>
-			<Box
-				m={2}
-				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-				}}
-			>
-				<Breadcrumbs
-					aria-label="breadcrumb"
-					separator={<NavigateNextIcon fontSize="small" />}
-					maxItems={2}
-					itemsAfterCollapse={2}
-				>
-					<Typography color="gray" variant="body2">
-						{currentLab ? currentLab.name : ""}{" "}
-					</Typography>
-					<Typography color="text.primary" variant="body2">
-						Schedule
-					</Typography>
-				</Breadcrumbs>
-				<Link
-					sx={{ marginRight: "10px",textDecoration:"none" }}
-					component="button"
-					variant="body2"
-					onClick={() => navigate("/")}
-				>
-					Home
-				</Link>
-			</Box>
+
 			<Grid
-				container
+
 				direction="column"
 				padding="1rem"
 				alignItems="center"
 				justifyContent="center"
 				marginTop="2rem"
+				className="container mx-auto py-14"
 			>
 				<Grid item alignSelf="stretch" mb="2rem">
 					<Stack direction="row" spacing="2rem">
@@ -212,7 +174,7 @@ export const ScheduleAssign= () => {
 							onChange={(_, val) => setSchType(val)}
 							options={[
 								"All",
-								"User",
+								// "User",
 								"Equipment",
 								"Surface",
 								"Thermometer",
@@ -308,7 +270,7 @@ export const ScheduleAssign= () => {
 												/>
 											</Box>
 										)}
-										<AddCircleOutlineRoundedIcon
+										{/* <AddCircleOutlineRoundedIcon
 											color="primary"
 											sx={{
 												display: "none",
@@ -322,7 +284,7 @@ export const ScheduleAssign= () => {
 												setAnchorEl(e.currentTarget.parentElement);
 												selectDay(key);
 											}}
-										/>
+										/> */}
 									</Stack>
 									<Divider />
 									<Box
@@ -330,6 +292,7 @@ export const ScheduleAssign= () => {
 										sx={{
 											overflowY: "auto",
 										}}
+										className='scrollbar-thin'
 										onClick={() => {
 											// if (day.date.isBefore(today)) return;
 											expandDay(day);
@@ -339,60 +302,67 @@ export const ScheduleAssign= () => {
 											<CircularProgress />
 										) : (
 											day.schedules.map((sch) => (
-												<Chip
-													avatar={
-														sch.type === "user" ? (
-															<Avatar />
-														) : null
+												<>
+													{
+														sch.type === 'user' ? null :
+															<Chip
+																avatar={
+																	sch.type === "user" ? (
+																		<Avatar />
+																	) : null
+																}
+																key={sch._id}
+																variant={
+																	sch.type === "user"
+																		? "outlined"
+																		: "filled"
+																}
+																deleteIcon={TYPE_ICON[sch.type]}
+																onDelete={
+																	sch.type !== "user" ? () => { } : null
+																}
+																label={(() => {
+																	let name = "";
+																	name +=
+																		items[sch.type]?.[sch.id]?.name ||
+																		"DELETED";
+																	switch (sch.recurrence) {
+																		case "quarterly":
+																			name += " [Q]";
+																			break;
+																		case "semiannual":
+																			name += " [S]";
+																			break;
+																		case "annually":
+																			name += " [A]";
+																			break;
+																	}
+																	return name;
+																})()}
+																color={
+																	items[sch.type]?.[sch.id]
+																		? REC_COLOR[sch.recurrence]
+																		: "error"
+																}
+																size="small"
+																onContextMenu={(e) => {
+																	e.preventDefault();
+																	e.stopPropagation();
+																	setSchAnchor(e.target);
+																	selectSchedule(sch);
+																}}
+																onClick={(e) => {
+																	if (e.type === "click") return;
+																	e.stopPropagation();
+																	setSchAnchor(e.target);
+																	selectSchedule(sch);
+																}}
+																sx={{ margin: "2px" }}
+															/>
 													}
-													key={sch._id}
-													variant={
-														sch.type === "user"
-															? "outlined"
-															: "filled"
-													}
-													deleteIcon={TYPE_ICON[sch.type]}
-													onDelete={
-														sch.type !== "user" ? () => {} : null
-													}
-													label={(() => {
-														let name = "";
-														name +=
-															items[sch.type]?.[sch.id]?.name ||
-															"DELETED";
-														switch (sch.recurrence) {
-															case "quarterly":
-																name += " [Q]";
-																break;
-															case "semiannual":
-																name += " [S]";
-																break;
-															case "annually":
-																name += " [A]";
-																break;
-														}
-														return name;
-													})()}
-													color={
-														items[sch.type]?.[sch.id]
-															? REC_COLOR[sch.recurrence]
-															: "error"
-													}
-													size="small"
-													onContextMenu={(e) => {
-														e.preventDefault();
-														e.stopPropagation();
-														setSchAnchor(e.target);
-														selectSchedule(sch);
-													}}
-													onClick={(e) => {
-														if (e.type === "click") return;
-														e.stopPropagation();
-														setSchAnchor(e.target);
-														selectSchedule(sch);
-													}}
-													sx={{ margin: "2px" }}
-												/>
+
+												</>
+
 											))
 										)}
 									</Box>
@@ -416,7 +386,7 @@ export const ScheduleAssign= () => {
 				<MenuItem
 					onClick={() => {
 						startEdit(selectedSchedule).then(
-							(_) => {},
+							(_) => { },
 							(err) => setError(err)
 						);
 						setAnchorEl(schAnchor);
@@ -432,7 +402,7 @@ export const ScheduleAssign= () => {
 					)}
 				</MenuItem>
 			</Menu>
-			<Menu
+			{/* <Menu
 				open={Boolean(selectedDay)}
 				anchorEl={anchorEl}
 				anchorOrigin={{
@@ -469,7 +439,7 @@ export const ScheduleAssign= () => {
 						onSubmit={handleSubmit}
 					/>
 				</Stack>
-			</Menu>
+			</Menu> */}
 			<DayDialog
 				open={Boolean(expandedDay)}
 				day={expandedDay}

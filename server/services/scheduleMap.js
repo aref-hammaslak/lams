@@ -6,30 +6,30 @@ export async function getScheduleMapById(labId, id) {
     const result = await ScheduleMapModel.aggregate([
         {
             $lookup: {
-                from: 'schedules',
-                localField: 'user_sch_id',
+                from: 'users',
+                localField: 'user_id',
                 foreignField: '_id',
-                as: 'user_sch',
+                as: 'user',
             },
         },
         {
             $lookup: {
                 from: 'schedules',
-                localField: 'item_sch_id',
+                localField: 'sch_id',
                 foreignField: '_id',
-                as: 'item_sch'
+                as: 'sch'
             },
         },
         {
             $match: {
-                'user_sch.lab_id': {
+                'user.lab_id': {
                     $eq: new mongoose.Types.ObjectId(labId)
                 }
             }
         },
         {
             $match: {
-                'item_sch.lab_id': {
+                'sch.lab_id': {
                     $eq: new mongoose.Types.ObjectId(labId)
                 }
             }

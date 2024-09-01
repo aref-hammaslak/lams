@@ -11,63 +11,165 @@ const logtemplatesPipeline = [
             from: "equipment",
             localField: "eq_id",
             foreignField: "_id",
-            as: "eq_details",
+            as: "equipment",
             pipeline: [
                 {
                     $project: {
-                        "_id": 1,
-                        "name": 1
+                        _id: "$_id",
+                        name: "$name"
                     }
                 }
+
             ]
         }
-    }, {
-        $unwind: "$eq_details",
+    },
+    {
+        $unwind: "$equipment",
     },
 
 ]
 
 const itemSchedulePipeline = [
     {
-        $lookup: {
-            from: "logtemplates",
-            localField: "id",
-            foreignField: "_id",
-            as: "temp_details",
-            pipeline: logtemplatesPipeline,
-        },
-    }, {
-        $unwind: "$temp_details",
+        $facet: {
+            "logTemplate_sch": [
+                {
+                    $lookup: {
+                        from: "logtemplates",
+                        localField: "id",
+                        foreignField: "_id",
+                        as: "logTemplate",
+                        pipeline: logtemplatesPipeline,
+                    },
+
+                },
+                {
+                    $unwind: '$logTemplate'
+                }
+            ],
+            "surface_sch": [
+                {
+                    $lookup: {
+                        from: "surfaces",
+                        localField: "id",
+                        foreignField: "_id",
+                        as: "surface",
+                    },
+                },
+                {
+                    $unwind: '$surface'
+                }
+            ],
+            "thermometer_sch": [
+                {
+                    $lookup: {
+                        from: "thermometers",
+                        localField: "id",
+                        foreignField: "_id",
+                        as: "thermometer",
+                    },
+                },
+                {
+                    $unwind: '$thermometer'
+                }
+            ],
+        }
     },
+
 ]
 
 const schedulemapsPipeline = [
     {
         $lookup: {
             from: "schedules",
-            localField: "item_sch_id",
+            localField: "sch_id",
             foreignField: "_id",
             as: "item_sch",
             pipeline: itemSchedulePipeline,
-        },
-    }, {
-        $unwind: "$item_sch"
-    }, {
-        $project: {
-            date: 1,
-
-            eq_sch: "$item_sch",
-            log_temp: "$item_sch.temp_details",
-            eq_details: "$item_sch.temp_details.eq_details",
 
         },
     },
     {
+        $unwind: "$item_sch"
+    },
+    {
+        $project: {
+            date: 1,
+            type: 1,
+            logTemplate_sch: {
+                $first: "$item_sch.logTemplate_sch"
+            },
+            surface_sch: {
+                $first: "$item_sch.surface_sch",
+            },
+            thermometer_sch: {
+                $first: "$item_sch.thermometer_sch"
+            },
+        },
+
+    },
+    {
+        $project: {
+            date: 1,
+            logTemplate: {
+                _id: '$logTemplate_sch.logTemplate._id',
+                type: '$logTemplate_sch.logTemplate.type',
+                items: '$logTemplate_sch.logTemplate.items',
+                equipment: '$logTemplate_sch.logTemplate.equipment',
+            },
+            surface: {
+                _id: '$surface_sch.surface._id',
+                name: '$surface_sch.surface.name',
+                maintenance_proc: '$surface_sch.surface.maintenance_proc',
+            },
+            thermometer: {
+                _id: '$thermometer_sch.thermometer._id',
+                name: '$thermometer_sch.thermometer.name',
+                description: '$thermometer_sch.thermometer.description',
+                temp_min: '$thermometer_sch.thermometer.temp_min',
+                temp_max: '$thermometer_sch.thermometer.temp_max',
+            },
+            sch: {
+                $cond: {
+                    if: '$logTemplate_sch',
+                    then: {
+                        _id: '$logTemplate_sch._id',
+                        type: '$logTemplate_sch.type',
+                        recurrence: '$logTemplate_sch.recurrence'
+                    },
+                    else: {
+                        $cond: {
+                            if: '$surface_sch',
+                            then: {
+                                _id: '$surface_sch._id',
+                                type: '$surface_sch.type',
+                                recurrence: '$surface_sch.recurrence'
+                            },
+                            else: {
+                                $cond: {
+                                    if: '$thermometer_sch',
+                                    then: {
+                                        _id: '$thermometer_sch._id',
+                                        type: '$thermometer_sch.type',
+                                        recurrence: '$thermometer_sch.recurrence'
+                                    },
+                                    else: '$$REMOVE'
+                                }
+                            }
+                        }
+                    },
+                }
+            },
+        }
+
+    },
+
+    {
         $lookup: {
             from: "equipmentlogs",
             let: {
-                eqSchId: "$eq_sch._id",
-                tempId: "$log_temp._id",
+                logTempSchId: "$sch._id",
+                logTempId: "$logTemplate._id",
                 logDate: "$date"
             },
             as: "sameDateExistedLogs",
@@ -77,8 +179,8 @@ const schedulemapsPipeline = [
                         $expr: {
                             $and: [
                                 { $eq: ["$date", "$$logDate"] },
-                                { $eq: ["$sch_id", "$$eqSchId"] },
-                                { $eq: ["$temp_id", "$$tempId"] }
+                                { $eq: ["$sch_id", "$$logTempSchId"] },
+                                { $eq: ["$temp_id", "$$logTempId"] }
                             ]
                         }
                     }
@@ -86,40 +188,51 @@ const schedulemapsPipeline = [
             ],
 
         }
+
     },
-    {
-        $project: {
-            "eq_sch.id": 0,
-            "eq_sch.lab_id": 0,
-            "eq_sch.offsets": 0,
-            "eq_sch.__v": 0,
-            "log_temp.eq_id": 0,
-            "eq_sch.temp_details": 0,
-            "log_temp.eq_details": 0
-        }
-    },
+    // {
+    //     $project: {
+    //         date: 1,
+    //         logTemplate: 1,
+    //         surface: 1,
+    //         thermometer: 1,
+    //         sch: 1,
+    //         sameDateExistedLogs: {
+    //             $cond: {
+    //                 if: '$logTemplate',
+    //                 then: '$sameDateExistedLogs',
+    //                 else: '$$REMOVE'
+    //             }
+    //         }
+    //     }
+    // },
     {
         $group: {
             _id: "$date",
             tasks: {
                 $push: {
-                    eq_sch: "$eq_sch",
-                    log_temp: "$log_temp",
-                    eq_details: "$eq_details",
+                    logTemplate: '$logTemplate',
+                    surface: '$surface',
+                    thermometer: '$thermometer',
+                    sch: '$sch',
+
                     // log: {
                     //     $first:  "$sameDateExistedLogs"
                     // },
                     done: {
+
                         $cond: {
                             if: { $gt: [{ $size: "$sameDateExistedLogs" }, 0] },
                             then: true,
-                            else: false
+                            else: false, 
                         }
-                    }
+                    },
+
                 }
             }
         }
-    }, {
+    },
+    {
         $project: {
             _id: 0,
             date: "$_id",
@@ -133,48 +246,48 @@ const schedulemapsPipeline = [
     }
 ]
 
-const schedulesPipeline = [
-    {
-        $lookup: {
-            from: "schedulemaps",
-            localField: "_id",
-            foreignField: "user_sch_id",
-            as: "schedulemaps",
-            pipeline: schedulemapsPipeline,
-        }
-    },
-]
+// const schedulesPipeline = [
+//     {
+//         $lookup: {
+//             from: "schedulemaps",
+//             localField: "_id",
+//             foreignField: "user_sch_id",
+//             as: "schedulemaps",
+//             pipeline: schedulemapsPipeline,
+//         }
+//     },
+// ]
 
 const userTaskViewPipline = [
     {
         $lookup: {
-            from: "schedules",
+            from: "schedulemaps",
             localField: "_id",
-            foreignField: "id",
-            as: "schedules",
-            pipeline: schedulesPipeline,
+            foreignField: "user_id",
+            as: "schedulemaps",
+            pipeline: schedulemapsPipeline,
         }
     },
-    {
-        $project: {
-            _id: 1,
-            name: 1,
-            username: 1,
-            lab_id: 1,
-            schedulemaps: {
-                $reduce: {
-                    input: "$schedules",
-                    initialValue: [],
-                    in: { $concatArrays: ["$$value", "$$this.schedulemaps"] }
-                }
-            },
+    // {
+    //     $project: {
+    //         _id: 1,
+    //         name: 1,
+    //         username: 1,
+    //         lab_id: 1,
+    //         schedulemaps: {
+    //             $reduce: {
+    //                 input: "$schedules",
+    //                 initialValue: [],
+    //                 in: { $concatArrays: ["$$value", "$$this.schedulemaps"] }
+    //             }
+    //         },
 
-        }
-    }
+    //     }
+    // }
 ]
 
 try {
-    // await db.db.dropCollection('UserTask');
+    await db.db.dropCollection('UserTask');
     await db.db.createCollection(
         'UserTask',
         {
@@ -235,7 +348,7 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
                 _id: 0,
                 user: "$_id",
                 schedulemaps: 1
-                     
+
             }
         }
 
@@ -244,7 +357,7 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
     try {
         const result = await this.aggregate(pipline).exec();
         console.log(result);
-        if(result.length)  return result[0];
+        if (result.length) return result[0];
         return result;
     } catch (error) {
         return new Error(error.message);
@@ -272,7 +385,7 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
                 "schedulemaps.date": {
                     $gte: new Date(startDate),
                     $lte: new Date(endDate)
-},
+                },
             }
         },
         {
@@ -296,9 +409,11 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
                 // task: "$schedulemaps.tasks"
                 task: {
                     user: "$user",
-                    eq_sch: "$schedulemaps.tasks.eq_sch",
-                    log_temp: "$schedulemaps.tasks.log_temp",
-                    eq_details:"$schedulemaps.tasks.eq_details",
+                    sch: "$schedulemaps.tasks.sch",
+                    
+                    logTemplate: "$schedulemaps.tasks.logTemplate",
+                    thermometer: "$schedulemaps.tasks.thermometer",
+                    surface: "$schedulemaps.tasks.surface",
                     done: "$schedulemaps.tasks.done"
                 }
             }
@@ -327,6 +442,8 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
 
     try {
         const result = await this.aggregate(pipeline).exec();
+        // const result = await this.findById('66af4cb82e3da1ed76442b7b');
+
         console.log(result);
         return result;
     } catch (error) {

@@ -20,11 +20,17 @@ import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded.js";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import { BoxController } from "../BoxController";
+import { UserAPI } from "../../apis/UserAPI.js";
+import { renderEditSingleSelectCell } from "@mui/x-data-grid";
+import { useSnackbar } from "notistack";
 
 const TYPE_COLOR = {
+	'daily': "primary",
 	'weekly': 'primary',
 	'monthly': 'warning',
-	'quarterly': 'secondary'
+	'quarterly': 'secondary',
+	'semiannually': "secondary",
+	'annually': "secondary",
 };
 
 const TYPE_ICON = {
@@ -36,113 +42,177 @@ const TYPE_ICON = {
 export const DayDialog = ({ open, onClose, day, info }) => {
 	const today = dayjs().startOf('day');
 	const [error, setError] = useState(null);
-	const [assignments, setAssignments] = useState([]);
+	const [staff, setStaff] = useState([]);
 	const [items, setItems] = useState([]);
 	const [selectedCount, setSelectedCount] = useState(0);
 	const [toggleReload, setToggleReload] = useState(false);
 	const reload = () => setToggleReload(!toggleReload);
 	const [loading, setLoading] = useState(false);
+	const { enqueueSnackbar } = useSnackbar();
+
 
 	useEffect(() => {
-		loading || setLoading(true);
-		setSelectedCount(0);
-		if (!day) {
-			setAssignments([]);
-			setItems([]);
-			setLoading(false);
-			return;
-		}
-		const assignments = day?.schedules.filter(sch => sch.type === 'user')
-			.map(user => ({
-				...user,
-				...info[user.type]?.[user.id]
-			})) || [];
-		const items = day?.schedules.filter(sch => sch.type !== 'user')
-			.map(item => ({
-				...item,
-				...info[item.type]?.[item.id]
-			})) || [];
-
-		ScheduleAPI.getMaps(
-			day.date.format('YYYY-MM-DD'),
-			day.date.format('YYYY-MM-DD'),
-			false,
-			'user_sch_id'
-		).then(
-			maps => {
-				let itemsToRemove = [];
-				console.log({
-					maps
-				});
-				let newAssignments = assignments;
-				Object.keys(maps).forEach(user_sch_id => {
-					console.log({
-						user_sch_id
-					});
-						newAssignments = newAssignments.map(userSch => {
-							if (userSch._id === user_sch_id) {
-								const user_items = maps[user_sch_id].map(m => ({
-									...items.find(i => i._id === m.item_sch_id),
-									sch_map: m
-								}));
-								console.log({
-									user_items
-								});
-								return {
-									...userSch,
-									items: user_items
-								}
-							} else {
-								return userSch;
-							}
-						})
-					itemsToRemove = itemsToRemove.concat(maps[user_sch_id].map(m => m.item_sch_id))
-				});
-				setAssignments(newAssignments);
-				setItems(
-					items.filter( i => !itemsToRemove.includes(i._id))
+		if (!day) return;
+		const fetchData = async () => {
+			try {
+				let alreadyAssignedItems = [];
+				const schMaps = await ScheduleAPI.getMaps(
+					day.date.format('YYYY-MM-DD'),
+					day.date.add(1, 'day').format('YYYY-MM-DD'),
+					false,
+					'user_id'
 				);
-				setLoading(false);
-			},
-			err => {
-				setError(err);
-				setLoading(false);
+
+				const staff = await UserAPI.getAll();
+				const deserializedStaff = staff.map((staff) => {
+
+					const items = schMaps[staff._id]?.map(item => {
+						return {
+							sch_map_id: item._id,
+							...item.sch,
+						}
+					}) || [];
+					alreadyAssignedItems.push(...items)
+					return { _id: staff._id, name: staff.name, active: staff.active, items }
+				}).filter((staff) => staff.active);
+				setStaff(deserializedStaff)
+				const notAssignedItems = day.schedules.map((sch) => {
+					return {
+						_id: sch._id,
+						name: info[sch.type][sch.id].name,
+						recurrence: sch.recurrence
+
+					}
+				}).filter(item => {
+					const allreadyAssigned = alreadyAssignedItems.find(alItem => alItem._id === item._id)
+					return allreadyAssigned ? false : true
+				})
+				setItems(notAssignedItems);
+
+
+			} catch (error) {
+				setError(error.message);
+				console.error(error);
 			}
-		);
-	}, [day, toggleReload]);
+
+		}
+		fetchData();
+
+	}, [day, info, toggleReload]);
+
+	useEffect(() => {
+		if (!error) return;
+		enqueueSnackbar(error.message, { variant: 'error' });
+	}, [error])
+
+	// useEffect(() => {
+	// 	loading || setLoading(true);
+	// 	setSelectedCount(0);
+	// 	if (!day) {
+	// 		setAssignments([]);
+	// 		setItems([]);
+	// 		setLoading(false);
+	// 		return;
+	// 	}
+	// 	const assignments = day?.schedules.filter(sch => sch.type === 'user')
+	// 		.map(user => ({
+	// 			...user,
+	// 			...info[user.type]?.[user.id]
+	// 		})) || [];
+	// 	const items = day?.schedules.filter(sch => sch.type !== 'user')
+	// 		.map(item => ({
+	// 			...item,
+	// 			...info[item.type]?.[item.id]
+	// 		})) || [];
+
+	// 	ScheduleAPI.getMaps(
+	// 		day.date.format('YYYY-MM-DD'),
+	// 		day.date.format('YYYY-MM-DD'),
+	// 		false,
+	// 		'user_sch_id'
+	// 	).then(
+	// 		maps => {
+	// 			let itemsToRemove = [];
+	// 			console.log({
+	// 				maps
+	// 			});
+	// 			let newAssignments = assignments;
+	// 			Object.keys(maps).forEach(user_sch_id => {
+	// 				console.log({
+	// 					user_sch_id
+	// 				});
+	// 					newAssignments = newAssignments.map(userSch => {
+	// 						if (userSch._id === user_sch_id) {
+	// 							const user_items = maps[user_sch_id].map(m => ({
+	// 								...items.find(i => i._id === m.item_sch_id),
+	// 								sch_map: m
+	// 							}));
+	// 							console.log({
+	// 								user_items
+	// 							});
+	// 							return {
+	// 								...userSch,
+	// 								items: user_items
+	// 							}
+	// 						} else {
+	// 							return userSch;
+	// 						}
+	// 					})
+	// 				itemsToRemove = itemsToRemove.concat(maps[user_sch_id].map(m => m.item_sch_id))
+	// 			});
+	// 			setAssignments(newAssignments);
+	// 			setItems(
+	// 				items.filter( i => !itemsToRemove.includes(i._id))
+	// 			);
+	// 			setLoading(false);
+	// 		},
+	// 		err => {
+	// 			setError(err);
+	// 			setLoading(false);
+	// 		}
+	// 	);
+	// }, [day, toggleReload]);
 
 	const assignTasks = async (user) => {
 		setLoading(true);
+
 		ScheduleAPI.createMap(
 			day.date.format('YYYY-MM-DD'),
 			user._id,
 			items.filter(i => i.selected).map(i => i._id)
 		).then(
-			_ => reload(),
+			res => {
+				if (res.errors) {
+					res.errors.map(err => enqueueSnackbar(err.message, { variant: 'error' }))
+				}
+				reload()
+			},
 			err => {
 				setError(err);
 				setLoading(false);
 			}
-		)
+		).finally(() => {
+			setLoading(false);
+		})
 	}
-	const removeTask = async (user, item) => {
+	const removeTask = async (sch_map_id) => {
 		setLoading(true);
-		ScheduleAPI.destroyMap(item.sch_map._id)
+		ScheduleAPI.destroyMap(sch_map_id)
 			.then(
 				_ => reload(),
 				err => {
 					setError(err);
 					setLoading(false);
 				}
-			)
+			).finally(() => setLoading(false));
 	}
 
 	return (
-		<Dialog open={open} fullWidth maxWidth='lg' onClose={onClose}>
+		<Dialog open={open} fullWidth maxWidth='md' onClose={onClose}>
 			{loading
 				? <DialogTitle>
 					<CircularProgress
-						// sx={{ px: '0.7rem' }}
+					// sx={{ px: '0.7rem' }}
 					/>
 				</DialogTitle>
 				: <DialogTitle component={Box}>
@@ -165,19 +235,19 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 				</DialogTitle>
 			}
 			<Divider />
-			<DialogContent>
+			<DialogContent >
 				<Box height='30rem'>
-				<Grid container justifyContent='space-between' alignItems='start'>
-					<Grid item xs={5.5} mb='1rem'>
-						<Typography variant='h6'>Assignments</Typography>
-						<Divider />
-					</Grid>
-					<Grid item xs={5.5} mb='1rem'>
-						<Typography variant='h6'>Items</Typography>
-						<Divider />
-					</Grid>
-					<Grid item xs={5.5} container>
-						{assignments.map(user => (
+					<Grid container justifyContent='space-between' alignItems='start'>
+						<Grid item xs={5.5} mb='1rem'>
+							<Typography variant='h6'>Assignments</Typography>
+							<Divider />
+						</Grid>
+						<Grid item xs={5.5} mb='1rem'>
+							<Typography variant='h6'>Items</Typography>
+							<Divider />
+						</Grid>
+						<Grid item xs={5.5} container>
+							{staff.map(user => (
 								<Grid
 									item
 									key={user._id}
@@ -210,70 +280,87 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										fontSize='large'
 									/>
 									<Typography>{user.name || user.username}</Typography>
-									<Divider/>
+									<Divider />
 									<Grid container>
 										{user?.items?.map(item => (
+											
+											info[item.type] ? (
+												<Grid item key={item._id}>
+													<BoxController
+														componentProps={{
+															deleteIcon: TYPE_ICON[item.type]
+														}}
+														onHoverProps={{
+															deleteIcon: <HighlightOffRoundedIcon />
+														}}
+														renderComponent={(props) => (
+															<Chip
+																{...props}
+																onDelete={() => removeTask(item.sch_map_id)}
+																label={(() => {
+																	let name = '';
 
-											<Grid item key={item._id}>
-												<BoxController
-													componentProps={{
-														deleteIcon: TYPE_ICON[item.type]
-													}}
-													onHoverProps={{
-														deleteIcon: <HighlightOffRoundedIcon />
-													}}
-													renderComponent={(props) => (
-														<Chip
-															{...props}
-															onDelete={() => removeTask(user, item)}
-															label={(() => {
-																let name = '';
-																name += item.name || 'DELETED'
-																switch (item.recurrence) {
-																	case 'quarterly': name += ' [Q]';
-																		break;
-																	case 'semiannual': name += ' [S]';
-																		break;
-																	case 'annually': name += ' [A]';
-																		break;
-																}
-																return name;
-															})()}
-															color={item ? TYPE_COLOR[item.recurrence] : 'error'}
+																	name += info[item.type][item.id].name || 'DELETED'
+																	switch (item.recurrence) {
+																		case 'daily': name += ' [D]';
+																			break;
+																		case 'weekly': name += ' [W]';
+																			break;
+																		case 'quarterly': name += ' [Q]';
+																			break;
+																		case 'semiannual': name += ' [S]';
+																			break;
+																		case 'annually': name += ' [A]';
+																			break;
+																	}
+																	return name;
+																})()}
+																color={item ? TYPE_COLOR[item.recurrence] : 'error'}
 
-															style={{
-																userSelect: 'none'
-															}}
-															sx={{
-																'&:hover': {
-																	cursor: 'pointer',
-																	boxShadow: '-2px 2px 5px gray'
-																},
-																'&:active': {
-																	cursor: 'pointer',
-																	boxShadow: '-5px 5px 10px gray',
-																}
-															}}
-														/>
+																style={{
+																	userSelect: 'none'
+																}}
+																sx={{
+																	'&:hover': {
+																		cursor: 'pointer',
+																		boxShadow: '-2px 2px 5px gray'
+																	},
+																	'&:active': {
+																		cursor: 'pointer',
+																		boxShadow: '-5px 5px 10px gray',
+																	}
+																}}
+															/>
 
-													)}
-												/>
-											</Grid>
+														)}
+													/>
+												</Grid>
+												) : null
+											
+		
 										))}
 									</Grid>
 								</Grid>
 							))}
-					</Grid>
-					<Grid item xs={5.5} container spacing='5px'>
-						{items.map(item => (
+						</Grid>
+						<Grid item xs={5.5} container spacing='5px'>
+							{items?.map(item => (
+
 								<Grid item key={item._id}>
 									<Chip
+										componentProps={{
+											deleteIcon: TYPE_ICON[item.type]
+										}}
 										deleteIcon={TYPE_ICON[item.type]}
-										onDelete={() => {}}
+										onDelete={() => { }}
 										label={(() => {
 											let name = '';
 											name += item.name || 'DELETED'
 											switch (item.recurrence) {
+												case 'daily': name += ' [D]';
+													break;
+												case 'weekly': name += ' [W]';
+													break;
 												case 'quarterly': name += ' [Q]';
 													break;
 												case 'semiannual': name += ' [S]';
@@ -294,7 +381,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 															...i,
 															selected: !i.selected
 														}
-													}else
+													} else
 														return i;
 												})
 											)
@@ -304,7 +391,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 											boxShadow: item.selected ? '-5px 5px 10px gray' : 'none',
 											'&:hover': {
 												cursor: 'pointer',
-												boxShadow: item.selected ? '-5px 5px 10px gray' : '-2px 2px 5px gray',
+												// boxShadow: item.selected ? '-5px 5px 10px gray' : '-2px 2px 5px gray',
 											},
 											'&:active': {
 												cursor: 'pointer',
@@ -314,8 +401,8 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 									/>
 								</Grid>
 							))}
+						</Grid>
 					</Grid>
-				</Grid>
 				</Box>
 			</DialogContent>
 		</Dialog>

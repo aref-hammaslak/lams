@@ -5,6 +5,7 @@ import ExpressError from "../utils/ExpressError.js";
 
 import { getScheduleMapById } from "../services/scheduleMap.js";
 import { isScheduleInLab } from "../services/schedule.js";
+import { isUserInLab } from "../services/user.js";
 
 /**
  * @type {import("express").RequestHandler}
@@ -24,30 +25,37 @@ export async function getAllScheduleMap(req, res) {
     const aggregationPipeline = [
         {
             $lookup: {
-                from: 'schedules',
-                localField: 'user_sch_id',
+                from: 'users',
+                localField: 'user_id',
                 foreignField: '_id',
-                as: 'user_sch',
+                as: 'user',
             },
         },
         {
             $lookup: {
                 from: 'schedules',
-                localField: 'item_sch_id',
+                localField: 'sch_id',
                 foreignField: '_id',
-                as: 'item_sch'
+                as: 'sch'
             },
         },
         {
+            $unwind: '$sch'
+
+        },
+        {
+            $unwind: '$user'
+        },
+        {
             $match: {
-                'user_sch.lab_id': {
+                'user.lab_id': {
                     $eq: lab_id
                 }
             }
         },
         {
             $match: {
-                'item_sch.lab_id': {
+                'sch.lab_id': {
                     $eq: lab_id
                 }
             }
@@ -106,33 +114,33 @@ export async function getMyScheduleMaps(req, res) {
     const aggregationPipeline = [
         {
             $lookup: {
-                from: 'schedules',
-                localField: 'user_sch_id',
+                from: 'users',
+                localField: 'user_id',
                 foreignField: '_id',
-                as: 'user_sch',
+                as: 'user',
             },
         },
         {
             $lookup: {
                 from: 'schedules',
-                localField: 'item_sch_id',
+                localField: 'sch_id',
                 foreignField: '_id',
-                as: 'item_sch'
+                as: 'sch'
             },
         },
         {
             $match: {
-                'user_sch.lab_id': {
+                'user.lab_id': {
                     $eq: lab_id
                 },
-                'user_sch.id': {
-                    $eq: req.user._id
-                }
+                // 'user._id': {
+                //     $eq: req.user._id
+                // }
             }
         },
         {
             $match: {
-                'item_sch.lab_id': {
+                'sch.lab_id': {
                     $eq: lab_id
                 }
             }
@@ -159,13 +167,15 @@ export async function getMyScheduleMaps(req, res) {
     if (!expand) {
         aggregationPipeline.push({
             $project: {
-                user_sch: 0,
-                item_sch: 0
+                user: 0,
+                sch: 0
             }
         });
     }
 
     const result = await ScheduleMapModel.aggregate(aggregationPipeline);
+    // const result = await ScheduleMapModel.find();
+    // console.log(result);
 
     res.send({
         success: true,
@@ -182,30 +192,35 @@ export async function createScheduleMap(req, res) {
     const bulk = (req.query.bulk == 'true');
 
     if (bulk) {
-        const { date, user_sch_id, item_sch_ids } = req.body;
+        const { date, user_id, sch_ids } = req.body;
 
-        if (!isScheduleInLab(user_sch_id, lab_id)) {
-            throw new ExpressError('User schedule assignment not found in lab', 400);
+        if (!isUserInLab(user_id, lab_id)) {
+            throw new ExpressError('User  not found in lab', 400);
         }
 
         const success = [];
         const failure = [];
 
-        for (const item_sch_id of item_sch_ids) {
-            if (!isScheduleInLab(item_sch_id, lab_id)) {
+        for (const sch_id of sch_ids) {
+            if (!isScheduleInLab(sch_id, lab_id)) {
                 failure.push({
-                    item_sch_id,
+                    sch_id,
                     error: 'Schedule not found in lab'
                 });
                 continue;
             }
 
-            const schedMap = new ScheduleMapModel({ date, user_sch_id, item_sch_id });
+            const schedMap = new ScheduleMapModel({ date, user_id, sch_id });
             try {
+                const duplicateAssignemtn = await ScheduleMapModel.find({ date, sch_id });
+                console.log("🚀 ~ createScheduleMap ~ duplicateAssignemtn:", duplicateAssignemtn)
+                
+                if (duplicateAssignemtn.length > 0) throw new Error("This item already has been assigned to a user");
+                
                 await schedMap.save();
             } catch (err) {
                 failure.push({
-                    item_sch_id,
+                    sch_id,
                     error: err.message
                 });
                 continue;
@@ -222,12 +237,12 @@ export async function createScheduleMap(req, res) {
         });
     } else {
         const data = req.body;
-        const { user_sch_id, item_sch_id } = data;
+        const { userid, sch_id } = data;
 
-        if (!isScheduleInLab(user_sch_id, lab_id)) {
+        if (!isUserInLab(user_id, lab_id)) {
             throw new ExpressError('User schedule assignment not found in lab', 400);
         }
-        if (!isScheduleInLab(item_sch_id, lab_id)) {
+        if (!isScheduleInLab(sch_id, lab_id)) {
             throw new ExpressError('Item schedule assignment not found in lab', 400);
         }
 
