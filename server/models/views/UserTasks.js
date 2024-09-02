@@ -135,7 +135,9 @@ const schedulemapsPipeline = [
                     then: {
                         _id: '$logTemplate_sch._id',
                         type: '$logTemplate_sch.type',
-                        recurrence: '$logTemplate_sch.recurrence'
+                        recurrence: '$logTemplate_sch.recurrence',
+                        initial_date: '$logTemplate_sch.initial_date',
+                        end_date: '$logTemplate_sch.end_date'
                     },
                     else: {
                         $cond: {
@@ -143,7 +145,9 @@ const schedulemapsPipeline = [
                             then: {
                                 _id: '$surface_sch._id',
                                 type: '$surface_sch.type',
-                                recurrence: '$surface_sch.recurrence'
+                                recurrence: '$surface_sch.recurrence',
+                                initial_date: '$surface_sch.initial_date',
+                                end_date: '$surface_sch.end_date'
                             },
                             else: {
                                 $cond: {
@@ -151,7 +155,9 @@ const schedulemapsPipeline = [
                                     then: {
                                         _id: '$thermometer_sch._id',
                                         type: '$thermometer_sch.type',
-                                        recurrence: '$thermometer_sch.recurrence'
+                                        recurrence: '$thermometer_sch.recurrence',
+                                        initial_date: '$thermometer_sch.initial_date',
+                                        end_date: '$thermometer_sch.end_date'
                                     },
                                     else: '$$REMOVE'
                                 }
@@ -224,7 +230,7 @@ const schedulemapsPipeline = [
                         $cond: {
                             if: { $gt: [{ $size: "$sameDateExistedLogs" }, 0] },
                             then: true,
-                            else: false, 
+                            else: false,
                         }
                     },
 
@@ -410,7 +416,7 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
                 task: {
                     user: "$user",
                     sch: "$schedulemaps.tasks.sch",
-                    
+
                     logTemplate: "$schedulemaps.tasks.logTemplate",
                     thermometer: "$schedulemaps.tasks.thermometer",
                     surface: "$schedulemaps.tasks.surface",

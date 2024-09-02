@@ -20,14 +20,15 @@ const scheduleSchema = new mongoose.Schema({
     end_date: Date,
     type: {
         type: String,
-        enum: ['user', 'equipment', 'thermometer', 'surface'],
+        enum: ['equipment', 'thermometer', 'surface', 'logtemplate'],
         required: true,
         immutable: true
     },
     id: {
         type: Schema.Types.ObjectId,
         required: true,
-        immutable: true
+        immutable: true,
+        refPath: 'type'
     },
     recurrence: {
         /**
@@ -59,7 +60,7 @@ scheduleSchema.pre(["deleteOne", "findOneAndDelete", "updateOne", "findOneAndUpd
         throw new Error('middleware failed to get document ID');
     }
 
-    const maps = await ScheduleMap.find({ $or: [{ user_sch_id: id }, { item_sch_id: id }] });
+    const maps = await ScheduleMap.find({ $or: [{ user_id: id }, { sch_id: id }] });
     maps.forEach(async (doc) => {
         await doc.deleteOne();
     });

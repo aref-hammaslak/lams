@@ -12,11 +12,13 @@ const scheduleMapSchema = new mongoose.Schema({
     },
     user_id: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'User'
     },
     sch_id: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'Schedule'
     },
 });
 

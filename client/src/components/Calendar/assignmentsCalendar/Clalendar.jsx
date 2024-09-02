@@ -37,7 +37,7 @@ export const Calendar = (props) => {
         const newTasks = tasks?.filter((task) => {
             switch (filter?.type) {
                 case 'equip':
-                    return task.eq_details._id === filter.id;
+                    return task.logTemplate?.equipment?._id === filter.id;
                 case 'staff':
                     return task.user._id === filter.id;
 

@@ -96,12 +96,12 @@ export function AutoLog() {
 			</ClosableSidebar>
 			{/* body */}
 			<div className={`${isOpen ? 'ml-[250px]': ''} `}>
-				<div className={`py-16 px-10  ${isOpen ? 'w-[calc(100vw-270px)]' : 'w-full'} overflow-hidden m-auto`}>
+				<div className={`py-16 px-10  ${isOpen ? 'w-[calc(100vw-270px)]' : 'w-full'} overflow-hidden m-auto bg-gray-50`}>
 					{
 						filledLogs && <DataGrid
 							columns={gridColumns}
 							rows={gridRows}
-							
+							className="bg-white"
 							
 						/>
 					}

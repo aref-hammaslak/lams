@@ -6,6 +6,7 @@ import ExpressError from "../utils/ExpressError.js";
 import { getScheduleMapById } from "../services/scheduleMap.js";
 import { isScheduleInLab } from "../services/schedule.js";
 import { isUserInLab } from "../services/user.js";
+import LogTemplate from "../models/LogTemplate.js";
 
 /**
  * @type {import("express").RequestHandler}
@@ -89,7 +90,37 @@ export async function getAllScheduleMap(req, res) {
     }
 
     const result = await ScheduleMapModel.aggregate(aggregationPipeline);
+    // let result;
+    // try {
+        
+    //     result = await ScheduleMapModel.find({}).populate(['user_id', 'sch_id']);
+    //     console.log("🚀 ~ getAllScheduleMap ~ result:", result)
+        
+    //     for (let i = 0; i < result.length; i++) {
+            
+    //         switch (result[i].sch_id.type) {
+    //             case 'equipment':
+    //                 result[i] = {
+    //                     ...result[i],
+    //                     sch_id: {
+    //                         ...result[i].sch_id,
+    //                         id: await LogTemplate.findById(result[i].sch_id.id),
+    //                     }
+    //                 }
+                        
+    //                 console.log('await LogTemplate.findById(result[i].sch_id.id) :', await LogTemplate.findById(result[i].sch_id.id));
+                             
 
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    //     console.log('result:' ,result);
+       
+    // } catch (error) {
+    //     console.error(error);
+            
+    // }
     res.send({
         success: true,
         payload: (groupedBy) ? groupBy(result, groupedBy) : result

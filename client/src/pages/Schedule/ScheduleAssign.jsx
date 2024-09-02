@@ -383,7 +383,7 @@ export const ScheduleAssign = () => {
 					setDelConf(false);
 				}}
 			>
-				<MenuItem
+				{/* <MenuItem
 					onClick={() => {
 						startEdit(selectedSchedule).then(
 							(_) => { },
@@ -393,7 +393,7 @@ export const ScheduleAssign = () => {
 					}}
 				>
 					<Typography color="primary">Edit</Typography>
-				</MenuItem>
+				</MenuItem> */}
 				<MenuItem onClick={handleDeleteSchedule}>
 					{delConf ? (
 						<Typography color="warning.main">Sure?</Typography>

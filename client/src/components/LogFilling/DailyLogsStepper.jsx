@@ -21,23 +21,27 @@ export const DailyLogsStepper = () => {
   function handleNextDay() {
     let nextDay = date.add(1, 'day');
     let tasks = filteredDays.get(nextDay).tasks;
+    tasks = tasks.filter(task => task.sch.type === 'equipment');
     while (!(tasks.length > 0) && !nextDay.isSame(date.endOf('month'), 'day')) {
       nextDay = nextDay.add(1, 'day');
       tasks = filteredDays.get(nextDay)?.tasks;
+      tasks = tasks.filter(task => task.sch.type === 'equipment');
     }
-    if (tasks?.length === 0) return;
+
+   
+    if (tasks.length === 0) return;
 
     const filters = tasks.map((task, i) => {
-      const { eq_details, eq_sch, log_temp } = task;
+      const { sch, logTemplate } = task;
       const filter = {
-        equipment: eq_details.name,
-        eq_id: eq_details._id,
+        equipment: logTemplate.equipment.name,
+        eq_id: logTemplate.equipment._id,
         startDate: nextDay.toDate(),
         endDate: nextDay.toDate(),
         logTemp: {
-          ...log_temp,
-          eq_details,
-          schedule: eq_sch
+          ...logTemplate,
+          eq_details: logTemplate.equipment,
+          schedule: sch
         }
       }
       return filter;
@@ -54,23 +58,27 @@ export const DailyLogsStepper = () => {
 
     let prevDay = date.subtract(1, 'day');
     let tasks = filteredDays.get(prevDay).tasks;
+    tasks = tasks.filter(task => task.sch.type === 'equipment');
     while (!(tasks.length > 0) && !prevDay.isSame(date.startOf('month'), 'day')) {
       prevDay = prevDay.subtract(1, 'day');
       tasks = filteredDays.get(prevDay).tasks;
+      tasks = tasks.filter(task => task.sch.type === 'equipment');
     }
+
+    
     if (tasks.length === 0) return;
 
     const filters = tasks.map((task, i) => {
-      const { eq_details, eq_sch, log_temp } = task;
+      const { sch, logTemplate } = task;
       const filter = {
-        equipment: eq_details.name,
-        eq_id: eq_details._id,
+        equipment: logTemplate.equipment.name,
+        eq_id: logTemplate.equipment._id,
         startDate: prevDay.toDate(),
         endDate: prevDay.toDate(),
         logTemp: {
-          ...log_temp,
-          eq_details,
-          schedule: eq_sch
+          ...logTemplate,
+          eq_details: logTemplate.equipment,
+          schedule: sch
         }
       }
       return filter;

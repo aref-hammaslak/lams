@@ -20,7 +20,7 @@ function generateLogRows(logTempFilters, equLogs , apiRef) {
     const { initial_date:initialDate , recurrence } = logTemp.schedule;
     const logRows = [];
     let currentDate = dayjs(initialDate);
-
+   
     while (currentDate.isBefore(dayjs(endDate).add(1, 'day'), 'day')) {
         let log = {};
         const matchedLog = equLogs.find(log =>  currentDate.isSame(dayjs(log.date), 'day'))

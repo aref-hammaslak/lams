@@ -20,25 +20,33 @@ const CalendarDay = ({ content }) => {
     const role = useGetUserRole();
     // const role = 'staff';
 
-    const taskCount = content.tasks?.length;
+    const taskCount = content.tasks?.reduce((count, task) => {
+        if (task.sch.type !== 'equipment') return count;
+        return count + 1;
+    }, 0)
+    // const taskCount = content.tasks?.length;
+
     const doneCount = content.tasks?.reduce((count, task) => {
+        if (task.sch.type !== 'equipment') return count;
         return task.done ? count + 1 : count;
     }, 0)
     const unDoneCount = taskCount - doneCount;
 
     function handleRenderLogFilling(tasks, selectedIndex) {
-
+        tasks = tasks.filter(task => task.sch.type === 'equipment');
+        console.log("🚀 ~ handleRenderLogFilling ~ tasks:", tasks)
+        
         const filters = tasks.map((task, i) => {
-            const { eq_details, eq_sch, log_temp } = task;
+            const { sch, logTemplate } = task;
             const filter = {
-                equipment: eq_details.name,
-                eq_id: eq_details._id,
+                equipment: logTemplate.equipment.name,
+                eq_id: logTemplate.equipment._id,
                 startDate: content.date.toDate(),
                 endDate: content.date.toDate(),
                 logTemp: {
-                    ...log_temp,
-                    eq_details,
-                    schedule: eq_sch
+                    ...logTemplate,
+                    eq_details: logTemplate.equipment,
+                    schedule: sch
                 }
             }
             return filter;
@@ -57,7 +65,7 @@ const CalendarDay = ({ content }) => {
         window.scrollTo(0, 0);
     }
 
-    if (!content.tasks || content.tasks.length === 0 ) return (
+    if (!content.tasks || content.tasks.length === 0) return (
         <div className='text-center w-full flex-1  justify-center flex items-center text-gray-700 '>
             <Typography>
                 No Log Found
@@ -102,26 +110,28 @@ const CalendarDay = ({ content }) => {
                     </div>
                     {
                         content.tasks.map((task, i, tasks) => (
-                            <MenuItem className='px-2' key={i}>
-                                {
-                                    task.sch.type === 'equipment' ? (
-                                        
-                                        <div className='flex items-center hover:outline-none'>
-                                            {console.log('task', task)}
-                                            <span className='w-[125px]'>{task.logTemplate.equipment.name}</span>
-                                            <span className='w-[125px]'>{task.sch.recurrence}</span> 
-                                            
-                                            <span className='w-[125px]'>{dayjs(task.sch.initial_date).format('YY/MM/DD dd')}</span>
-                                            {
-                                                (role === 'admin' || role === 'supervisor') &&
-                                                <span className='w-[125px]'>{task.user.username}</span>
-                                            }
-                                            <Button onClick={handleRenderLogFilling.bind(null, tasks, i)} size='sm' className='bg-primaryDark w-[80px] text-[10px]'> {task.done ? 'Edit' : 'Fill'}</Button>
-                                        </div>
-                                    ): task.sch.type
-                                }
-                                
-                            </MenuItem>
+
+
+                            task.sch.type === 'equipment' ? (
+                                <MenuItem className='px-2' key={i}>
+                                    <div className='flex items-center hover:outline-none'>
+                                        <span className='w-[125px]'>{task.logTemplate.equipment.name}</span>
+                                        <span className='w-[125px]'>{task.sch.recurrence}</span>
+
+                                        <span className='w-[125px]'>{dayjs(task.sch.initial_date).format('YY/MM/DD dd')}</span>
+                                        {
+                                            (role === 'admin' || role === 'supervisor') &&
+                                            <span className='w-[125px]'>{task.user.username}</span>
+                                        }
+                                        <Button onClick={handleRenderLogFilling.bind(null, tasks, i)} size='sm' className='bg-primaryDark w-[80px] text-[10px]'> {task.done ? 'Edit' : 'Fill'}</Button>
+                                    </div>
+                                </MenuItem>
+                            ) :
+                                    // task.sch.type
+                                       
+                                null
+
+
                         ))
                     }
                 </MenuList>
