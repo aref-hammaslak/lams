@@ -1,27 +1,34 @@
-import User from '../models/User.js';
+import User, { absenceSchema } from '../models/User.js';
 import lodash from 'lodash';
 const { omit } = lodash;
 
 import { canUserAccessRole, canUserChangeOther, isUserPrivileged } from '../services/userRole.js';
 import ExpressError from '../utils/ExpressError.js';
+import moment from 'moment';
 
 /**
  * @type {import("express").RequestHandler}
  */
 export const getAll = async (req, res) => {
-    const { q } = req.query;
+    try {
+        const { q } = req.query;
 
-    const query = { lab_id: req.user.lab_id, roles: { $ne: 2005 }, _id: { $ne: req.user._id } };
-    if (q) {
-        query.$or = [{ username: { $regex: q } }, { name: { $regex: q } }];
+        const query = { lab_id: req.user.lab_id, roles: { $ne: 2005 }, _id: { $ne: req.user._id } };
+        if (q) {
+            query.$or = [{ username: { $regex: q } }, { name: { $regex: q } }];
+        }
+
+        const users = await User.find(query, { username: 1, name: 1, active: 1, absences: 1 });
+        // const users = await User.find(query);
+
+        res.send({
+            success: true,
+            payload: users
+        });
+    } catch (error) {
+        throw new ExpressError(error.message, 500);
     }
 
-    const users = await User.find(query, { username: 1, name: 1, active: 1 });
-
-    res.send({
-        success: true,
-        payload: users
-    });
 };
 
 /**
@@ -29,12 +36,26 @@ export const getAll = async (req, res) => {
  */
 export const getUser = async (req, res) => {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const { expand_absences } = req.query;
+    try {
+        const user = await User.findById(id).lean();
+        
+        if (!user) throw new Error("User not found");
+        if (expand_absences) {
+            const from = req.query.from || moment().startOf('month');
+            const to = req.query.to || moment().endOf('month').add(1, 'days');
+            user.absences =  User.getAbsenceDays(user.absences, from , to);
+        }
 
-    res.send({
-        success: true,
-        payload: user
-    });
+        return res.send({
+            success: true,
+            payload: user
+        });
+    } catch (error) {
+        throw new ExpressError(error.message, 400);
+    }
+
+
 };
 
 /**
@@ -116,6 +137,7 @@ export const updateUser = async (req, res) => {
     const self = req.user;
 
     const { id } = req.params;
+    const { add_absence, delete_absence } = req.query;
     const updates = req.body;
 
     let user = await User.findById(id);
@@ -133,6 +155,42 @@ export const updateUser = async (req, res) => {
             throw new ExpressError(`Not authorized change lab_owner field`, 401);
         }
     }
+
+
+    if (add_absence) {
+        console.log("🚀 ~ updateUser ~ add_absence:", add_absence)
+
+        try {
+            const newAbsence = {
+                startDate: req.body.start_date,
+                endDate: req.body.end_date,
+                reason: req.body.resoan,
+            }
+            const user = await User.addAbsence(id, newAbsence);
+            return res.status(200).send({
+                success: true,
+                payload: user
+            })
+        } catch (error) {
+            throw new ExpressError(error.message, 400);
+        }
+    }
+
+    if (delete_absence) {
+        console.log("🚀 ~ updateUser ~ id,req.query.absence_id:", id, req.query.absence_id)
+        try {
+            user = await User.deleteAbsence(id, req.query.absence_id);
+
+            return res.status(200).send({
+                success: true,
+                payload: user
+            })
+        } catch (error) {
+            console.error(error);
+            throw new ExpressError(error.message, 400);
+        }
+    }
+
 
     // Validate roles
     if ('roles' in updates) {
