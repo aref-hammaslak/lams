@@ -362,7 +362,6 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
     ];
     try {
         const result = await this.aggregate(pipline).exec();
-        console.log(result);
         if (result.length) return result[0];
         return result;
     } catch (error) {
@@ -450,7 +449,6 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
         const result = await this.aggregate(pipeline).exec();
         // const result = await this.findById('66af4cb82e3da1ed76442b7b');
 
-        console.log(result);
         return result;
     } catch (error) {
         return new Error(error.message);

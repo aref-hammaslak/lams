@@ -158,7 +158,6 @@ export const updateUser = async (req, res) => {
 
 
     if (add_absence) {
-        console.log("🚀 ~ updateUser ~ add_absence:", add_absence)
 
         try {
             const newAbsence = {
@@ -177,7 +176,6 @@ export const updateUser = async (req, res) => {
     }
 
     if (delete_absence) {
-        console.log("🚀 ~ updateUser ~ id,req.query.absence_id:", id, req.query.absence_id)
         try {
             user = await User.deleteAbsence(id, req.query.absence_id);
 

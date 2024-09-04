@@ -7,19 +7,22 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
 import { useReducer } from 'react';
 import { NewspaperTwoTone } from '@mui/icons-material';
-import { List, ListItem } from '@material-tailwind/react';
+import { IconButton, List, ListItem } from '@material-tailwind/react';
 import { Button } from 'react-bootstrap';
 import { useEffect } from 'react';
 import { Divider } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useState } from 'react';
+import { GridDeleteIcon } from '@mui/x-data-grid';
 
 const pre_maidRanges = [
     { value: 'reset', label: 'Reset' },
-    {value: 'current week', label:'Current Week'},
+    { value: 'current week', label: 'Current Week' },
     { value: 'next week', label: 'Next Week' },
     { value: 'current month', label: 'Currrent Month' },
     { value: 'next month', label: 'Next Month' },
     { value: 'current year', label: 'Current Year' },
-    {value: 'next year', label: 'Next Year'},
+    { value: 'next year', label: 'Next Year' },
     { value: 'reset start', label: 'Reset From' },
     { value: 'reset end', label: 'Reset To' },
     // {vaule : '', label: ''},
@@ -29,21 +32,87 @@ const pre_maidRanges = [
 ]
 
 function CalendarDay(props) {
-    const { day, Dispatch, outsideCurrentMonth, dateRange, isSelected, className, ...other } = props;
-    // console.log("🚀 ~ CalendarDay ~ other:", day)
+    const { day, Dispatch, outsideCurrentMonth, dateRange, isSelected, dayItems, className, tabIndex, onDeleteItme, showItemRange, selectedItem, setSelectedItem, setShowItemRange, ...other } = props;
+
+
+
     const isInRange = day.isAfter(dateRange.start, 'day') && day.isBefore(dateRange.end, 'day');
+    const isEndOfRang = day.isSame(dateRange.end, 'day');
+    const isStartOfRang = day.isSame(dateRange.start, 'day');
+    const dayItem = dayItems.get(day.toString());
+    const isInItemRange = day.isAfter(selectedItem?.itemStartDate.subtract(1, 'day'), 'day') && day.isBefore(selectedItem?.itemEndDate, 'day');
+
+
+    let selectedRangeStyles = '';
+    if (dayItem && isInRange) {
+        selectedRangeStyles = '!text-red-500 !font-semibold  !bg-blue-gray-50 ';
+    } else if ((isEndOfRang || isStartOfRang) && dayItem) {
+        selectedRangeStyles = '!bg-primary !text-red-500 ';
+    }
+    else if ((isEndOfRang || isStartOfRang)) {
+        selectedRangeStyles = '!bg-primary text-white ';
+    }
+    else if (isInRange) {
+        selectedRangeStyles = '!bg-blue-gray-50 !text-gray-800';
+    }
+    else if ((dayItem && (tabIndex === 0)) || dayItem) {
+        selectedRangeStyles = '!text-red-500 !font-semibold !bg-white'
+    } else if (tabIndex === 0) {
+        selectedRangeStyles = '!bg-white !text-gray-800'
+    }
+
+    let selectedItemStyles;
+    if (isInItemRange  ){
+        selectedItemStyles = '!bg-red-50 !text-red-500';
+    }
+    else if (tabIndex === 0) {
+        selectedItemStyles = '!bg-white !text-gray-800'
+    }
+    
+
     return (
         <div
+            className={` ${!outsideCurrentMonth && 'shadow'} relative group  m-[4px] !rounded  border-gray-700 box-border`}
             key={props.day.toString()}
 
         >
-            <PickersDay onClick={() => Dispatch({ type: 'dayclicked', day })} className={`
-                ${isInRange && '!bg-blue-gray-100 !text-gray-900 !font-normal'}
-                ${day.isSame(dateRange.start, 'day') && '!bg-primary text-white'}
-                ${day.isSame(dateRange.end, 'day') && '!bg-primary text-white'}
+            <PickersDay onClick={() => {
+                if (showItemRange) return;
+                Dispatch({ type: 'dayclicked', day })
+            }} className={`
+                ${showItemRange  ? selectedItemStyles : selectedRangeStyles}
+           
                 ${className}
-                !rounded
+                !rounded shadow text-[16px] 
                 `} {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} />
+
+            <div
+
+                className={` ${!outsideCurrentMonth && dayItem && 'group-hover:block'} z-10 top-1 right-1 cursor-pointer absolute hidden rounded-full`}>
+                {showItemRange && isInItemRange && (
+                    <GridDeleteIcon
+                        onClick={() => {
+                            onDeleteItme(dayItem.id)
+                        setShowItemRange(false);
+                        }}
+                        className='w-5 h-5 -translate-x-[30px] text-red-800' />
+                )}
+                <MoreVertIcon
+                    onClick={() => {
+                        if (!showItemRange) {
+                            setShowItemRange(true);
+                            Dispatch({ type: 'reset' });
+                            setSelectedItem(dayItem);
+                            
+                        } else {
+                            setShowItemRange(false);
+                            setSelectedItem(null);
+                        }
+                        
+                    }}
+                    className='w-5 h-5 -translate-y-[1px] ' />
+                
+            </div>
         </div>
     );
 }
@@ -70,7 +139,7 @@ const dateRangeReducer = (state, action) => {
 
             }
         }
-       
+
         case 'current week': {
             return {
                 start: dayjs().startOf('week'),
@@ -128,7 +197,10 @@ const dateRangeReducer = (state, action) => {
     }
 }
 
-export function CustomDateRangPicker({ onRangeChange, className }) {
+export function CustomDateRangPicker(props) {
+    const { onRangeChange, dayItems, onDeleteItme, className } = props;
+    const [showItemRange, setShowItemRange] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
     const [dateRange, Dispatch] = useReducer(dateRangeReducer,
         {
             start: dayjs(),
@@ -138,6 +210,15 @@ export function CustomDateRangPicker({ onRangeChange, className }) {
     useEffect(() => {
         onRangeChange(dateRange.start, dateRange.end)
     }, [dateRange])
+
+    useEffect(() => {
+        const element = document.querySelector(
+            '.css-1t0788u-MuiPickersSlideTransition-root-MuiDayCalendar-slideTransition'
+        );
+        // Now you can manipulate the element, e.g., change its background color
+        element.style.height = '500px';
+
+    })
 
     return (
         <div className={`${className}`}>
@@ -160,28 +241,31 @@ export function CustomDateRangPicker({ onRangeChange, className }) {
             </List>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateCalendar
-
-                    className='w-[600px] '
-                    value={dayjs(dateRange.start.format('YYYY-MM-DD'))}
-
+                    style={{
+                        height: 800
+                    }}
+                    className='w-[700px]  max-h-[410px] !mt-0'
+                    // value={dayjs(dateRange.start.format('YYYY-MM-DD'))}
                     renderLoading={() => <DayCalendarSkeleton />}
                     slots={{
                         day: CalendarDay,
-                    }}
 
+                    }}
                     slotProps={{
                         day: {
                             Dispatch,
                             dateRange,
-                            className: 'px-10 rounded-none !border-none'
+                            className: 'px-10 py-6  m-0 rounded-none !border-none',
+                            dayItems,
+                            onDeleteItme,
+                            showItemRange,
+                            setShowItemRange,
+                            selectedItem,
+                            setSelectedItem
                         },
                         calendarHeader: {
-                            // className: '!w-[600px] !h-[800px]'
+                            className: ' '
                         },
-                        dayCalendar: {
-                            className: 'w-[1000px]'
-                        }
-
                     }}
                 />
             </LocalizationProvider>

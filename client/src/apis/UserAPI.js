@@ -50,10 +50,11 @@ export const UserAPI = {
 		})
 		return response.data.payload;
 	},
-	get: async function (user_id, cancel = false) {
+	get: async function (user_id,params={}, cancel = false) {
 		const response = await api.request({
 			url: `/users/${user_id}`,
 			method: "GET",
+			params,
 			signal: cancel
 				? cancelApiObject[this.get.name].handleRequestCancellation().signal
 				: undefined,
@@ -81,11 +82,12 @@ export const UserAPI = {
 		});
 		return response.data.payload;
 	},
-	updateUser: async function (user_id, updates, cancel = false) {
+	updateUser: async function (user_id, updates, params={}, cancel = false) {
 		const response = await api.request({
 			url: `/users/${user_id}`,
 			method: "PATCH",
 			data: updates,
+			params,
 			signal: cancel
 				? cancelApiObject[this.updateUser.name].handleRequestCancellation().signal
 				: undefined,

@@ -101,7 +101,6 @@ userSchema.set('toObject', { virtuals: true });
 
 userSchema.virtual('isAbsentToday').get(function () {
     const today = moment();
-    console.log(this.absences);
     if (!this.absences) return false;
     for (const absence of this.absences) {
 
@@ -113,28 +112,23 @@ userSchema.virtual('isAbsentToday').get(function () {
 
 
 userSchema.statics.getAbsenceDays = function (absences, from, to) {
-    console.log("🚀 ~ from , to :", from, to)
+    if (!absences) return [];
     try {
         from = moment(from);
-        console.log("🚀 ~ from:", from)
-
         to = moment(to);
-        if (from.isValid() || to.isValid()) {
-            console.log('they are invalid');
+        if (!from.isValid() || !to.isValid()) {
            throw new Error("Dates are invaid");
         }
         let allDays = [];
         for (const absence of absences) {
             let currentDate = moment(absence.startDate);
-            console.log("🚀 ~ currentDate:", currentDate)
-            console.log(currentDate.isBetween('2024-09-01', '2024-09-10', 'day', '[]'));
             while (currentDate.isBefore(absence.endDate) && currentDate.isBetween(from, to, 'day', '[]')) {
-                console.log("🚀 ~ currentDate:", currentDate)
-
                 allDays.push(
                     {
                         absence_id: absence._id,
                         date: currentDate.format('YYYY/MM/DD'),
+                        startDate: moment(absence.startDate).format('YYYY/MM/DD'),
+                        endDate: moment(absence.endDate).format('YYYY/MM/DD'),
                     }
                 );
                 currentDate.add(1, 'days');

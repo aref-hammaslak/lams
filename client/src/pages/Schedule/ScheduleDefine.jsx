@@ -7,6 +7,7 @@ import { ThermAPI } from '../../apis/ThermAPI';
 import { Scheduler } from '../../components/Scheduler/Scheduler';
 import { reccurencs } from '../../consts';
 import { TabsSidebarLayout } from '../../layouts/TabsSidebarLayout';
+import { UserAPI } from '../../apis/UserAPI';
 
 const scheduleReducer = (prevState, action) => {
   console.log(action.itemType)
@@ -15,10 +16,13 @@ const scheduleReducer = (prevState, action) => {
       let type;
       let recurrence =0 ;
       switch (action.itemType) {
+        case 'staff':
+          type = 'staff';
+          recurrence = null;
+          break;
         case 'equip':
           type = 'equipment';
           recurrence = action.recurrence;
-          console.log("🚀 ~ scheduleReducer ~ action.recurrence:", action.recurrence)
           break;
         case 'surf':
           type = 'surface';
@@ -55,16 +59,15 @@ const scheduleReducer = (prevState, action) => {
   }
 }
 
-const tabs = [{ label: 'Equipment', value: 'equip' }, { label: 'Surfase', value: 'surf' }, { label: 'Thermometer', value: 'therm' }]
+const tabs = [{label: 'Staff', value: 'staff'},{ label: 'Equipment', value: 'equip' }, { label: 'Surfase', value: 'surf' }, { label: 'Thermometer', value: 'therm' }]
 
 export const ScheduleDefine = () => {
-  const [activeTab, setActiveTab] = useState('equip'); // equip | surf | therm
+  const [activeTab, setActiveTab] = useState('staff'); // staff | equip | surf | therm
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [items, setItems] = useState(null);
   const [scheduleState, dispatchSchedule] = useReducer(scheduleReducer, null);
   const { enqueueSnackbar } = useSnackbar();
   
-  console.log('hi');
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -72,16 +75,20 @@ export const ScheduleDefine = () => {
   useEffect(() => {
     const fetchData = async () => {
       let fetchResponse;
-      async function fetchEquipLotTemps() {
-        fetchResponse = await LogTmpAPI.getAll();
-      }
-
-      async function fetchSurfaces() {
-        fetchResponse = await SurfAPI.getAll();
-      }
-
       try {
         switch (activeTab) {
+          case 'staff': {
+            fetchResponse = await UserAPI.getAll();
+            const staff = fetchResponse.filter(staff =>staff.active).map(staff => {
+              return {
+                id: staff._id,
+                name: staff.username,
+                type: 'staff',
+              }
+            })
+            setItems(staff);
+            break;
+          }
           case 'equip': {
             fetchResponse = await LogTmpAPI.getAll();
             const equips = fetchResponse.map(logTemp => {
@@ -144,7 +151,7 @@ export const ScheduleDefine = () => {
       type: 'item',
       id,
       name,
-      itemType,
+      itemType : itemType || activeTab,
       recurrence,
     })
   }
@@ -158,7 +165,7 @@ export const ScheduleDefine = () => {
       id,
       name,
       recurrence,
-      itemType: type
+      itemType: type || activeTab
     })
   }, [items]);
 

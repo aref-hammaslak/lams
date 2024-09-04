@@ -23,6 +23,7 @@ import { BoxController } from "../BoxController";
 import { UserAPI } from "../../apis/UserAPI.js";
 import { renderEditSingleSelectCell } from "@mui/x-data-grid";
 import { useSnackbar } from "notistack";
+import { ResetTvRounded } from "@mui/icons-material";
 
 const TYPE_COLOR = {
 	'daily': "primary",
@@ -73,8 +74,14 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 						}
 					}) || [];
 					alreadyAssignedItems.push(...items)
-					return { _id: staff._id, name: staff.name, active: staff.active, items }
-				}).filter((staff) => staff.active);
+					return {
+						_id: staff._id,
+						name: staff.name,
+						active: staff.active,
+						isAbsentToday: staff.isAbsentToday,
+						items
+					}
+				}).filter((staff) => staff.active );
 				setStaff(deserializedStaff)
 				const notAssignedItems = day.schedules.map((sch) => {
 					return {
@@ -265,7 +272,13 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										} : null
 									}}
 									onClick={() => {
+										// console.log(selectedCount);
 										if (!selectedCount) return;
+										if (user.isAbsentToday) {
+											enqueueSnackbar(`${user.name} is absent today`, { variant: 'error' });
+											return;
+										}
+										setSelectedCount(0);
 										assignTasks(user);
 									}}
 								>
@@ -279,7 +292,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										}}
 										fontSize='large'
 									/>
-									<Typography>{user.name || user.username}</Typography>
+									<Typography className={`${user.isAbsentToday && 'text-red-600'}`}>{user.name || user.username}</Typography>
 									<Divider />
 									<Grid container>
 										{user?.items?.map(item => (
