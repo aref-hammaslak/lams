@@ -12,6 +12,7 @@ import Equipment from "../models/Equipment.js";
 import { groupBy } from "../utils/arrayUtils.js";
 import mongoose from "mongoose";
 import { RECCURENCES } from "./logTemplate.js";
+import ExpressError from "../utils/ExpressError.js";
 
 /**
  * @type {import("express").RequestHandler}
@@ -72,6 +73,7 @@ export async function getWholeSchedule(req, res) {
     const type = req.query.type;
     const item = req.query.item;
     const raw = req.query.raw;
+    const recurrence = req.query.recurrence;
     const grpBy = req.query['group-by'];
 
     if (raw != 'true' && (startDate == undefined || endDate == undefined)) {
@@ -91,6 +93,9 @@ export async function getWholeSchedule(req, res) {
     }
     if (item) {
         filter.id = item;
+    }
+    if (recurrence) {
+        filter.recurrence = recurrence;
     }
 
     const sched = await ScheduleModel.find(filter);

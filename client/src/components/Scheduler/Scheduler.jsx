@@ -25,6 +25,7 @@ export const Scheduler = (props) => {
   const { enqueueSnackbar } = useSnackbar();
   const [dayItems, setDayItems] = useState(new Map());
   const [refreshDayItems, setRefreshDayItems] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
 
   const handelAddSchedule = async () => {
     setLoading(true);
@@ -34,6 +35,7 @@ export const Scheduler = (props) => {
     try {
       await ScheduleAPI.create(type, id, startDate, endDate, reccurencs[recurrence])
       enqueueSnackbar('Schedule added successfully', { variant: 'success' });
+      setRefreshDayItems(n => !n);
     } catch (error) {
       console.log(error);
       if (error.response.data.error) {
@@ -103,13 +105,29 @@ export const Scheduler = (props) => {
     })
   }
 
+  const handeldeleteSchedule = async (sch_id) => {
+    try {
+      await ScheduleAPI.destroy(sch_id);
+      enqueueSnackbar('schedule deleted successfully', { variant: 'success' })
+      setRefreshDayItems(n => !n);
+    } catch (error) {
+      console.error(error);
+      if (error.response.data) {
+        enqueueSnackbar(error.response.data.error.message, { variant: 'error' });
+      } else {
+        enqueueSnackbar('Something went wrong')
+      }
+
+    }
+  }
+
   const handeleDeleteItem = (id) => {
     switch (scheduleState.type) {
       case 'staff':
         handeldeleteAbsence(id);
         break;
-      case 'equip': case 'surf': case 'therm':
-
+      case 'equipment': case 'surface': case 'thremometer':
+        handeldeleteSchedule(id);
         break;
       default:
         break;
@@ -117,21 +135,23 @@ export const Scheduler = (props) => {
   }
 
   useEffect(() => {
-    if (scheduleState?.type !== 'staff' || !scheduleState?.id) { 
+    if (!scheduleState?.id) {
       setDayItems(new Map());
       return;
     }
-    const fetchData = async () => {
+    const fetchAbsencesScheduleData = async () => {
       try {
         const { id: userId } = scheduleState;
         const staff = await UserAPI.get(userId, {
           expand_absences: true,
+          from: currentMonth,
+          to: currentMonth.endOf('month')
 
         })
         const { absences } = staff;
         const dayItems = new Map();
         absences.forEach(absence => {
-          dayItems.set(dayjs(absence.date).toString(), {
+          dayItems.set(dayjs(absence.date).format('YYYY-MM-DD'), {
             id: absence.absence_id,
             type: 'absence',
             itemStartDate: dayjs(absence.startDate),
@@ -147,9 +167,42 @@ export const Scheduler = (props) => {
 
 
     }
-    fetchData();
+    const fetchESTScheduleData = async () => {
+      try {
+        const { id: itemId } = scheduleState;
+        const schedules = await ScheduleAPI.getAll(
+          itemId,
+          currentMonth.format('YYYY-MM-DD'),
+          currentMonth.endOf('month').format('YYYY-MM-DD'),
+          undefined,
+          undefined,
+          'date',
+          reccurencs[scheduleState.recurrence],
+        )
+        console.log("🚀 ~ fetchESTScheduleData ~ schedules:", Object.values(schedules))
+        const dayItems = new Map();
+        Object.values(schedules).map(sch => {
+          const sc = sch[0]
+          dayItems.set(sch[0].date.split('T')[0], {
+            id: sc._id,
+            date: sc.date,
+          });
+        })
 
-  }, [scheduleState?.id, refreshDayItems ])
+        setDayItems(dayItems);
+      } catch (error) {
+
+        enqueueSnackbar(error.message, { variant: 'error' });
+        throw new Error('something went wrong');
+      }
+    }
+    if (scheduleState.type === 'staff') {
+      fetchAbsencesScheduleData();
+    } else {
+      fetchESTScheduleData();
+    }
+
+  }, [scheduleState?.id, refreshDayItems, currentMonth])
 
 
   return (
@@ -185,11 +238,16 @@ export const Scheduler = (props) => {
       <CustomDateRangPicker
         dayItems={dayItems}
         className='space-y-8  border shadow rounded-lg bg-white'
-        onDeleteItme={(id) => handeleDeleteItem(id)}
-        onRangeChange={handelRangeChange} />
+        onDeleteItme={(id) => {
+          handeleDeleteItem(id);
+        }}
+        scheduleState={scheduleState}
+        onRangeChange={handelRangeChange}
+        onMonthChange={setCurrentMonth}
+      />
       <div className='bg-white  p-4  rounded-lg '>
         <div className='space-y-4'>
-          <Typography className='flex justify-between'>
+          <Typography className='flex justify-between items-center'>
             <span className='mr-4 text-sm font-normal text-gray-600'>
               FROM:
             </span>
@@ -199,7 +257,7 @@ export const Scheduler = (props) => {
               }
             </span>
           </Typography>
-          <Typography className='flex justify-between'>
+          <Typography className='flex justify-between items-center'>
             <span className='mr-4 text-sm font-normal text-gray-600'>
               TO:
             </span>
@@ -215,12 +273,16 @@ export const Scheduler = (props) => {
 
         {
           scheduleState?.type === 'staff' ? (
-            <Button className='w-full bg-primaryDark' onClick={handelAddAbsence} disabled={loading}>
-              Add absence
+            <Button className='w-full bg-primaryDark ' onClick={handelAddAbsence} disabled={loading}>
+              <span className='tracking-widest'>
+                Add absence
+              </span>
             </Button>
           ) : (
-            <Button className='w-full bg-primaryDark' onClick={handelAddSchedule} disabled={loading}>
-              Add schedule
+            <Button className='w-full bg-primaryDark ' onClick={handelAddSchedule} disabled={loading}>
+              <span className='tracking-widest'>
+                Add schedule
+              </span>
             </Button>
 
           )

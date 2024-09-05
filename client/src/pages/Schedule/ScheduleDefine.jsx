@@ -62,7 +62,7 @@ const scheduleReducer = (prevState, action) => {
 const tabs = [{label: 'Staff', value: 'staff'},{ label: 'Equipment', value: 'equip' }, { label: 'Surfase', value: 'surf' }, { label: 'Thermometer', value: 'therm' }]
 
 export const ScheduleDefine = () => {
-  const [activeTab, setActiveTab] = useState('staff'); // staff | equip | surf | therm
+  const [activeTab, setActiveTab] = useState('equip'); // staff | equip | surf | therm
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [items, setItems] = useState(null);
   const [scheduleState, dispatchSchedule] = useReducer(scheduleReducer, null);
@@ -94,7 +94,8 @@ export const ScheduleDefine = () => {
             const equips = fetchResponse.map(logTemp => {
               return {
                 id: logTemp._id,
-                name: `${logTemp.eq_details[0].name}/${reccurencs[logTemp.type]}`,
+                name: <p>{logTemp.eq_details[0].name} <sapn className= 'font-bold text-sm rounded-full text-black bg-primaryLight py-1 px-2'>{reccurencs[logTemp.type].at(0).toLocaleUpperCase()}</sapn></p>,
+                // name: `${logTemp.eq_details[0].name} <sapn>[${reccurencs[logTemp.type].at(0)}]</sapn>`,
                 recurrence: logTemp.type,
                 type:'equip'
 
@@ -171,7 +172,7 @@ export const ScheduleDefine = () => {
 
   const sidebarElement = <List>
     {items?.map(({ name, id, type, recurrence }) => (
-      <ListItem key={id} color='bg-primary' className={` border-b hover:text-white hover:bg-primary focus:bg-primary  focus:text-white ${scheduleState?.id === id && 'bg-primary text-white'}  `}
+      <ListItem key={id} color='bg-primary' className={` border-b text-lg hover:text-white hover:bg-primary focus:bg-primary  focus:text-white ${scheduleState?.id === id && 'bg-primary text-white'}  `}
         onClick={() => handelItemClick(id, name, type, recurrence)}
       >
         {name}

@@ -14,6 +14,7 @@ import { Divider } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useState } from 'react';
 import { GridDeleteIcon } from '@mui/x-data-grid';
+import { ScheduleAPI } from '../../apis/ScheduleAPI';
 
 const pre_maidRanges = [
     { value: 'reset', label: 'Reset' },
@@ -32,22 +33,28 @@ const pre_maidRanges = [
 ]
 
 function CalendarDay(props) {
-    const { day, Dispatch, outsideCurrentMonth, dateRange, isSelected, dayItems, className, tabIndex, onDeleteItme, showItemRange, selectedItem, setSelectedItem, setShowItemRange, ...other } = props;
+    const { day, Dispatch, outsideCurrentMonth, dateRange, isSelected, dayItems, className, tabIndex, onDeleteItme, showItemRange, selectedItem, setSelectedItem, setShowItemRange, selectedItemSch, setSelectedItemSch, ...other } = props;
 
 
 
     const isInRange = day.isAfter(dateRange.start, 'day') && day.isBefore(dateRange.end, 'day');
     const isEndOfRang = day.isSame(dateRange.end, 'day');
     const isStartOfRang = day.isSame(dateRange.start, 'day');
-    const dayItem = dayItems.get(day.toString());
-    const isInItemRange = day.isAfter(selectedItem?.itemStartDate.subtract(1, 'day'), 'day') && day.isBefore(selectedItem?.itemEndDate, 'day');
+    const dayItem = dayItems.get(day.format('YYYY-MM-DD'));
+    // console.log("🚀 ~ CalendarDay ~ dayItem:", day.startOf('M').toISOString())
+    
+    const itemStartDate = selectedItem?.itemStartDate || selectedItemSch?.itemStartDate;
+    // console.log("🚀 ~ CalendarDay ~ itemStartDate:", itemStartDate)
+    const itemEndDate = selectedItem?.itemEndDate || selectedItemSch?.itemEndDate;
+
+    const isInItemRange = day.isAfter(itemStartDate?.subtract(1, 'day'), 'day') && day.isBefore(itemEndDate, 'day');
 
 
     let selectedRangeStyles = '';
     if (dayItem && isInRange) {
-        selectedRangeStyles = '!text-red-500 !font-semibold  !bg-blue-gray-50 ';
+        selectedRangeStyles = `!text-${dayItem?.type === 'absence'? 'red-600': 'green-600'} !font-semibold  !bg-blue-gray-50 `;
     } else if ((isEndOfRang || isStartOfRang) && dayItem) {
-        selectedRangeStyles = '!bg-primary !text-red-500 ';
+        selectedRangeStyles = `!bg-primary !text-${dayItem?.type === 'absence' ? 'red-600' : 'green-600'} `;
     }
     else if ((isEndOfRang || isStartOfRang)) {
         selectedRangeStyles = '!bg-primary text-white ';
@@ -56,14 +63,19 @@ function CalendarDay(props) {
         selectedRangeStyles = '!bg-blue-gray-50 !text-gray-800';
     }
     else if ((dayItem && (tabIndex === 0)) || dayItem) {
-        selectedRangeStyles = '!text-red-500 !font-semibold !bg-white'
+        selectedRangeStyles = `!text-${dayItem?.type === 'absence'? 'red-600': 'green-600'} !font-semibold !bg-white`
     } else if (tabIndex === 0) {
         selectedRangeStyles = '!bg-white !text-gray-800'
     }
 
     let selectedItemStyles;
-    if (isInItemRange  ){
-        selectedItemStyles = '!bg-red-50 !text-red-500';
+    if (isInItemRange && dayItem) {
+        selectedItemStyles = dayItem?.type === 'absence' ? '!bg-red-50 !text-red-600 !font-semibold' :
+            '!bg-green-50 !text-green-600 !font-semibold';
+    }
+    else if (isInItemRange ){
+        selectedItemStyles = dayItem?.type === 'absence' ? '!bg-red-50 !text-red-600' :
+        '!bg-green-50 !text-gray-800';
     }
     else if (tabIndex === 0) {
         selectedItemStyles = '!bg-white !text-gray-800'
@@ -88,12 +100,14 @@ function CalendarDay(props) {
 
             <div
 
-                className={` ${!outsideCurrentMonth && dayItem && 'group-hover:block'} z-10 top-1 right-1 cursor-pointer absolute hidden rounded-full`}>
+                className={` ${(!outsideCurrentMonth && dayItem || isInItemRange ) && 'group-hover:block'} z-10 top-1 right-1 cursor-pointer absolute hidden rounded-full`}>
                 {showItemRange && isInItemRange && (
                     <GridDeleteIcon
                         onClick={() => {
-                            onDeleteItme(dayItem.id)
-                        setShowItemRange(false);
+                        onDeleteItme(dayItem.id)
+                            setShowItemRange(false);
+                            setSelectedItem(null);
+                            setSelectedItemSch(null);
                         }}
                         className='w-5 h-5 -translate-x-[30px] text-red-800' />
                 )}
@@ -107,6 +121,7 @@ function CalendarDay(props) {
                         } else {
                             setShowItemRange(false);
                             setSelectedItem(null);
+                            setSelectedItemSch(null);
                         }
                         
                     }}
@@ -198,14 +213,27 @@ const dateRangeReducer = (state, action) => {
 }
 
 export function CustomDateRangPicker(props) {
-    const { onRangeChange, dayItems, onDeleteItme, className } = props;
+    const { onRangeChange, dayItems, onDeleteItme, className, onMonthChange, scheduleState } = props;
     const [showItemRange, setShowItemRange] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItemSch, setSelectedItemSch] = useState(null);
     const [dateRange, Dispatch] = useReducer(dateRangeReducer,
         {
             start: dayjs(),
             end: dayjs(),
         });
+    
+    useEffect(() => {
+        if ( !selectedItem && selectedItem?.type === 'absence') return;
+        (async () => {
+            const sch = await ScheduleAPI.get(selectedItem.id);
+            console.log("🚀 ~ sch:", sch)
+            setSelectedItemSch({
+                itemStartDate: dayjs(sch.initial_date),
+                itemEndDate: dayjs(sch.end_date),
+            });
+        })()   
+    }, [selectedItem])
 
     useEffect(() => {
         onRangeChange(dateRange.start, dateRange.end)
@@ -216,9 +244,14 @@ export function CustomDateRangPicker(props) {
             '.css-1t0788u-MuiPickersSlideTransition-root-MuiDayCalendar-slideTransition'
         );
         // Now you can manipulate the element, e.g., change its background color
-        element.style.height = '500px';
+        element.style.height = '600px';
 
     })
+
+    useEffect(() => {
+        Dispatch({ type: 'reset' });
+        setShowItemRange(false);
+    },[scheduleState?.id])
 
     return (
         <div className={`${className}`}>
@@ -239,8 +272,13 @@ export function CustomDateRangPicker(props) {
                     })
                 }
             </List>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider
+                dateAdapter={AdapterDayjs}
+            >
                 <DateCalendar
+                    onMonthChange={(month) => {
+                        onMonthChange(month);
+                    }}
                     style={{
                         height: 800
                     }}
@@ -261,7 +299,9 @@ export function CustomDateRangPicker(props) {
                             showItemRange,
                             setShowItemRange,
                             selectedItem,
-                            setSelectedItem
+                            setSelectedItem,
+                            selectedItemSch,
+                            setSelectedItemSch
                         },
                         calendarHeader: {
                             className: ' '

@@ -2,9 +2,9 @@ import { api } from "./configs/axiosConfig.js";
 import { defineCancelApiObject } from "./configs/axiosUtils.js";
 
 export const ScheduleAPI = {
-	get: async function (item_id, cancel = false) {
+	get: async function (sch_id, cancel = false) {
 		const response = await api.request({
-			url: `/schedule/${item_id}`,
+			url: `/schedule/${sch_id}`,
 			method: "GET",
 			// params: {
 			// 	'start-date': start_date,
@@ -16,12 +16,13 @@ export const ScheduleAPI = {
 		});
 		return response.data.payload;
 	},
-	getAll: async function (item, start_date, end_date, type, expand, groupBy, cancel = false) {
+	getAll: async function (item, start_date, end_date, type, expand, groupBy, recurrence, cancel = false) {
 		const response = await api.request({
 			url: "/schedule/",
 			method: "GET",
 			params: {
 				item,
+				recurrence,
 				'start-date': start_date,
 				'end-date': end_date,
 				type,
