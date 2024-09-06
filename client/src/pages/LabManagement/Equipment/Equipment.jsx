@@ -113,38 +113,10 @@ function Equipment() {
 	};
 	return (
 		<>
-			<Box
-				m={2}
-				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-				}}
-			>
-				<Breadcrumbs
-					aria-label="breadcrumb"
-					separator={<NavigateNextIcon fontSize="small" />}
-					maxItems={2}
-					itemsAfterCollapse={2}
-				>
-					<Typography color="gray">
-						{currentLab ? currentLab.name : ""}{" "}
-					</Typography>
-					<Typography color="gray">Settings</Typography>
-					<Typography color="text.primary">Equipment</Typography>
-				</Breadcrumbs>
-				<Link
-					sx={{ marginRight: "10px",fontSize:"16px",textDecoration:"none" }}
-					component="button"
-					variant="body2"
-					onClick={() => navigate("/")}
-				>
-					Home
-				</Link>
-			</Box>
+
 		
 
-			<Container sx={{ marginTop: "50px" }}>
+			<Container sx={{ marginTop: "130px" }}>
 				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
 					<Button
 						variant="contained"
@@ -155,7 +127,7 @@ function Equipment() {
 					</Button>
 				</Box>
 			</Container>
-			<Container maxWidth="lg" sx={{ marginTop: "50px" }}>
+			<Container maxWidth="lg" sx={{ marginTop: "20px" }}>
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>

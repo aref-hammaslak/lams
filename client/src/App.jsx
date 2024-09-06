@@ -15,7 +15,7 @@ import Calibration from "./pages/Management/Calibration/Calibration";
 import PMService from "./pages/Management/PMService/PMService";
 import Reports from "./pages/Reports/Reports";
 import { LogFilling } from "./pages/Log/LogFilling.jsx";
-import {AutoLog} from "./pages/Log/AutoLog.jsx";
+import { AutoLog } from "./pages/Log/AutoLog.jsx";
 import { Calendar } from "./components/Calendar";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Users from "./pages/Users";
@@ -23,41 +23,47 @@ import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
 import { ROLES } from "./consts/index.js"
 import {
 	LogsStatus
-	
- } from "./pages/Log/LogsStatus.jsx";
+
+} from "./pages/Log/LogsStatus.jsx";
 import { LogFillingProvider } from "./contexts/LogFillingProvider.jsx";
 import { DayProvider } from "./contexts/DayProvider.jsx";
 import { ScheduleDefine } from "./pages/Schedule/ScheduleDefine.jsx";
 import { ScheduleAssign } from "./pages/Schedule/ScheduleAssign.jsx";
 function App() {
+	const allRoles = [ROLES.admin, ROLES.supervisor, ROLES.staff];
+	const adminAndSupervisor = [ROLES.admin, ROLES.supervisor];
+	const onllyAdmin = [ROLES.admin];
+
 	return (
 		<>
 			<Routes>
-				<Route element={<RequireAuth allowedRolse={[ROLES.admin, ROLES.supervisor, ROLES.staff]} />}>
+				<Route element={<RequireAuth allowedRolse={allRoles} />}>
 
 
 					<Route path="/" element={<RootLayout />}>
 						<Route path="" element={<Home />} />
-						<Route path="profile" element={<AdminProfile />} />
+						<Route element={<RequireAuth allowedRolse={onllyAdmin} />}>
+							<Route path="profile" element={<AdminProfile />} />
+						</Route>
 						<Route path="setting">
-							<Route path="staff" element={<UserProfile />} />
-							<Route path="laboratory" element={<AdminLabs />} />
-							<Route path="log-config" element={<LogConfig />} />
-							<Route path="equipment" element={<Equipment />} />
-							<Route path="department" element={<Department />} />
-							<Route path="surface" element={<Surface />} />
-							<Route path="thermometer" element={<Thermometer />} />
+							<Route path="users/*" element={<Users />} />
+							<Route path="laboratories" element={<AdminLabs />} />
+							<Route path="log-configs" element={<LogConfig />} />
+							<Route path="equipments" element={<Equipment />} />
+							<Route path="departments" element={<Department />} />
+							<Route path="surfaces" element={<Surface />} />
+							<Route path="thermometers" element={<Thermometer />} />
 						</Route>
 
 						<Route path="users2/*" element={<Users />} />
-						<Route path="log"  element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
+						<Route path="log" element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
 							<Route path="auto-fill" element={<AutoLog />} />
 							<Route path="status" element={<LogsStatus />} />
 							<Route path="fill" element={<LogFilling />} />
 						</Route>
 						<Route path="schedule">
 							<Route path="define" element={<ScheduleDefine />} />
-							<Route path="assign" element={<ScheduleAssign/>}/>
+							<Route path="assign" element={<ScheduleAssign />} />
 						</Route>
 					</Route>
 				</Route>

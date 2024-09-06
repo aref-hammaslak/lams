@@ -109,7 +109,8 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 
 	useEffect(() => {
 		if (!error) return;
-		enqueueSnackbar(error.message, { variant: 'error' });
+		console.log(error);
+		enqueueSnackbar('Something went wrong', { variant: 'error' });
 	}, [error])
 
 	// useEffect(() => {

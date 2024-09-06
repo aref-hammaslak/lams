@@ -134,7 +134,7 @@ function AdminLabs() {
 
 	return (
 		<div>
-			<Container sx={{ marginTop: "50px" }}>
+			<Container sx={{ marginTop: "130px" }}>
 				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
 					<Button
 						variant="contained"
@@ -146,7 +146,7 @@ function AdminLabs() {
 				</Box>
 			</Container>
 
-			<Container maxWidth="lg" sx={{ marginTop: "50px" }}>
+			<Container maxWidth="lg" sx={{ marginBottom: "50px" }}>
 				<Typography variant="h4" gutterBottom>
 					Labs
 				</Typography>

@@ -170,43 +170,12 @@ function Thermometer() {
 
 	return (
 		<>
-			<Box
-				sx={{
-					display: "flex",
-					justifyContent: "space-between",
-					alignItems: "center",
-				}}
-			>
-				<Breadcrumbs
-					sx={{ margin: 2 }}
-					aria-label="breadcrumb"
-					separator={<NavigateNextIcon fontSize="small" />}
-					maxItems={2}
-					itemsAfterCollapse={2}
-				>
-					<Typography color="gray">
-						{currentLab ? currentLab.name : ""}{" "}
-					</Typography>
-
-					<Typography color="gray">Settings</Typography>
-					<Typography color="text.primary">Thermometer</Typography>
-				</Breadcrumbs>
-				<Link
-					sx={{ marginRight: "26px",fontSize:"16px",textDecoration:"none" }}
-					component="button"
-					variant="body2"
-					onClick={() => navigate("/")}
-				>
-					Home
-				</Link>
-			</Box>
-
 			<Grid
 				container
 				direction="column"
 				width="100%"
 				p="4rem"
-				pt="1rem"
+				pt="4rem"
 				spacing="2rem"
 			>
 				<Grid item ml="auto">

@@ -8,7 +8,8 @@ import {
 	Grid, Stack, Button, List, ListItem,
 	ListItemAvatar, ListItemButton, ListItemText, IconButton, Tooltip,
 	Paper, ImageList, ImageListItem, ImageListItemBar, TextField,
-	Select, InputLabel, FormControl, MenuItem, ButtonGroup, Box, Dialog, DialogTitle, DialogContent, DialogActions
+	Select, InputLabel, FormControl, MenuItem, ButtonGroup, Box, Dialog, DialogTitle, DialogContent, DialogActions,
+	Divider
 } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import { BoxController } from "../../components/BoxController";
@@ -24,8 +25,8 @@ import Typography from "@mui/material/Typography";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const USER_ROLES = {
-	'1001': {label: 'staff', value: [1001]},
-	'1001,1923': {label: 'supervisor', value: [1001, 1923]},
+	'1001': { label: 'staff', value: [1001] },
+	'1001,1923': { label: 'supervisor', value: [1001, 1923] },
 	'staff': [1001],
 	'supervisor': [1001, 1923]
 }
@@ -91,7 +92,7 @@ function Profile({ onUserDelete }) {
 	const navigate = useNavigate();
 	const deleteUserHandler = () => {
 		UserAPI.deleteUser(id).then(
-			_ => navigate('/users2', { replace: true }),
+			_ => navigate('/setting/users', { replace: true }),
 			err => setError(err)
 		)
 	}
@@ -144,9 +145,9 @@ function Profile({ onUserDelete }) {
 			(err) => setError(err)
 		);
 	};
-	
+
 	return (
-		<Stack component={Paper} p='1rem' mx='5rem' mt='2rem'>
+		<Stack component={Paper} className="p-8 mx-auto">
 			<Link
 				ref={linkOpenerRef}
 				sx={{ display: "none" }}
@@ -161,7 +162,7 @@ function Profile({ onUserDelete }) {
 					hover: true
 				}}
 				renderComponent={(props) => (
-					<ImageList sx={{ width: '10rem', height: '10rem', borderRadius: '20px'}}>
+					<ImageList sx={{ width: '8rem', height: '8rem', borderRadius: '15px' }}>
 						<ImageListItem cols={12}>
 							<img
 								alt='profile-image'
@@ -171,7 +172,7 @@ function Profile({ onUserDelete }) {
 										: '/pfp_placeholder.png'
 								}
 							/>
-							{ props.hover &&
+							{props.hover &&
 								<ImageListItemBar
 									subtitle={`@${user.username}`}
 									actionIcon={
@@ -193,9 +194,10 @@ function Profile({ onUserDelete }) {
 				type='file'
 				ref={pfpInputRef}
 				style={{ display: 'none' }}
-				onChange={(e) => uploadHandler('pfp', e.target.files[0], () => {})}
+				onChange={(e) => uploadHandler('pfp', e.target.files[0], () => { })}
 			/>
 			<Grid
+				className="mt-2"
 				container
 				component='form'
 				onSubmit={handleSubmit(updateUserHandler)}
@@ -377,7 +379,7 @@ function Profile({ onUserDelete }) {
 							onClick={() =>
 								ceuInputRef.current.click()
 							}
-							// sx={{ width: "215px", height: "55px" }}
+						// sx={{ width: "215px", height: "55px" }}
 						>
 							<DriveFolderUploadOutlinedIcon />
 						</LoadingButton>
@@ -597,8 +599,7 @@ function UsersLayout() {
 	const toggleUser = (user) => {
 		UserAPI.toggleUser(user._id).then(
 			user => setUsers(users.map(u => {
-				if (u._id === user._id)
-				{
+				if (u._id === user._id) {
 					u.active = user.active;
 				}
 				return u;
@@ -625,11 +626,11 @@ function UsersLayout() {
 					message: 'username is taken',
 					type: 'conflict'
 				}, { shouldFocus: true });
-			}else if (errRes.error.code === 11000) {
-					setFormError('email', {
-						message: 'a user is already registered with this email',
-						type: 'conflict'
-					}, { shouldFocus: true });
+			} else if (errRes.error.code === 11000) {
+				setFormError('email', {
+					message: 'a user is already registered with this email',
+					type: 'conflict'
+				}, { shouldFocus: true });
 			} else {
 				setError(err);
 			}
@@ -652,49 +653,60 @@ function UsersLayout() {
 	}
 
 	return (
-		<Grid container mt='1rem'>
+		<Grid container mt='1rem' className="!h-[calc(100vh-64px)]">
 			<Grid
 				item
-				xs={3}
+				xs={2.5}
 			>
-				<Stack direction='column' spacing='2rem'>
+				<Stack position={"fixed"} direction='column' className=" py-4 px-4 overflow-y-auto scrollbar-thin" >
 					<Button
+						className=" rounded-lg bg-primaryDark "
 						variant='contained'
 						size='large'
 						color='primary'
 						onClick={() => setOpenDialog(true)}
 					>Add New User</Button>
 					<List
+						className=" h-[calc(100vh-68px)] scrollbar-thin !rounded-none shadow-none"
 						component={Paper}
-						sx={{ height: '75vh', overflowX: 'auto' }}
-					>{users.map(user => (
-						<ListItem
-							key={user._id}
-							secondaryAction={
-								<Tooltip title={user.active ? 'Ban User' : 'Activate User'} enterDelay={500}>
-									<IconButton onClick={() => toggleUser(user)}>
-										{user.active
-											? <CircleIcon color='success' />
-											: <CircleOutlinedIcon color='error' />
-										}
-									</IconButton>
-								</Tooltip>
-							}
-						>
-							<ListItemButton onClick={() => navigate(`/users2/${user._id}`, { replace: true })}>
-								<ListItemAvatar>
-									<Avatar></Avatar>
-								</ListItemAvatar>
-								<ListItemText
-									primary={user.name}
-									secondary={user.username}
-								/>
-							</ListItemButton>
-						</ListItem>
+					>{users.map((user, i) => (
+						<>
+							<ListItem
+								key={user._id}
+								className= 'bg-primaryLight p-0 my-2 rounded-lg'
+								secondaryAction={
+									<Tooltip title={user.active ? 'Ban User' : 'Activate User'} enterDelay={500}>
+										<IconButton onClick={() => toggleUser(user)}>
+											{user.active
+												? <CircleIcon color='success' />
+												: <CircleOutlinedIcon color='error' />
+											}
+										</IconButton>
+									</Tooltip>
+								}
+							>
+								<ListItemButton
+									className='py-2'
+									onClick={() => navigate(`/setting/users/${user._id}`, { replace: true })}>
+									<ListItemAvatar>
+										<Avatar className="bg-white text-primary" ></Avatar>
+									</ListItemAvatar>
+									<ListItemText
+										primary={user.name}
+										secondary={user.username}
+									/>
+								</ListItemButton>
+							</ListItem>
+							{/* {
+								users.length !== i+1  && (
+									<Divider className="bg-primaryLight"/>
+								)
+							} */}
+						</>
 					))}</List>
 				</Stack>
 			</Grid>
-			<Grid item xs={9}>
+			<Grid item xs={9.5} className="px-8 py-5  bg-gray-50">
 				<Outlet />
 			</Grid>
 			<Dialog
@@ -733,7 +745,7 @@ function UsersLayout() {
 							type='password'
 							error={Boolean(errors.password)}
 							helperText={errors.password?.message}
-							{...register('password', { required: 'required'})}
+							{...register('password', { required: 'required' })}
 						/>
 						<TextField
 							fullWidth
@@ -757,31 +769,31 @@ function UsersLayout() {
 function Users() {
 	return (
 		<Routes>
-			<Route path='/' element={<UsersLayout />}>
+			<Route path='' element={<UsersLayout />}>
 				<Route index element={<>
-						<Grid container
-							alignItems='center'
-							justifyContent='center'
-							height='100%'
-						>
-							<Grid item>
-								<Stack
-									component={Paper}
-									height='10rem'
-									width='10rem'
-									alignItems='center'
-									justifyContent='center'
-								>
-									<BiotechOutlinedIcon fontSize='large' />
-									<Typography variant='h6'>
-										LaMS
-									</Typography>
-									<Typography variant='caption'>
-										No User Selected
-									</Typography>
-								</Stack>
-							</Grid>
+					<Grid container
+						alignItems='center'
+						justifyContent='center'
+						height='100%'
+					>
+						<Grid item>
+							<Stack
+								component={Paper}
+								height='10rem'
+								width='10rem'
+								alignItems='center'
+								justifyContent='center'
+							>
+								<BiotechOutlinedIcon fontSize='large' />
+								<Typography variant='h6'>
+									LaMS
+								</Typography>
+								<Typography variant='caption'>
+									No User Selected
+								</Typography>
+							</Stack>
 						</Grid>
+					</Grid>
 				</>} />
 				<Route path=':id' element={<Profile />} />
 			</Route>

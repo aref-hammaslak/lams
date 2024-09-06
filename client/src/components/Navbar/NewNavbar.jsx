@@ -162,8 +162,8 @@ function NewNavbar(props) {
                                 </MenuHandler>
                                 <MenuList>
                                     {
-                                        [['Laboratory', 'setting/laboratory'],['Log Config', 'setting/log-config'], ['Department', 'setting/department'], ['Equipment', 'setting/equipment'],
-                                        ['staff', 'setting/staff'], ['Surface', 'setting/surface'], ['Thermometer', 'setting/thermometer'],].map(([label, path], i) => (
+                                        [['Laboratories', 'setting/laboratories'],['Log Configs', 'setting/log-configs'], ['Departments', 'setting/departments'], ['Equipments', 'setting/equipments'],
+                                        ['users', 'setting/users'], ['Surfaces', 'setting/surfaces'], ['Thermometers', 'setting/thermometers'],].map(([label, path], i) => (
                                             <MenuItem key={i} className='hover:text-primary py-0' >
                                                 <Link className='inline-block w-full hover:text-primary py-2' to={path}>
                                                     {label}
