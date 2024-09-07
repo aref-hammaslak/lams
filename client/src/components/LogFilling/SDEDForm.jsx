@@ -40,11 +40,8 @@ function SDEDForm() {
 		<div className="flex flex-col items-center gap-2 mt-4">
 			<CustomDatePicker
 				defaultValue={dayjs(scheduleInitialDate)}
-				// minDate={dayjs(scheduleInitialDate)}
-				// maxDate={dayjs(logTempFilters.endDate)}
 				disabled={!schedule}
 				label="Start"
-				disableFuture
 				value={dayjs(logTempFilters.startDate)}
 				onChange={(newValue) =>
 					setLogTempFilters({ ...logTempFilters, startDate: newValue })}
@@ -62,10 +59,7 @@ function SDEDForm() {
 			<CustomDatePicker
 				label="End"
 				defaultValue={dayjs(scheduleEndDate)}
-				// maxDate={dayjs(scheduleEndDate)}
 				value={dayjs(logTempFilters.endDate)}
-				// disabled={!schedule}
-				// disableFuture
 				onChange={(newValue) =>
 					setLogTempFilters({ ...logTempFilters, endDate: newValue })
 				}
@@ -77,7 +71,6 @@ function SDEDForm() {
 						margin="normal"
 					/>
 				)}
-				// minDate={dayjs(logTempFilters.startDate)}
 			/>
 		</div>
 

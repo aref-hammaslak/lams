@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import isToday from 'dayjs/plugin/isToday';
 import { useGridApiRef } from "@mui/x-data-grid";
 import { logFillingContext } from "../../contexts/LogFillingProvider";
-
+import InfoIcon from '@mui/icons-material/Info';
 
 const LogsPagination = (props) => {
 	const { logTempFilters, displayLogs, equLog, loading, navigatedFromLogsStatus, logSchedules } = useContext(logFillingContext);
@@ -29,7 +29,7 @@ const LogsPagination = (props) => {
 
 	const rows = useMemo(() => {
 
-		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef, logSchedules, navigatedFromLogsStatus ? false :true);
+		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef, logSchedules, navigatedFromLogsStatus ? false : true);
 		return [];
 	}, [equLogs, deleteError]);
 
@@ -71,57 +71,68 @@ const LogsPagination = (props) => {
 		return className;
 	};
 	return (
-		<Grid className={`outline-none ${navigatedFromLogsStatus ? '': 'max-h-[75vh]'}  ` } item width="inherit">
-			<DataGrid
-				apiRef={apiRef}
-				columns={columns}
-				density="standard"
-				loading={fetchLoading || deleteLoading || createLoading || updateLoading || loading}
-				emptyRowsMessage={loading ? "Loading..." : "No Logs found"}
+		<Grid className={`outline-none  bg-white relative `} item width="inherit">
+			{
+				rows.length ? (
+					<DataGrid
+						apiRef={apiRef}
+						columns={columns}
+						density="standard"
+						loading={fetchLoading || deleteLoading || createLoading || updateLoading || loading}
+						emptyRowsMessage={loading ? "Loading..." : "No Logs found"}
 
 
-				slotProps={{
-					loadingOverlay: {
-						variant: 'linear-progress',
-						noRowsVariant: 'skeleton',
-					},
-					noRowsOverlay: {
-						children: fetchLoading ? <sapn>Loading...</sapn> : <span>
-							No log found
-						</span>
-					}
+						slotProps={{
+							loadingOverlay: {
+								variant: 'linear-progress',
+								noRowsVariant: 'skeleton',
+							},
+							noRowsOverlay: {
+								children: fetchLoading ? <sapn>Loading...</sapn> : <span>
+									No log found
+								</span>
+							}
+						}}
+						rows={rows}
+						getRowHeight={() => 65}
+						className={`${!navigatedFromLogsStatus && 'min-h-[75vh]'} px-4 pb-8 rounded-lg shadow`}
+						disableRowSelectionOnClick
+						disableColumnSelector
+						getRowClassName={getRowClassName}
+						getCellClassName={getCellClassName}
+						onCellDoubleClick={
+							(_, event) => {
+								event.defaultMuiPrevented = true;
+							}
+						}
+						onRowEditStop={(_, event) => {
+							event.defaultMuiPrevented = true;
+						}}
+
+						editMode="row"
+						sortingOrder={['desc', 'asc']}
+						initialState={{
+							pagination: {
+								paginationModel: { pageSize: 25 },
+							},
+							sorting: {
+								sortModel: [{ field: "date", sort: "desc" }],
+							},
+						}}
+						hideFooter={navigatedFromLogsStatus || rows.length < 26}
+					/>
+				) : (
+						<div className=" font-semibold text-lg left-1/2 top-[calc(70vh/2)] -translate-x-1/2 -translate-y-1/2 border p-20 rounded-lg  absolute flex items-center justify-center bg-white shadow ">
+							<p className="space-x-1 flex items-center ">
+								<InfoIcon className="text-red-500 " />
+								<sapn>
+									No Log Found
+								</sapn>
+							</p>
+						</div>
+			)}
 
 
-
-				}}
-				rows={rows}
-				getRowHeight={() => 65}
-				className={""}
-				disableRowSelectionOnClick
-				disableColumnSelector
-				getRowClassName={getRowClassName}
-				getCellClassName={getCellClassName}
-				onCellDoubleClick={
-					(_, event) => {
-						event.defaultMuiPrevented = true;
-					}
-				}
-				onRowEditStop={(_, event) => {
-					event.defaultMuiPrevented = true;
-				}}
-
-				editMode="row"
-				sortingOrder={['desc', 'asc']}
-				initialState={{
-					pagination: {
-						paginationModel: { pageSize: 25 },
-					},
-					sorting: {
-						sortModel: [{ field: "date", sort: "desc" }],
-					},
-				}}
-				hideFooter={navigatedFromLogsStatus}
-			/>
 		</Grid>
 
 	);

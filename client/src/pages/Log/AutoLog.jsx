@@ -1,12 +1,11 @@
 import { useMemo, useState } from "react";
 import dayjs from "dayjs";
-import { Grid } from "@mui/material";
 import { ClosableSidebar } from "../../components/Global/ClosableSidebar.jsx";
 import { AutoLogFilters } from "../../components/LogFilling/AutoLogFilters.jsx";
 import { useSnackbar } from 'notistack'
 import { api } from "../../apis/configs/axiosConfig.js";
 import { DataGrid } from "@mui/x-data-grid";
-import { MissingRowIdError } from "@mui/x-data-grid/hooks/features/rows/useGridParamsApi.js";
+import InfoIcon from '@mui/icons-material/Info';
 
 
 export function AutoLog() {
@@ -16,7 +15,6 @@ export function AutoLog() {
 	const [loading, setLoading] = useState(false);
 	const { enqueueSnackbar } = useSnackbar();
 	const [filledLogs, setFilledLogs] = useState(null);
-	console.log('filledLogs :', filledLogs);
 
 	function toggleIsOpen() {
 		setIsOpen(n => !n);
@@ -38,7 +36,6 @@ export function AutoLog() {
 			console.log(response);
 			if (response.data.success) {
 				const { payload: logs } = response.data;
-				console.log('logs :', logs);
 				if (logs?.length > 0) {
 					setFilledLogs(logs);
 					enqueueSnackbar(`${logs.length} empty logs filled successfully`, {
@@ -74,6 +71,7 @@ export function AutoLog() {
 		})
 	}, [filledLogs]);
 	const gridColumns = useMemo(() => {
+		
 		if (!filledLogs || filledLogs?.length === 0) return;
 
 		const cols = Object.keys(gridRows[0]).filter(key => key !== 'id').map(key => {
@@ -87,6 +85,7 @@ export function AutoLog() {
 
 		return cols;
 	}, [filledLogs])
+	console.log("🚀 ~ gridColumns ~ gridColumns:", gridColumns)
 
 	return (
 		<div className="w-full ">
@@ -95,15 +94,24 @@ export function AutoLog() {
 				<AutoLogFilters loading={loading} handlelAutoFill={handlelAutoFill} />
 			</ClosableSidebar>
 			{/* body */}
-			<div className={`${isOpen ? 'ml-[250px]': ''} `}>
-				<div className={`py-16 px-10  ${isOpen ? 'w-[calc(100vw-270px)]' : 'w-full'} overflow-hidden m-auto bg-gray-50`}>
+			<div className={`${isOpen ? 'ml-[250px]': ''}`}>
+				<div className={`py-16 px-10  ${isOpen ? 'w-[calc(100vw-254px)]' : ''} overflow-hidden m-auto bg-gray-50 min-h-[calc(100vh-64px)] relative`}>
 					{
-						filledLogs && <DataGrid
+						filledLogs ? (<DataGrid
 							columns={gridColumns}
 							rows={gridRows}
-							className="bg-white"
+							className="bg-white overflow-x-auto"
 							
-						/>
+						/>) : (
+							<div className=" font-semibold text-lg left-1/2 top-[calc(85vh/2)] -translate-x-1/2 -translate-y-1/2 border p-20 rounded-lg  absolute flex items-center justify-center bg-white shadow ">
+								<p className="space-x-1 flex items-center ">
+									<InfoIcon className="text-red-500 " />
+									<sapn>
+										No Log Found
+									</sapn>
+								</p>
+							</div>
+						)
 					}
 
 				</div>

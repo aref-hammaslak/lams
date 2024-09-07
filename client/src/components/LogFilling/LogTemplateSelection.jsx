@@ -19,13 +19,13 @@ function LogTemplateSelection() {
 			<Box className={"flex gap-4  justify-center  flex-col"}>
 
 				<FormControl className={" bg-white "}>
-					<InputLabel id="">Choose Equipment</InputLabel>
+					<InputLabel id="">Equipment</InputLabel>
 
 					<Select
 
-						value={logTempFilters.equipment}
+						value={logTempFilters.equipment ?? ''}
 
-						label="Choose an option"
+						label="Equipment"
 						onChange={(e) => {
 							const equipment = e.target.value;
 
@@ -40,10 +40,10 @@ function LogTemplateSelection() {
 					</Select>
 				</FormControl>
 				<FormControl className={" bg-white "}>
-					<InputLabel >Choose Reccurenc</InputLabel>
+					<InputLabel >Type</InputLabel>
 					<Select
-						value={logTempFilters.reccurence}
-						label="Choose an option"
+						value={logTempFilters.reccurence ?? ''}
+						label="Type"
 						onChange={(e) => {
 							updateSetDefaults({ type: 2, value: e.target.value });
 						}}

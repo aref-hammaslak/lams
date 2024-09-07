@@ -53,14 +53,14 @@ export function LogFilling() {
 	return (
 		<Box
 			className={
-				"container pt-4  pb-10  m-auto   px-4 justify-end  relative"
+				" bg-gray-50 w-full  min-h-screen   justify-end  relative"
 			}
 		>
 
 			<ClosableSidebar isOpen={isOpen} toggleIsOpen={toggleIsOpen} >
 				<LogTempFilters/>
 			</ClosableSidebar>
-			<Box className={`bg-white mt-14 transition-all   ${isOpen ? 'ml-[250px]' : ''}  `}>
+			<Box className={`pt-12 pb-20  px-10 transition-all   ${isOpen ? 'ml-[250px]' : ''}  `}>
 				{<LogsPagination />}
 
 			</Box>

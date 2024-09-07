@@ -16,7 +16,6 @@ export const AutoLogFilters = ({ handlelAutoFill, loading}) => {
     const [equ, setEqu] = useState(null);
     const [logTmp, setLogTmp] = useState(null);
     const [date, setDate] = useState();
-    console.log('loaded');
 
 
     useEffect(() => {
@@ -44,27 +43,6 @@ export const AutoLogFilters = ({ handlelAutoFill, loading}) => {
         await handlelAutoFill(logTmp, date);
     }
 
-    // after selecting the LogTemplate. now it's time to load the miniCalandar
-    // const [schedules, setSchedules] = useState([]);
-    // useEffect(() => {
-    //     if (!logTmp) {
-    //         setSchedules([]);
-    //         return;
-    //     }
-
-    //     ScheduleAPI.getAll(
-    //         logTmp._id,
-    //         date.startOf('year').format('YYYY-MM-DD'),
-    //         date.endOf('year').format('YYYY-MM-DD'),
-    //         'equipment',
-    //         true,
-    //         'date'
-    //     ).then(
-    //         schs => setSchedules(schs),
-    //         err => setError(err)
-    //     )
-
-    // }, [logTmp]);
   return (
       <form className='space-y-4 ' onSubmit={handelSubmit} >
 
