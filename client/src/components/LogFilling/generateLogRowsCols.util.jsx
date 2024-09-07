@@ -6,6 +6,7 @@ import TextsmsOutlinedIcon from '@mui/icons-material/TextsmsOutlined';
 import Tooltip from "@mui/material/Tooltip";
 import isToday from 'dayjs/plugin/isToday';
 import RenderActions from "./RenderActions";
+import moment from 'moment';
 
 
 
@@ -13,46 +14,68 @@ import RenderActions from "./RenderActions";
 const DATE_FORMAT = 'YYYY-MM-DD';
 
 // Function to generate log rows based on the given initial date, end date, recurrence, and log template
-function generateLogRows(logTempFilters, equLogs , apiRef) {
-    
-    const ref = apiRef.current;
-    const { startDate, endDate, logTemp } = logTempFilters;
-    const { initial_date:initialDate , recurrence } = logTemp.schedule;
-    const logRows = [];
-    let currentDate = dayjs(initialDate);
+function generateLogRows(logTempFilters, equLogs , apiRef, schedules, allLogs) {
+console.log("🚀 ~ generateLogRows ~ logTempFilters, equLogs , apiRef, schedules:", logTempFilters, equLogs , apiRef, schedules)
+//    console.log("🚀 ~ generateLogRows ~ equLogs:", equLogs)
    
-    while (currentDate.isBefore(dayjs(endDate).add(1, 'day'), 'day')) {
-        let log = {};
-        const matchedLog = equLogs.find(log =>  currentDate.isSame(dayjs(log.date), 'day'))
-        if (matchedLog) {
-            log = {
-                date: matchedLog.date,
-                items: matchedLog.items,
-                isLoged: true
+    if(allLogs)  schedules = schedules.map(item => item.schedule);
+    else schedules = [logTempFilters.logTemp.schedule];
+
+    const ref = apiRef.current;
+    let { startDate, endDate, logTemp } = logTempFilters;
+
+    startDate = moment(startDate.toString());
+    endDate = moment(endDate.toString());
+
+    const logRows = [];
+    let currentDate;
+    schedules.forEach(sch => {
+        const { initial_date: schStart, end_date:schEnd, recurrence } = sch;
+
+        if (startDate.isSameOrAfter(schEnd,'day') || endDate.isBefore(schStart, 'day')) return;
+       
+        currentDate = moment(schStart);
+
+        while (currentDate.isBefore(schEnd, 'day') && currentDate.isSameOrBefore(endDate, 'day')) {
+            
+            while (currentDate.isBefore(startDate)) {
+                currentDate = addRecurrence(currentDate, recurrence);
+                console.log("🚀 ~ generateLogRows ~ currentDate:", currentDate)
+                
             }
+
+            let log = {};
+            const matchedLog = equLogs.find(log => currentDate.isSame(log.date, 'day'))
+            if (matchedLog) {
+                log = {
+                    date: matchedLog.date,
+                    items: matchedLog.items,
+                    isLoged: true
+                }
+            }
+
+
+            //fill the rows with log data if there is no log for current date fill it with default icons
+            const logItemElements = createLogItemElements(log, logTemp.items);
+
+            const logRow = {
+                date: currentDate.toDate(),
+                ...logItemElements,
+            }
+            logRow.id = logRows.length + 1;
+            logRow.isLoged = matchedLog ? true : false;
+
+            // assign the log database id to the row to be able to delete the log via _id
+            logRow._id = matchedLog?._id;
+
+            currentDate = addRecurrence(currentDate, recurrence);
+            //check the date be in the rage of provided
+            // if (currentDate.isBefore(dayjs(startDate).add(1, 'day'), 'day')) continue;
+
+            logRows.push(logRow);
         }
-        
 
-        //fill the rows with log data if there is no log for current date fill it with default icons
-        const logItemElements = createLogItemElements(log, logTemp.items);
-
-        const logRow = {
-            date: currentDate.toDate(),
-            ...logItemElements,
-        }
-        logRow.id = logRows.length + 1;
-        logRow.isLoged = matchedLog ? true : false;
-
-        // assign the log database id to the row to be able to delete the log via _id
-        logRow._id = matchedLog?._id;
-
-        currentDate = addRecurrence(currentDate, recurrence);
-        //check the date be in the rage of provided
-        if (currentDate.isBefore(dayjs(startDate).add(1, 'day'), 'day')) continue;
-
-        logRows.push(logRow);
-    }
-
+    });
     return logRows.sort((a, b) => b.date - a.date);
 }
 
@@ -60,15 +83,15 @@ function generateLogRows(logTempFilters, equLogs , apiRef) {
 function addRecurrence(currentDate, recurrence) {
     switch (recurrence) {
         case "daily":
-            return currentDate.add(1, "day");
+            return currentDate.add(1, "days");
         case "weekly":
-            return currentDate.add(7, "day");
+            return currentDate.add(7, "days");
         case "monthly":
-            return currentDate.add(1, "month");
+            return currentDate.add(1, "months");
         case "quarterly":
-            return currentDate.add(3, "month");
+            return currentDate.add(3, "months");
         case "semiAnnually":
-            return currentDate.add(6, "month");
+            return currentDate.add(6, "months");
         case "annually":
             return currentDate.add(1, "year");
         default:
@@ -85,7 +108,7 @@ function createLogItemElements(log, logTempItems) {
 
         switch (type) {
             case 0:
-                logItemElements[label] = log?.items && log.items[label] || undefined;
+                logItemElements[label] = log?.items && log.items[label] || false;
                 break;
             case 1:
                 logItemElements[label] = log?.items && log.items[label] || undefined;

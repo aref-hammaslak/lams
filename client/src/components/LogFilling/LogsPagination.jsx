@@ -10,13 +10,13 @@ import { logFillingContext } from "../../contexts/LogFillingProvider";
 
 
 const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs, equLog, loading, navigatedFromLogsStatus, } = useContext(logFillingContext);
+	const { logTempFilters, displayLogs, equLog, loading, navigatedFromLogsStatus, logSchedules } = useContext(logFillingContext);
 	const { fetchAllEquLogs, equLogs, fetchLoading, deleteError, deleteLoading, updateLoading, createLoading } = equLog;
 	const { _id: temp_id, schedule, startDate, endDate } = logTempFilters?.logTemp ?? {};
 
 	const fecthQueryParams = {
 		temp_id,
-		sch_id: schedule?._id,
+		// sch_id: schedule?._id,
 		start_date: startDate,
 		end_date: endDate
 	}
@@ -29,7 +29,7 @@ const LogsPagination = (props) => {
 
 	const rows = useMemo(() => {
 
-		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef);
+		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef, logSchedules, navigatedFromLogsStatus ? false :true);
 		return [];
 	}, [equLogs, deleteError]);
 

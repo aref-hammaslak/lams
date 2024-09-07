@@ -157,8 +157,10 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
         const today = dayjs();
 
         // the code itself is clear, no need for comment
-        const startDate = initilaDate.isBefore(startOfMonth) ? startOfMonth : initilaDate;
-        const endDate = endSchDate.isBefore(today) ? endSchDate:today;
+        // const startDate = initilaDate.isBefore(startOfMonth) ? startOfMonth : initilaDate;
+        // const endDate = endSchDate.isBefore(today) ? endSchDate:today;
+        const startDate = dayjs().startOf('month');
+        const endDate = dayjs().endOf('month');
 
         return { startDate, endDate };
     }

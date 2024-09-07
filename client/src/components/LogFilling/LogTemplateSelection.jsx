@@ -55,7 +55,7 @@ function LogTemplateSelection() {
 						))}
 					</Select>
 				</FormControl>
-				<FormControl className={" bg-white "}>
+				{/* <FormControl className={" bg-white "}>
 					<InputLabel >Choose Schedule</InputLabel>
 					<Select
 						label="Choose an option"
@@ -71,7 +71,7 @@ function LogTemplateSelection() {
 							</MenuItem>
 						))}
 					</Select>
-				</FormControl>
+				</FormControl> */}
 			</Box>
 
 		</>
