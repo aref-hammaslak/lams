@@ -48,7 +48,6 @@ export const Scheduler = (props) => {
 
   const handelAddAbsence = async () => {
     const { id: userId } = scheduleState;
-    console.log("🚀 ~ handelAddAbsence ~ userId:", userId)
     try {
       await UserAPI.updateUser(userId, {
         start_date: scheduleState.startDate,
@@ -179,7 +178,6 @@ export const Scheduler = (props) => {
           'date',
           reccurencs[scheduleState.recurrence],
         )
-        console.log("🚀 ~ fetchESTScheduleData ~ schedules:", Object.values(schedules))
         const dayItems = new Map();
         Object.values(schedules).map(sch => {
           const sc = sch[0]

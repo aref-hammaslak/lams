@@ -10,7 +10,6 @@ import { TabsSidebarLayout } from '../../layouts/TabsSidebarLayout';
 import { UserAPI } from '../../apis/UserAPI';
 
 const scheduleReducer = (prevState, action) => {
-  console.log(action.itemType)
   switch (action.type) {
     case 'item': {
       let type;

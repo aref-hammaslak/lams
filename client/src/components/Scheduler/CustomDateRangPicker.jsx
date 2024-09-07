@@ -227,7 +227,6 @@ export function CustomDateRangPicker(props) {
         if ( !selectedItem && selectedItem?.type === 'absence') return;
         (async () => {
             const sch = await ScheduleAPI.get(selectedItem.id);
-            console.log("🚀 ~ sch:", sch)
             setSelectedItemSch({
                 itemStartDate: dayjs(sch.initial_date),
                 itemEndDate: dayjs(sch.end_date),
