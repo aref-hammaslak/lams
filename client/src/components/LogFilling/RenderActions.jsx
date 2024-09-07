@@ -15,7 +15,6 @@ import { logFillingContext } from "../../contexts/LogFillingProvider";
 import useEquLog from "../../hooks/useEquLog";
 
 const RenderActions = ({ row, apiRef, ...params }) => {
-  const alertState = useContext(AlertContext);
   const { enqueueSnackbar } = useSnackbar();
   const { logTempFilters, equLog } = useContext(logFillingContext);
   const { items: logItems, _id: temp_id, schedule, startDate, endDate } = logTempFilters.logTemp;

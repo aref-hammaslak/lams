@@ -32,9 +32,8 @@ const CalendarDay = ({ content }) => {
     }, 0)
     const unDoneCount = taskCount - doneCount;
 
-    function handleRenderLogFilling(tasks, selectedIndex) {
+    function handleRenderLogFilling(tasks, logTempId) {
         tasks = tasks.filter(task => task.sch.type === 'equipment');
-        console.log("🚀 ~ handleRenderLogFilling ~ tasks:", tasks)
         
         const filters = tasks.map((task, i) => {
             const { sch, logTemplate } = task;
@@ -52,7 +51,7 @@ const CalendarDay = ({ content }) => {
             return filter;
         })
 
-
+        const selectedIndex = filters.findIndex(({ logTemp }) => logTemp._id === logTempId);
         stepperDispatch({
             type: 'setFilters',
             filters: filters,
@@ -123,7 +122,7 @@ const CalendarDay = ({ content }) => {
                                             (role === 'admin' || role === 'supervisor') &&
                                             <span className='w-[125px]'>{task.user.username}</span>
                                         }
-                                        <Button onClick={handleRenderLogFilling.bind(null, tasks, i)} size='sm' className='bg-primaryDark w-[80px] text-[10px]'> {task.done ? 'Edit' : 'Fill'}</Button>
+                                        <Button onClick={handleRenderLogFilling.bind(null, tasks, task.logTemplate._id)} size='sm' className='bg-primaryDark w-[80px] text-[10px]'> {task.done ? 'Edit' : 'Fill'}</Button>
                                     </div>
                                 </MenuItem>
                             ) :

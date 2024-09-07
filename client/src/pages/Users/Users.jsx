@@ -657,8 +657,10 @@ function UsersLayout() {
 			<Grid
 				item
 				xs={2.5}
+				position={"fixed"}
+				className="w-[calc((100vw*9.5)/12)]"
 			>
-				<Stack position={"fixed"} direction='column' className=" py-4 px-4 overflow-y-auto scrollbar-thin" >
+				<Stack  direction='column' className=" py-4 px-4 w-full overflow-y-auto scrollbar-thin" >
 					<Button
 						className=" rounded-lg bg-primaryDark "
 						variant='contained'
@@ -706,7 +708,7 @@ function UsersLayout() {
 					))}</List>
 				</Stack>
 			</Grid>
-			<Grid item xs={9.5} className="px-8 py-5  bg-gray-50">
+			<Grid item xs={9.5}  className="px-8 py-5 ml-[calc((100vw*2.5)/12)]  bg-gray-50">
 				<Outlet />
 			</Grid>
 			<Dialog

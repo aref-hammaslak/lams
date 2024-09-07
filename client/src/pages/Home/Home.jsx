@@ -51,13 +51,13 @@ function Home() {
 				columns={{ xs: 4, sm: 8, md: 12 }}
 			>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/setting/department")}>
+					<Item onClick={() => navigate("/setting/departments")}>
 						{" "}
 						Department
 					</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/setting/equipment")}>
+					<Item onClick={() => navigate("/setting/equipments")}>
 						Equipment
 					</Item>
 				</Grid>
@@ -75,7 +75,7 @@ function Home() {
 					<Item onClick={() => navigate("/log/auto-fill")}>Auto Log</Item>
 				</Grid>
 				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/setting/staff")}>
+					<Item onClick={() => navigate("/setting/users")}>
 						Users Profile
 					</Item>
 				</Grid>

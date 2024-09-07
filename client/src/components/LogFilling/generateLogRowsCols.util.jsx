@@ -18,7 +18,8 @@ function generateLogRows(logTempFilters, equLogs , apiRef, schedules, allLogs) {
 //    console.log("🚀 ~ generateLogRows ~ equLogs:", equLogs)
    
     if(allLogs)  schedules = schedules.map(item => item.schedule);
-    else schedules = [logTempFilters.logTemp.schedule];
+    else schedules = [logTempFilters?.logTemp.schedule];
+    console.log("🚀 ~ generateLogRows ~ logTempFilters:", logTempFilters)
 
     const ref = apiRef.current;
     let { startDate, endDate, logTemp } = logTempFilters;
@@ -39,8 +40,6 @@ function generateLogRows(logTempFilters, equLogs , apiRef, schedules, allLogs) {
             
             while (currentDate.isBefore(startDate)) {
                 currentDate = addRecurrence(currentDate, recurrence);
-                console.log("🚀 ~ generateLogRows ~ currentDate:", currentDate)
-                
             }
 
             let log = {};

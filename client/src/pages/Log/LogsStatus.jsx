@@ -39,7 +39,9 @@ const LogsStatus = () => {
               }
             });
 
-            setItems(deserializedEquips)
+            setItems(deserializedEquips);
+            // set first item as default filter
+            handleFilterChange(deserializedEquips[0]?.id, 'equip');
             break;
           }
           case 'staff': {
@@ -49,6 +51,8 @@ const LogsStatus = () => {
               return { id: staff._id, name: staff.name, active: staff.active }
             }).filter((staff) => staff.active);
             setItems(deserializedStaff)
+            // set first item as default filter
+            handleFilterChange(deserializedStaff[0]?.id, 'staff');
             break;
           }
           default:
@@ -62,6 +66,8 @@ const LogsStatus = () => {
     }
     fetchdata();
   },[activeTab])
+
+
 
   const handleFilterChange = (id, type) => {
     setFilter({
@@ -84,6 +90,8 @@ const LogsStatus = () => {
     else !isSidebarOpen && setIsSidebarOpen(true); 
     setActiveTab(newTab);
   }
+
+  
   const sidebarElement = <List>
     {items.map(({ name, id }) => (
       <ListItem key={id} onClick={() => handleFilterChange(id, activeTab)} className={`${filter.id === id && 'bg-primary text-white'} border-b hover:text-white hover:bg-primary focus:text-white focus:bg-primary  `}>

@@ -57,7 +57,9 @@ export const Calendar = (props) => {
             Array.from(days, ([key, value]) => [dayjs(key), applyFilter(value, key, days)])
         );
         seFilteredDays(newDays)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [days])
+    
     useEffect(() => {
         const newDays = new DayMap(
             Array.from(days, ([key, value]) => [dayjs(key), applyFilter(value, key, days)])

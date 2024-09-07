@@ -15,8 +15,11 @@ export const DailyLogsStepper = () => {
   const handlePrev = () => !isFirstStep && stepperDispatch({ type: 'prev' });
 
   useEffect(() => {
-    setLogTempFilters(filters[activeStep]);
+        console.log("🚀 ~ useEffect ~ activeStep:", activeStep)
+    console.log("🚀 ~ useEffect ~ filters:", filters)
+    setLogTempFilters(filters[activeStep ]);
   }, [stepperState.activeStep, stepperState.filters]);
+
 
   function handleNextDay() {
     let nextDay = date.add(1, 'day');

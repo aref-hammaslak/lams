@@ -16,7 +16,6 @@ const LogsPagination = (props) => {
 
 	const fecthQueryParams = {
 		temp_id,
-		// sch_id: schedule?._id,
 		start_date: startDate,
 		end_date: endDate
 	}
