@@ -64,7 +64,7 @@ const CalendarDay = ({ content }) => {
         window.scrollTo(0, 0);
     }
 
-    if (!content.tasks || content.tasks.length === 0) return (
+    if (!content.tasks || taskCount === 0) return (
         <div className='text-center w-full flex-1  justify-center flex items-center text-gray-700 '>
             <Typography>
                 No Log Found

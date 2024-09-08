@@ -7,7 +7,7 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
 import { useReducer } from 'react';
 import { NewspaperTwoTone } from '@mui/icons-material';
-import { IconButton, List, ListItem } from '@material-tailwind/react';
+import { IconButton, List, ListItem, Typography } from '@material-tailwind/react';
 import { Button } from 'react-bootstrap';
 import { useEffect } from 'react';
 import { Divider } from '@mui/material';
@@ -24,8 +24,8 @@ const pre_maidRanges = [
     { value: 'next month', label: 'Next Month' },
     { value: 'current year', label: 'Current Year' },
     { value: 'next year', label: 'Next Year' },
-    { value: 'reset start', label: 'Reset From' },
-    { value: 'reset end', label: 'Reset To' },
+    { value: 'reset start', label: 'Reset Start' },
+    { value: 'reset end', label: 'Reset End' },
     // {vaule : '', label: ''},
     // {vaule : '', label: ''},
 
@@ -41,41 +41,36 @@ function CalendarDay(props) {
     const isEndOfRang = day.isSame(dateRange.end, 'day');
     const isStartOfRang = day.isSame(dateRange.start, 'day');
     const dayItem = dayItems.get(day.format('YYYY-MM-DD'));
-    // console.log("🚀 ~ CalendarDay ~ dayItem:", day.startOf('M').toISOString())
     
     const itemStartDate = selectedItem?.itemStartDate || selectedItemSch?.itemStartDate;
-    // console.log("🚀 ~ CalendarDay ~ itemStartDate:", itemStartDate)
     const itemEndDate = selectedItem?.itemEndDate || selectedItemSch?.itemEndDate;
 
     const isInItemRange = day.isAfter(itemStartDate?.subtract(1, 'day'), 'day') && day.isBefore(itemEndDate, 'day');
 
+    const circle = "after:content-[''] after:absolute   after:w-5 after:h-5 after:bg-primary after:z-10 after:rounded-full after:top-2 after:left-2";
 
     let selectedRangeStyles = '';
     if (dayItem && isInRange) {
-        selectedRangeStyles = `!text-${dayItem?.type === 'absence'? 'red-600': 'green-600'} !font-semibold  !bg-blue-gray-50 `;
+        selectedRangeStyles = `!bg-green-600   !bg-blue-gray-50 `;
     } else if ((isEndOfRang || isStartOfRang) && dayItem) {
-        selectedRangeStyles = `!bg-primary !text-${dayItem?.type === 'absence' ? 'red-600' : 'green-600'} `;
+        selectedRangeStyles = ` !bg-green-600 !text-gray-800 ${circle} `;
     }
-    else if ((isEndOfRang || isStartOfRang)) {
-        selectedRangeStyles = '!bg-primary text-white ';
+    else if ((isEndOfRang || isStartOfRang) ) {
+        selectedRangeStyles = `!bg-white !text-gray-800 ${circle} `;
     }
     else if (isInRange) {
         selectedRangeStyles = '!bg-blue-gray-50 !text-gray-800';
     }
     else if ((dayItem && (tabIndex === 0)) || dayItem) {
-        selectedRangeStyles = `!text-${dayItem?.type === 'absence'? 'red-600': 'green-600'} !font-semibold !bg-white`
-    } else if (tabIndex === 0) {
+        selectedRangeStyles = `!bg-green-600  !text-black `
+    }
+    else if (tabIndex === 0) {
         selectedRangeStyles = '!bg-white !text-gray-800'
     }
 
     let selectedItemStyles;
-    if (isInItemRange && dayItem) {
-        selectedItemStyles = dayItem?.type === 'absence' ? '!bg-red-50 !text-red-600 !font-semibold' :
-            '!bg-green-50 !text-green-600 !font-semibold';
-    }
-    else if (isInItemRange ){
-        selectedItemStyles = dayItem?.type === 'absence' ? '!bg-red-50 !text-red-600' :
-        '!bg-green-50 !text-gray-800';
+    if ((isInItemRange && (tabIndex === 0)) || isInItemRange) {
+        selectedItemStyles = '!bg-orange-200 !text-black !font-semibold';
     }
     else if (tabIndex === 0) {
         selectedItemStyles = '!bg-white !text-gray-800'
@@ -212,6 +207,8 @@ const dateRangeReducer = (state, action) => {
     }
 }
 
+const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 export function CustomDateRangPicker(props) {
     const { onRangeChange, dayItems, onDeleteItme, className, onMonthChange, scheduleState } = props;
     const [showItemRange, setShowItemRange] = useState(false);
@@ -222,9 +219,10 @@ export function CustomDateRangPicker(props) {
             start: dayjs(),
             end: dayjs(),
         });
+    const [calendarView, setCalendarView] = useState('day');
     
     useEffect(() => {
-        if ( !selectedItem && selectedItem?.type === 'absence') return;
+        if ( !selectedItem?.id || selectedItem?.type === 'absence') return;
         (async () => {
             const sch = await ScheduleAPI.get(selectedItem.id);
             setSelectedItemSch({
@@ -253,7 +251,7 @@ export function CustomDateRangPicker(props) {
     },[scheduleState?.id])
 
     return (
-        <div className={`${className}`}>
+        <div className={`${className} relative`}>
             <List className='flex flex-row max-w-[700px] gap-2 m-auto bg-primaryLight '>
                 {
                     pre_maidRanges.map(({ value, label }, i) => {
@@ -278,6 +276,7 @@ export function CustomDateRangPicker(props) {
                     onMonthChange={(month) => {
                         onMonthChange(month);
                     }}
+                    onViewChange={(view) => setCalendarView(view)}
                     style={{
                         height: 800
                     }}
@@ -308,6 +307,17 @@ export function CustomDateRangPicker(props) {
                     }}
                 />
             </LocalizationProvider>
+            <div className={`${calendarView !== 'day' && 'hidden'} absolute inset-x-0 h-10 px-[46px] z-0 bg-white flex items-center top-[88px]`}>
+                <div className='   flex justify-between w-full'>
+                    {
+                        daysOfWeek.map((day, i) => (
+                            <Typography key={i} className='w-[80px] text-center text-blue-gray-600 font-semibold' >
+                                {day}
+                            </Typography>
+                        ))
+                    }
+                </div>
+            </div>
         </div>
 
     );

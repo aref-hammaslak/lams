@@ -71,7 +71,7 @@ const LogFillingProvider = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [displayLogs, setDisplayLogs] = useState(false);
   const [navigatedFromLogsStatus, setNavigatedFromLogsStatus] = useState(false);
-  const { equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading, } = useLogTemp(logTempFilters, setLogTempFilters);
+  const { equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading, } = useLogTemp(logTempFilters, setLogTempFilters, navigatedFromLogsStatus);
   const equLog = useEquLog(logTempFilters);
   const location = useLocation();
   const [stepperState, stepperDispatch] = useReducer(stepperReducer,  stepperInitialState );

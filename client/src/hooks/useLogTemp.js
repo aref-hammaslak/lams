@@ -4,7 +4,7 @@ import { reccurencs } from '../consts';
 import { SliderValueLabel } from '@mui/material';
 import dayjs from 'dayjs';
 
-const useLogTemp = (logTempFilters, setLogTempFilters) => {
+const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus ) => {
     const [scheduledLogTemps, setScheduledLogTemps] = useState(null);
     const [equipments, setEquipments] = useState([]);
     const [recurrenceTypeCodes, setRecurrenceTypeCodes] = useState([]);
@@ -13,7 +13,7 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
 
     useEffect(() => {
 
-        // if(logTempFilters.equipment)  return;
+        if(navigatedFromLogsStatus)  return;
             const fetchData = async () => {
         setLoading(true);
         try {
@@ -28,7 +28,7 @@ const useLogTemp = (logTempFilters, setLogTempFilters) => {
     };
         fetchData();
 
-    }, []);
+    }, [navigatedFromLogsStatus]);
 
     const findEquipmentId = (equipmentName, data = false) => {
         if (data) {

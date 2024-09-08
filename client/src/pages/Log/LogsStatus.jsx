@@ -20,8 +20,8 @@ const tabs = [
 ]
 const LogsStatus = () => {
   const [filter, setFilter] = useState({  });
-  const [activeTab, setActiveTab] = useState('staff');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState('all');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [items, setItems] = useState([]);
 
 
@@ -77,6 +77,7 @@ const LogsStatus = () => {
   }
 
   const toggleSidebar = () => {
+    if (activeTab === 'all') return;
     setIsSidebarOpen(!isSidebarOpen);
   };
 

@@ -125,7 +125,7 @@ export const Scheduler = (props) => {
       case 'staff':
         handeldeleteAbsence(id);
         break;
-      case 'equipment': case 'surface': case 'thremometer':
+      case 'equipment': case 'surface': case 'thermometer':
         handeldeleteSchedule(id);
         break;
       default:
@@ -245,21 +245,21 @@ export const Scheduler = (props) => {
       />
       <div className='bg-white  p-4  rounded-lg '>
         <div className='space-y-4'>
-          <Typography className='flex justify-between items-center'>
-            <span className='mr-4 text-sm font-normal text-gray-600'>
-              FROM:
+          <Typography className='flex flex-col justify-between items-center'>
+            <span className='mr-4  font-normal text-gray-600'>
+              START:
             </span>
-            <span className='font-bold text-blue-gray-800 text-lg'>
+            <span className='font-bold text-primary text-2xl'>
               {
                 scheduleState?.startDate.format('YYYY-MM-DD')
               }
             </span>
           </Typography>
-          <Typography className='flex justify-between items-center'>
-            <span className='mr-4 text-sm font-normal text-gray-600'>
-              TO:
+          <Typography className='flex flex-col justify-between items-center'>
+            <span className='mr-4  font-normal text-gray-600'>
+              END:
             </span>
-            <span className='font-bold text-blue-gray-800 text-lg'>
+            <span className='font-bold text-primary text-2xl'>
               {
                 scheduleState?.endDate.format('YYYY-MM-DD')
               }
