@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import EquLogAPI from '../apis/EquLogAPI';
+import dayjs from 'dayjs';
+import { api } from '../apis/configs/axiosConfig';
 
 const useEquLog = (logTempFilters) => {
-  const api = EquLogAPI;
   const [equLogs, setEquLogs] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
@@ -22,7 +23,7 @@ const useEquLog = (logTempFilters) => {
     setFetchLoading(true);
     setFetchError(null);
     try {
-      const data = await api.fetchAll(params);
+      const data = await EquLogAPI.fetchAll(params);
       setEquLogs(data);
       // enqueueSnackbar('EquLogs fetched successfully!', { variant: 'success' });
     } catch (err) {
@@ -31,21 +32,60 @@ const useEquLog = (logTempFilters) => {
     } finally {
       setFetchLoading(false);
     }
-  }, [api, enqueueSnackbar]);
+  }, [EquLogAPI, enqueueSnackbar]);
+
+  const autoFillLogs = async () => {
+    try {
+      setFetchLoading(true);
+      const { startDate, endDate , logTemp} = logTempFilters;
+      const { _id: logTempId } = logTemp;
+      const response = await api.request({
+        url: `/log/equipment/auto-fill/${logTempId}`,
+        method: 'GET',
+        params: {
+          start_date: dayjs(startDate).format('YYYY-MM-DD'),
+          end_date: dayjs(endDate).add(1, 'day').format('YYYY-MM-DD')
+        }
+      })
+      const { payload: logs, success } = response.data;
+      if (!success) throw new Error('Something went wring');
+      await fetchAllEquLogs({
+        temp_id: logTempId,
+        start_date: startDate,
+        end_date: endDate
+      })
+      if (logs?.length > 0) {
+        enqueueSnackbar(`${logs.length} empty logs filled successfully`, {
+          variant: 'success'
+        })
+      } else {
+        enqueueSnackbar(`All the logs are already filld for this equipment`, {
+          variant: 'info'
+        })
+      }
+    }
+
+    catch (error) {
+      enqueueSnackbar(error.message, { variant: 'error' });
+      setFetchLoading(false);
+    } finally {
+      setFetchLoading(false);
+    }
+  }
 
   const createEquLog = async (data) => {
     setCreateLoading(true);
     setCreateError(null);
-    
+
     try {
-      const newEquLog = await api.create(data);
+      const newEquLog = await EquLogAPI.create(data);
       setEquLogs((prev) => [...prev, newEquLog]);
       enqueueSnackbar('Log created successfully!', { variant: 'success' });
       return newEquLog;
     } catch (err) {
       setCreateError(err.message);
       enqueueSnackbar(`Error creating log: ${err.message}`, { variant: 'error' });
-     
+
     } finally {
       setCreateLoading(false);
     }
@@ -55,7 +95,7 @@ const useEquLog = (logTempFilters) => {
     setUpdateLoading(true);
     setUpdateError(null);
     try {
-      const updatedEquLog = await api.update(id, data);
+      const updatedEquLog = await EquLogAPI.update(id, data);
       setEquLogs((prev) =>
         prev.map((log) => (log._id === id ? updatedEquLog : log))
       );
@@ -73,7 +113,7 @@ const useEquLog = (logTempFilters) => {
     setDeleteError(null);
     let error = null;
     try {
-      await api.delete(id);
+      await EquLogAPI.delete(id);
       setEquLogs((prev) => prev.filter((log) => log._id !== id));
       enqueueSnackbar('Log deleted successfully!', { variant: 'success' });
     } catch (err) {
@@ -99,6 +139,7 @@ const useEquLog = (logTempFilters) => {
     updateError,
     deleteError,
     fetchAllEquLogs,
+    autoFillLogs,
     createEquLog,
     updateEquLog,
     deleteEquLog

@@ -10,8 +10,6 @@ export async function autoFillLogTemplateWithId(req, res) {
         const { logTemp_id } = req.params;
         const { lab_id, id:user_id } = req.user;
         
-        // console.log('{ lab_id, logTemp_id, start_date, end_date } :', { lab_id, logTemp_id, start_date, end_date });
-
         const { schedules } = await LogTemplate.getAllLogTemplateSchedules({ lab_id, logTemp_id, start_date, end_date }) ?? [];
 
         if (!schedules) {
@@ -23,10 +21,9 @@ export async function autoFillLogTemplateWithId(req, res) {
             })
         }
         const logTemp = await LogTemplate.findById(logTemp_id);
-        // console.log('logTemp :', logTemp);
 
         const logs = await autoFill(logTemp, schedules, user_id, start_date, end_date);
-        // console.log(logs);
+
         res.send({
             success: true,
             payload: logs,
@@ -68,12 +65,12 @@ async function autoFill(logTemp, schedules, user_id, rangeStartDate, rangeEndDat
         for(const date of intervals) {
             const log = await EquipmentLogModel.findOne({
             temp_id: logTemp._id,
-            sch_id: schedule._id,
             date
             })
             if (log) continue;
             newLog.date = date;
-            const autoFilledLog = await new EquipmentLogModel(newLog);
+            const autoFilledLog =  new EquipmentLogModel(newLog);
+            await autoFilledLog.save();
             autoFilledLogs.push(autoFilledLog);
         }
     }

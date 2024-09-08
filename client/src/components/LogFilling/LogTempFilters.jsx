@@ -7,7 +7,8 @@ import { logFillingContext } from '../../contexts/LogFillingProvider'
 import { Button } from '@material-tailwind/react'
 
 const LogTempFilters = () => {
-    const { logTempFilters, setLogTempFilters, setDisplayLogs } = useContext(logFillingContext);
+    const { logTempFilters, setLogTempFilters, equLog  } = useContext(logFillingContext);
+    const { autoFillLogs } = equLog;
 
     const handelMonthChange = (type) => {
         const { startDate, endDate } = logTempFilters;
@@ -36,6 +37,10 @@ const LogTempFilters = () => {
         }
     }
 
+    const handlelAutoFill =async () => {
+        await autoFillLogs();
+    }
+
     return (
         <Box className={"w-full flex   justify-center flex-col "}>
             <Box >
@@ -51,6 +56,8 @@ const LogTempFilters = () => {
                 <Button onClick={() => handelMonthChange('prev')} className='w-full bg-primaryDark tracking-widest'>prev month</Button>
                 <Button onClick={() => handelMonthChange('next')} className='w-full bg-primaryDark tracking-widest'>next month</Button>
             </div>
+
+            <Button onClick={handlelAutoFill} className='w-full mt-4 bg-white text-primaryDark border-2 border-primaryDark tracking-widest'>auto fill empty logs</Button>
 
         </Box>
     )

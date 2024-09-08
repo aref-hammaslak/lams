@@ -93,10 +93,8 @@ const RenderActions = ({ row, apiRef, ...params }) => {
     const undefinedRow = getUndefinedRow();
 
     const error = await deleteEquLog(row._id);
-    console.log(row);
     console.error(error);
     if (error == null) {
-      console.log('update')
       ref.updateRows([
         {
           ...undefinedRow,
@@ -124,10 +122,10 @@ const RenderActions = ({ row, apiRef, ...params }) => {
   const EditModeIcons = (
     <div className="space-x-2">
       <Tooltip title="Save">
-        <GridSaveAltIcon onClick={handleSave} />
+        <GridSaveAltIcon className="cursor-pointer" onClick={handleSave} />
       </Tooltip>
       <Tooltip title="Cancel">
-        <CancelIcon onClick={handleCancel} />
+        <CancelIcon className="cursor-pointer" onClick={handleCancel} />
       </Tooltip>
     </div>
   );
@@ -138,10 +136,10 @@ const RenderActions = ({ row, apiRef, ...params }) => {
     ) : (
       <div className="space-x-2">
         <Tooltip title="Unlog">
-          <GridDeleteIcon onClick={handleDelete} />
+          <GridDeleteIcon className="cursor-pointer" onClick={handleDelete} />
         </Tooltip>
         <Tooltip title="Edit">
-          <EditIcon onClick={handleEdit} />
+            <EditIcon className="cursor-pointer" onClick={handleEdit} />
         </Tooltip>
       </div>
     );
@@ -150,7 +148,7 @@ const RenderActions = ({ row, apiRef, ...params }) => {
       EditModeIcons
     ) : (
       <Tooltip title="Log">
-        <GridAddIcon onClick={handleAddLog} />
+          <GridAddIcon className="cursor-pointer" onClick={handleAddLog} />
       </Tooltip>
     );
   }

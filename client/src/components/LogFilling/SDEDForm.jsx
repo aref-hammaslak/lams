@@ -37,7 +37,7 @@ function SDEDForm() {
 
 	return (
 
-		<div className="flex flex-col items-center gap-2 mt-4">
+		<div className="flex flex-col items-center gap-4 mt-4">
 			<CustomDatePicker
 				defaultValue={dayjs(scheduleInitialDate)}
 				disabled={!schedule}
@@ -55,7 +55,6 @@ function SDEDForm() {
 				)}
 			/>
 
-			<div className="w-4 h-[2px] bg-blue-300 rounded rotate-90  my-2 "></div>
 			<CustomDatePicker
 				label="End"
 				defaultValue={dayjs(scheduleEndDate)}

@@ -448,7 +448,7 @@ function LogConfig() {
 				return (
 					<TextField type="number" value={dialogState.itemDefaultValue || ''} onChange={(e) => dispatch({
 						type: 'itemDefaultValue',
-						itemDefaultValue: e.target.value
+						itemDefaultValue: +e.target.value
 					})} label='Default Value' color="secondary" size='small' disabled={dialogState.itemType == null} />
 				)
 			case 3: case 4: case 5:

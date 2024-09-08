@@ -129,7 +129,6 @@ LogTemplateSchema.statics.getAllLogTemplateSchedules = async function ({ lab_id,
             }
         ];
     const result = await this.aggregate(pipeline).exec();
-    console.log('result :', result);
     
     return result[0];
 }
