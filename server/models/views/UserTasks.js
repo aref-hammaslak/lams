@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import db from "../../settings/db.js";
 import moment from "moment";
+import ExpressError from "../../utils/ExpressError.js";
 
 
-// # Define MongoDB aggregation pipelines
 const logtemplatesPipeline = [
 
     {
@@ -196,22 +196,7 @@ const schedulemapsPipeline = [
         }
 
     },
-    // {
-    //     $project: {
-    //         date: 1,
-    //         logTemplate: 1,
-    //         surface: 1,
-    //         thermometer: 1,
-    //         sch: 1,
-    //         sameDateExistedLogs: {
-    //             $cond: {
-    //                 if: '$logTemplate',
-    //                 then: '$sameDateExistedLogs',
-    //                 else: '$$REMOVE'
-    //             }
-    //         }
-    //     }
-    // },
+
     {
         $group: {
             _id: "$date",
@@ -251,18 +236,6 @@ const schedulemapsPipeline = [
         }
     }
 ]
-
-// const schedulesPipeline = [
-//     {
-//         $lookup: {
-//             from: "schedulemaps",
-//             localField: "_id",
-//             foreignField: "user_sch_id",
-//             as: "schedulemaps",
-//             pipeline: schedulemapsPipeline,
-//         }
-//     },
-// ]
 
 const userTaskViewPipline = [
     {
@@ -454,6 +427,190 @@ userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
         return new Error(error.message);
     }
 }
+
+userTaskSchema.statics.getAllLabsStats = async function (options) {
+    // Get the last day of the current month
+    const lastDayOfMonth = moment().endOf("month");
+    const firstDayOfMonth = moment().startOf("month");
+
+    const { startDate = firstDayOfMonth, endDate = lastDayOfMonth, } = options;
+    if (!startDate.isValid() || !endDate.isValid()) {
+        throw new ExpressError('Provided dates are invalicd', 400);
+    }
+    const pipeline = []
+    pipeline.push(...[
+
+        {
+            $unwind: "$schedulemaps",
+        },
+        {
+            $match: {
+                "schedulemaps.date": {
+                    $gte: new Date(startDate),
+                    $lte: new Date(endDate)
+                },
+            }
+        },
+        {
+            $unwind: '$schedulemaps.tasks'
+        },
+        // {
+        //     $group: {
+        //         _id: labId ? '$lab_id' : '_id',
+        //         total: {
+        //             $sum: {
+        //                 $cond: {
+        //                     if: {
+        //                         $eq: ['$schedulemaps.tasks.sch.type', 'equipment']
+        //                     },
+        //                     then: 1,
+        //                     else: 0
+        //                 }
+        //             }
+        //         },
+        //         done: {
+        //             $sum: {
+        //                 $cond: {
+        //                     if: {
+        //                         $and: [
+        //                             {
+        //                                 $eq: ['$schedulemaps.tasks.sch.type', 'equipment']
+        //                             },
+        //                             {
+        //                                 $eq: ['$schedulemaps.tasks.done', true]
+        //                             }
+        //                         ]
+
+        //                     },
+        //                     then: 1,
+        //                     else: 0
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        {
+            $group: {
+                _id: '$lab_id',
+                total: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $eq: ['$schedulemaps.tasks.sch.type', 'equipment']
+                            },
+                            then: 1,
+                            else: 0
+                        }
+                    }
+                },
+                done: {
+                    $sum: {
+                        $cond: {
+                            if: {
+                                $and: [
+                                    {
+                                        $eq: ['$schedulemaps.tasks.sch.type', 'equipment']
+                                    },
+                                    {
+                                        $eq: ['$schedulemaps.tasks.done', true]
+                                    }
+                                ]
+
+                            },
+                            then: 1,
+                            else: 0
+                        }
+                    }
+                },
+
+            }
+        },
+    ]);
+    try {
+        const result = await this.aggregate(pipeline).exec();
+        // const result = await this.findById('66af4cb82e3da1ed76442b7b');
+
+        return result;
+    } catch (error) {
+        return new Error(error.message);
+    }
+}
+
+userTaskSchema.statics.getLabUsersStats = async function (labId, options) {
+    // Get the last day of the current month
+    const lastDayOfMonth = moment().endOf("month");
+    const firstDayOfMonth = moment().startOf("month");
+    const { startDate = firstDayOfMonth, endDate = lastDayOfMonth, } = options;
+    if (!startDate.isValid() || !endDate.isValid()) {
+        throw new ExpressError('Provided dates are invalicd',400);
+    }
+    const pipeline = []
+
+    pipeline.push([{
+        $match: {
+            lab_id: new mongoose.Types.ObjectId(labId),
+        }
+    },
+    {
+        $unwind: "$schedulemaps",
+    },
+    {
+        $match: {
+            "schedulemaps.date": {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            },
+        }
+    },
+    {
+        $unwind: '$schedulemaps.tasks'
+    },
+    {
+        $group: {
+            _id: '$_id',
+            total: {
+                $sum: {
+                    $cond: {
+                        if: {
+                            $eq: ['$schedulemaps.tasks.sch.type', 'equipment']
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                }
+            },
+            done: {
+                $sum: {
+                    $cond: {
+                        if: {
+                            $and: [
+                                {
+                                    $eq: ['$schedulemaps.tasks.sch.type', 'equipment']
+                                },
+                                {
+                                    $eq: ['$schedulemaps.tasks.done', true]
+                                }
+                            ]
+
+                        },
+                        then: 1,
+                        else: 0
+                    }
+                }
+            },
+
+        }
+    },
+    ])
+    try {
+        const result = await this.aggregate(pipeline).exec();
+        return result;
+    } catch (error) {
+        return new Error(error.message);
+    }
+}
+
+
 
 const UserTask = mongoose.model('UserTask', userTaskSchema);
 

@@ -23,4 +23,5 @@ const LaboratorySchema = new Schema({
 
 const Laboratory = mongoose.model('Laboratory', LaboratorySchema);
 
+export { Laboratory };
 export default Laboratory;

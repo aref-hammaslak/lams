@@ -1,7 +1,8 @@
 import { UserTask } from "../models/views/UserTasks.js";
 import moment from "moment";
 import mongoose from "mongoose";
-
+import Laboratory from "../models/Laboratory.js";
+import User from "../models/User.js";
 
 // Define the controller function
 export const getAllUserTasks = async (req, res) => {
@@ -71,6 +72,5 @@ export const getUserTaskById = async (req, res) => {
         });
     }
 };
-
 
 
