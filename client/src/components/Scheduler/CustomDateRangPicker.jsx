@@ -280,7 +280,7 @@ export function CustomDateRangPicker(props) {
                     style={{
                         height: 800
                     }}
-                    className='w-[700px]  max-h-[410px] !mt-0'
+                    className='!w-[640px]  max-h-[410px] !mt-0'
                     // value={dayjs(dateRange.start.format('YYYY-MM-DD'))}
                     renderLoading={() => <DayCalendarSkeleton />}
                     slots={{
@@ -291,7 +291,7 @@ export function CustomDateRangPicker(props) {
                         day: {
                             Dispatch,
                             dateRange,
-                            className: 'px-10 py-6  m-0 rounded-none !border-none',
+                            className: 'px-9 py-6  m-0 rounded-none !border-none',
                             dayItems,
                             onDeleteItme,
                             showItemRange,
@@ -302,7 +302,8 @@ export function CustomDateRangPicker(props) {
                             setSelectedItemSch
                         },
                         calendarHeader: {
-                            className: ' '
+                            classes: '!bg-black'
+
                         },
                     }}
                 />

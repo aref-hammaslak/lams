@@ -24,6 +24,8 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import useAuth from '../../hooks/useAuth';
 import { LabAPI } from '../../apis/LabAPI';
+import { LabIcon } from '../Home/LabIcon';
+import { UserAPI } from '../../apis/UserAPI';
 
 
 
@@ -36,17 +38,22 @@ function NewNavbar(props) {
     const [currentLab, setCurrentLab] = useState(null);
     const { auth, setAuth } = useAuth();
     const [mobileOpen, setMobileOpen] = React.useState(false);
+    const  navigate = useNavigate();
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
     useEffect(() => {
-        LabAPI.getAll().then((labs) => {
-            setLabs(labs);
-            const lab = labs.find((lab) => lab._id === auth.lab_id);
-            setCurrentLab(lab);
-        });
+        LabAPI.get(auth.lab_id).then(lab => setCurrentLab(lab));
     }, [ auth.lab_id]);
-    console.log(currentLab);
+    const handelLogout = async () => {
+        try {
+            await UserAPI.logout();
+            navigate('/login',{replace:true})
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    
 
 
     const drawer = (
@@ -190,8 +197,11 @@ function NewNavbar(props) {
                     <Box sx={{ flexGrow: 1 }} />
                     <div className='flex items-center gap-1'>
 
-                        <Typography>
-                            Lab : {currentLab?.name ? currentLab.name : 'Not Selected'}
+                        <Typography className='bg-white pr-4 pl-2 py-1 rounded flex items-center'>
+                            <LabIcon className=' !w-6 '/>
+                            <sapn className='font-bold text-lg text-primary'>
+                                {currentLab?.name}
+                            </sapn>
                         </Typography>
                         <IconButton
                             size="large"
@@ -216,8 +226,8 @@ function NewNavbar(props) {
                                     </Link>
                                 </MenuItem>
 
-                                <MenuItem className='py-0'>
-                                    <a className=' py-2 hover:text-primary w-full inline-block space-x-1'><LogoutIcon /><span>Logout</span></a></MenuItem>
+                                <MenuItem onClick={handelLogout} className='py-0'>
+                                    <a  className=' py-2 hover:text-primary w-full inline-block space-x-1'><LogoutIcon /><span>Logout</span></a></MenuItem>
                             </MenuList>
                         </Menu>
                     </div>

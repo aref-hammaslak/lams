@@ -104,7 +104,8 @@ export const getAllLabsStats = async (req, res) => {
         let labs = await Lab.find({}, {
             name: 1,
             email: 1,
-            category: 1
+            category: 1,
+            phone:1
         }).lean();
 
         labs = labs.map(lab => {

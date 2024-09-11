@@ -33,7 +33,6 @@ export const Calendar = (props) => {
     const applyFilter = useCallback(function (day) {
         const { tasks } = day;
         if (!filter.type) return day;
-        console.log(filter);
         const newTasks = tasks?.filter((task) => {
             switch (filter?.type) {
                 case 'equip':
@@ -72,7 +71,7 @@ export const Calendar = (props) => {
         <>
 
             <Grid
-                container direction="column" padding="1rem" alignItems="center" justifyContent="center" color={{}} className=" min-w-[980px] p-0 !pb-10"
+                container direction="column" padding="1rem" alignItems="center" justifyContent="center" color={{}} className="  p-0 !pb-10"
             >
                 {/*render date peaker , schedule type selector , the current month typography */}
                 <Grid item alignSelf="stretch" alignItems='center' mb="2rem" className="">

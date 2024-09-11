@@ -1,87 +1,85 @@
 import * as React from "react";
-import { experimentalStyled as styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-
-
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth.js";
-
-import { LabAPI } from "../../apis/LabAPI";
+import { LabsOverview } from "../../components/Home/LabsOverview.jsx";
+import { LabStaffOverview } from "../../components/Home/LabStaffOverview.jsx";
+import { Button } from "@material-tailwind/react";
 import { UserAPI } from "../../apis/UserAPI.js";
+import { useSnackbar } from 'notistack';
+import { useGetUserRole } from "../../hooks/useGetUserRole.js";
+import { LabAPI } from "../../apis/LabAPI.js";
 
-// import useAuth from "../../hooks/useAuth";
-
-const Item = styled(Paper)(({ theme }) => ({
-	// backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-	// ...theme.typography.body2,
-	padding: theme.spacing(4),
-	textAlign: "center",
-	color: theme.palette.text.secondary,
-	backgroundColor: "lightblue",
-	fontSize: "20px",
-	cursor: "pointer",
-}));
 
 function Home() {
-	const navigate = useNavigate();
-	const [labs, setLabs] = useState([]);
-	const [currentLab, setCurrentLab] = useState(null);
 	const { auth, setAuth } = useAuth();
+	const [currenLab, setCurrentLab] = useState({});
+	const role = useGetUserRole();
+
+	const [showLabDetails, setShowLabDetails] = useState(() => {
+		return role === 'admin' ? false : true;
+	});
 
 	useEffect(() => {
-		LabAPI.getAll().then((labs) => {
-			setLabs(labs);
-			const lab = labs.find((lab) => lab._id === auth.lab_id);
-			setCurrentLab(lab);
-		}, console.log("homeee", labs));
-	}, []);
+		(async () => {
+			let curlab = {};
+			try {
+				curlab = await LabAPI.get(auth.lab_id);
+			} catch (error) {
+				console.error(error);
+			}
+			setCurrentLab(curlab);
+			console.log("🚀 ~ curlab:", curlab)
+		})()
+			
+	},[auth])
+
+	const { enqueueSnackbar } = useSnackbar();
+
+	const handelLabChange = (labId, labName) => {
+		setCurrentLab({
+			_id: labId,
+			name: labName
+		});
+		setShowLabDetails(true);
+		UserAPI.adminLab(labId).then(
+			(user) => {
+				setAuth(user);
+				enqueueSnackbar(`Your worksapce changed to ${labName}`, { variant: 'info' })
+			},
+			(error) => window.flash(error.message, "error")
+		);
+	}
+
+
+
+
 	return (
-		<Box sx={{ flexGrow: 1 }}>
-			<Typography variant="h4" gutterBottom sx={{color:"rgba(0, 0, 0, 0.6)", fontSize:"20px",padding:"15px"}}>
-				Your workspace is {currentLab ? currentLab.name : ""}
-			</Typography>{" "}
-			<Grid
-				container
-				padding={15}
-				spacing={{ xs: 2, md: 3 }}
-				columns={{ xs: 4, sm: 8, md: 12 }}
-			>
-				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/setting/departments")}>
-						{" "}
-						Department
-					</Item>
-				</Grid>
-				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/setting/equipments")}>
-						Equipment
-					</Item>
-				</Grid>
-				<Grid item xs={2} sm={4} md={4}>
-					<Item>
-						Reports
-					</Item>
-				</Grid>
-				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/log/fill")}>
-						Log Filling
-					</Item>
-				</Grid>
-				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/log/auto-fill")}>Auto Log</Item>
-				</Grid>
-				<Grid item xs={2} sm={4} md={4}>
-					<Item onClick={() => navigate("/setting/users")}>
-						Users Profile
-					</Item>
-				</Grid>
-			</Grid>
-		</Box>
-	);
+		<div className="container mx-auto py-8 ">
+			<div className="mb-4 space-y-1 grid grid-cols-12">
+				<h1 className="text-2xl font-bold text-black col-span-2">
+					{
+						showLabDetails ? `${currenLab.name} Lab` : 'Labs'
+					}
+				</h1>
+				<Button size="sm" onClick={() => setShowLabDetails(false)} className={`${(!showLabDetails || role !== 'admin') && 'hidden'} !mt-0 bg-primaryDark`}>back</Button>
+				<p className="text-gray-700 text-sm col-span-12">
+					{showLabDetails ? 'Staff ' : 'Labs '}
+					overview with monthly and annully report
+				</p>
+
+			</div>
+
+			{
+				showLabDetails ? (
+					<>
+					{currenLab._id && <LabStaffOverview lab={currenLab}/>}
+					</>
+				) : (
+					<LabsOverview onLabChange={handelLabChange} />
+				)
+			}
+		</div>
+	)
 }
 
 export default Home;

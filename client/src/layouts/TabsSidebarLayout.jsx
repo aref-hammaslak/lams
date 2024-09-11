@@ -40,7 +40,7 @@ export const TabsSidebarLayout = (props) => {
                 {/* Sidebar */}
                 <div
                     className={`fixed top-[122px] shadow bottom-0 left-0 w-64 text-black transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-64'
-                        } transition-transform duration-300 ease-in-out`}
+                        } transition-transform duration-300 ease-in-out `}
                 >
 
                     <div className="p-4 -ml-2 ">

@@ -25,7 +25,8 @@ function Login() {
 		UserAPI.login(username, password).then(
 			(user) => {
 				setAuth(user);
-				navigate("/setting/laboratory");
+				navigate("/");
+				localStorage.removeItem('auth');
 			},
 			(error) => setError(error)
 		);

@@ -83,7 +83,7 @@ function AdminLabs() {
 		UserAPI.adminLab(lab._id).then(
 			(user) => {
 				setAuth(user);
-				// window.flash(`Laboratory switched to ${lab.name}`, "success");
+				window.flash(`Laboratory switched to ${lab.name}`, "success");
 				navigate("/");
 			},
 			(error) => window.flash(error.message, "error")

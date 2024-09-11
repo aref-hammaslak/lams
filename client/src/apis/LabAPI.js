@@ -46,6 +46,26 @@ export const LabAPI = {
 				: undefined,
         })
 		return response.data.payload
-    }
+    },
+	getLabUsersStats: async function (lab_id, cancel = false) {
+		const response = await api.request({
+			url: `/laboratory/${lab_id}/statistics`,
+			method: "GET",
+			signal: cancel
+				? cancelApiObject[this.get.name].handleRequestCancellation().signal
+				: undefined,
+		});
+		return response.data.payload;
+	},
+	getLabsStats: async function (cancel = false) {
+		const response = await api.request({
+			url: `/laboratory/statistics`,
+			method: "GET",
+			signal: cancel
+				? cancelApiObject[this.get.name].handleRequestCancellation().signal
+				: undefined,
+		});
+		return response.data.payload;
+	},
 };
 const cancelApiObject = defineCancelApiObject(LabAPI);

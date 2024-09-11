@@ -204,16 +204,16 @@ export const Scheduler = (props) => {
 
 
   return (
-    <div className='p-8 flex gap-8 items-center mx-auto  '>
+    <div className='p-8 flex  gap-4 items-center mx-auto  '>
       {
         scheduleState?.type !== 'staff' && (
-          <Tabs value={scheduleState?.recurrence} className='border-b rounded-lg px-4 pb-2 flex !justify-between  z-10 bg-primaryLight'>
+          <Tabs value={scheduleState?.recurrence} className='border-b rounded-lg px-2 pb-2 flex !justify-between  z-10 bg-primaryLight'>
 
             <TabsHeader
               className=" scrollbar-thin scrollbar-track-rounded m-auto rounded-none h-[230px] overflow-y-auto flex flex-col   border-blue-gray-50 bg-transparent p-0"
               indicatorProps={{
                 className:
-                  " border-b-2 w-[60px] !top-0 !left-[20px] bg-transparent  border-primary shadow-none rounded-none hidden",
+                  " border-b-2 !w-[30px] !top-0 !left-[20px] bg-transparent  border-primary shadow-none rounded-none hidden",
               }}
             >
 
@@ -243,13 +243,13 @@ export const Scheduler = (props) => {
         onRangeChange={handelRangeChange}
         onMonthChange={setCurrentMonth}
       />
-      <div className='bg-white  p-4  rounded-lg '>
+      <div className='bg-white  p-2  rounded-lg '>
         <div className='space-y-4'>
           <Typography className='flex flex-col justify-between items-center'>
             <span className='mr-4  font-normal text-gray-600'>
               START:
             </span>
-            <span className='font-bold text-primary text-2xl'>
+            <span className='font-bold text-primary text-xl'>
               {
                 scheduleState?.startDate.format('YYYY-MM-DD')
               }
@@ -259,7 +259,7 @@ export const Scheduler = (props) => {
             <span className='mr-4  font-normal text-gray-600'>
               END:
             </span>
-            <span className='font-bold text-primary text-2xl'>
+            <span className='font-bold text-primary text-xl'>
               {
                 scheduleState?.endDate.format('YYYY-MM-DD')
               }
