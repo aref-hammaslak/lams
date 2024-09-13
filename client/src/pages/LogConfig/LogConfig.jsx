@@ -500,7 +500,7 @@ function LogConfig() {
 						New
 					</Button>
 				</div>
-				<Grid className='!p-0' item width="100%">
+				<Grid className='!p-0 bg-white' item width="100%">
 					<DataGrid
 						columns={columns}
 						rows={logConfs}

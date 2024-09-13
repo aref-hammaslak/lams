@@ -113,11 +113,8 @@ function Equipment() {
 		);
 	};
 	return (
-		<>
-
-		
-
-			<Container className="pt-8">
+		<div className="container mx-auto space-y-4">
+			<div className="pt-8">
 				<div className="flex justify-between items-center">
 					<PageHeader title='Equipments' subtitle='Manage lab equipments ' />
 					<Button
@@ -128,8 +125,8 @@ function Equipment() {
 						New
 					</Button>
 				</div>
-			</Container>
-			<Container maxWidth="lg" sx={{ marginTop: "20px" }}>
+			</div>
+			<div >
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>
@@ -196,7 +193,7 @@ function Equipment() {
 						</TableBody>
 					</Table>
 				</TableContainer>
-			</Container>
+			</div>
 			<React.Fragment>
 				<Dialog open={open} onClose={handleClose}>
 					<DialogTitle>
@@ -289,7 +286,7 @@ function Equipment() {
 					</DialogContent>
 				</Dialog>
 			</React.Fragment>
-		</>
+		</div>
 	);
 }
 export default Equipment;

@@ -134,10 +134,10 @@ function AdminLabs() {
 	
 
 	return (
-		<div>
-			<Container className="pt-8 pb-2">
+		<div className="container mx-auto">
+			<div className="pt-8 pb-2">
 				<div className="flex justify-between items-center">
-					<PageHeader title='Departmants' subtitle='Manage lab departmants ' />
+					<PageHeader title='Laboratories' subtitle='Manage laboratories ' />
 					<Button
 						variant="contained"
 						onClick={handleClickOpen}
@@ -146,9 +146,9 @@ function AdminLabs() {
 						New
 					</Button>
 				</div>
-			</Container>
+			</div>
 
-			<Container maxWidth="lg" >
+			<div  >
 				<TableContainer component={Paper} sx={{ marginTop: "10px" }}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>
@@ -218,7 +218,7 @@ function AdminLabs() {
 						</TableBody>
 					</Table>
 				</TableContainer>
-			</Container>
+			</div>
 			<React.Fragment>
 				<Dialog open={open} onClose={handleClose}>
 					<DialogTitle>

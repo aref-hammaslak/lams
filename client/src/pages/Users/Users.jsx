@@ -660,7 +660,7 @@ function UsersLayout() {
 				position={"fixed"}
 				className="w-[calc((100vw*9.5)/12)]"
 			>
-				<Stack  direction='column' className=" py-4 px-4 w-full overflow-y-auto scrollbar-thin" >
+				<Stack  direction='column' className=" py-4 px-4 bg-white w-full overflow-y-auto scrollbar-thin" >
 					<Button
 						className=" rounded-lg bg-primaryDark "
 						variant='contained'

@@ -127,9 +127,9 @@ function Department() {
 	};
 
 	return (
-		<>
+		<div className="container mx-auto space-y-4">
 
-			<Container className="pt-8">
+			<div className="pt-8">
 				<div className="flex justify-between items-center">
 					<PageHeader title='Departmants' subtitle='Manage lab departmants ' />
 					<Button
@@ -140,8 +140,8 @@ function Department() {
 						New
 					</Button>
 				</div>
-			</Container>
-			<Container maxWidth="lg" sx={{ marginBottom: "50px", marginTop:'20px' }}>
+			</div>
+			<div >
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>
@@ -213,7 +213,7 @@ function Department() {
 						</TableBody>
 					</Table>
 				</TableContainer>
-			</Container>
+			</div>
 			<React.Fragment>
 				<Dialog open={open} onClose={handleClose}>
 					<DialogTitle>
@@ -242,7 +242,7 @@ function Department() {
 					</DialogContent>
 				</Dialog>
 			</React.Fragment>
-		</>
+		</div>
 	);
 }
 export default Department;

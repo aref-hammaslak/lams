@@ -185,7 +185,7 @@ function Thermometer() {
 						New
 					</Button>
 				</div>
-				<Grid item width="inherit">
+				<Grid className="bg-white" item width="inherit">
 					<DataGrid
 						columns={columns}
 						rows={therms}
