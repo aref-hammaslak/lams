@@ -4,6 +4,7 @@ import { UserAPI } from '../../apis/UserAPI';
 import { List, ListItem, Tab, Tabs, TabsHeader, TabPanel, TabsBody } from "@material-tailwind/react";
 import { Calendar } from '../../components/Calendar/assignmentsCalendar'
 import { TabsSidebarLayout } from '../../layouts/TabsSidebarLayout';
+import PageHeader from '../../components/Global/PageHeader';
 const tabs = [
   {
     label: 'All',
@@ -93,7 +94,7 @@ const LogsStatus = () => {
   }
 
   
-  const sidebarElement = <List>
+  const sidebarElement = <List className=''>
     {items.map(({ name, id }) => (
       <ListItem key={id} onClick={() => handleFilterChange(id, activeTab)} className={`${filter.id === id && 'bg-primary text-white'} border-b hover:text-white hover:bg-primary focus:text-white focus:bg-primary  `}>
         {name}
@@ -106,7 +107,8 @@ const LogsStatus = () => {
     <TabsSidebarLayout tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarElement={
       sidebarElement
     } >
-      <div className='p-8'>
+      <div className='p-8 space-y-4'>
+      <PageHeader title='Assignments Overview' subtitle='View, manage and track equipment logs assignments and their status'/>
       <Calendar filter={filter} />
       </div>
     </TabsSidebarLayout>

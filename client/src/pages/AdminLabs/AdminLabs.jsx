@@ -33,6 +33,7 @@ import {
 import { styled } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import PageHeader from "../../components/Global/PageHeader.jsx";
 
 const HoverableTableRow = styled(TableRow)`
 	&:hover {
@@ -134,8 +135,9 @@ function AdminLabs() {
 
 	return (
 		<div>
-			<Container sx={{ marginTop: "130px" }}>
-				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+			<Container className="pt-8 pb-2">
+				<div className="flex justify-between items-center">
+					<PageHeader title='Departmants' subtitle='Manage lab departmants ' />
 					<Button
 						variant="contained"
 						onClick={handleClickOpen}
@@ -143,20 +145,10 @@ function AdminLabs() {
 					>
 						New
 					</Button>
-				</Box>
+				</div>
 			</Container>
 
-			<Container maxWidth="lg" sx={{ marginBottom: "50px" }}>
-				<Typography variant="h4" gutterBottom>
-					Labs
-				</Typography>
-				<Typography
-					variant="h7"
-					gutterBottom
-					sx={{ color: "rgba(0, 0, 0, 0.6)" }}
-				>
-					Select a lab to become your workspace
-				</Typography>
+			<Container maxWidth="lg" >
 				<TableContainer component={Paper} sx={{ marginTop: "10px" }}>
 					<Table sx={{ minWidth: 650 }} aria-label="simple table">
 						<TableHead>

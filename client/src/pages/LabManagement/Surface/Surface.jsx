@@ -28,6 +28,7 @@ import { DevTool } from "@hookform/devtools";
 import { DepAPI } from "../../../apis/DepAPI.js";
 import { RHFAutocomplete } from "../../../components/RHFAutocomplete/index.jsx";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../../components/Global/PageHeader.jsx";
 
 function Surface() {
 	const navigate = useNavigate();
@@ -159,24 +160,20 @@ function Surface() {
 
 
 			<Grid
-				container
 				direction="column"
-				width="100%"
-				p="4rem"
-				spacing="2rem"
+				className="mx-auto space-y-4 container py-8"
+
 			>
-				<Grid item ml="auto">
+				<div className="flex justify-between items-center">
+					<PageHeader title='Surfaces' subtitle='Manage lab surfaces ' />
 					<Button
 						variant="contained"
-						onClick={() => {
-							reset({ _id: null });
-							handleOpen();
-						}}
+						onClick={handleOpen}
 						endIcon={<AddIcon />}
 					>
 						New
 					</Button>
-				</Grid>
+				</div>
 				<Grid item width="inherit">
 					<DataGrid
 						columns={columns}

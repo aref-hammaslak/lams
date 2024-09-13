@@ -32,6 +32,7 @@ import { ThermAPI } from "../../../apis/ThermAPI.js";
 import { DepAPI } from "../../../apis/DepAPI.js";
 import useAuth from "../../../hooks/useAuth.js";
 import { LabAPI } from "../../../apis/LabAPI.js";
+import PageHeader from "../../../components/Global/PageHeader.jsx";
 
 function Thermometer() {
 	const navigate = useNavigate();
@@ -171,25 +172,19 @@ function Thermometer() {
 	return (
 		<>
 			<Grid
-				container
 				direction="column"
-				width="100%"
-				p="4rem"
-				pt="4rem"
-				spacing="2rem"
+				className="mx-auto space-y-4 container py-8"	
 			>
-				<Grid item ml="auto">
+				<div className="flex justify-between items-center">
+					<PageHeader title='Thermometers' subtitle='Manage lab thermometers ' />
 					<Button
 						variant="contained"
-						onClick={() => {
-							reset({ _id: null });
-							handleOpen();
-						}}
+						onClick={handleOpen}
 						endIcon={<AddIcon />}
 					>
 						New
 					</Button>
-				</Grid>
+				</div>
 				<Grid item width="inherit">
 					<DataGrid
 						columns={columns}

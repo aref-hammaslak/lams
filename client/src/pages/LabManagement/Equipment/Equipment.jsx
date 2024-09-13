@@ -33,6 +33,7 @@ import { Form } from "react-bootstrap";
 import useAuth from "../../../hooks/useAuth.js";
 import { LabAPI } from "../../../apis/LabAPI.js";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../../components/Global/PageHeader.jsx";
 
 function Equipment() {
 	const navigate = useNavigate();
@@ -116,8 +117,9 @@ function Equipment() {
 
 		
 
-			<Container sx={{ marginTop: "130px" }}>
-				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+			<Container className="pt-8">
+				<div className="flex justify-between items-center">
+					<PageHeader title='Equipments' subtitle='Manage lab equipments ' />
 					<Button
 						variant="contained"
 						onClick={handleOpen}
@@ -125,7 +127,7 @@ function Equipment() {
 					>
 						New
 					</Button>
-				</Box>
+				</div>
 			</Container>
 			<Container maxWidth="lg" sx={{ marginTop: "20px" }}>
 				<TableContainer component={Paper}>

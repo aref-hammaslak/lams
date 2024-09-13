@@ -8,12 +8,13 @@ import { Scheduler } from '../../components/Scheduler/Scheduler';
 import { reccurencs } from '../../consts';
 import { TabsSidebarLayout } from '../../layouts/TabsSidebarLayout';
 import { UserAPI } from '../../apis/UserAPI';
+import PageHeader from '../../components/Global/PageHeader';
 
 const scheduleReducer = (prevState, action) => {
   switch (action.type) {
     case 'item': {
       let type;
-      let recurrence =0 ;
+      let recurrence = 0;
       switch (action.itemType) {
         case 'staff':
           type = 'staff';
@@ -58,7 +59,11 @@ const scheduleReducer = (prevState, action) => {
   }
 }
 
-const tabs = [{label: 'Staff', value: 'staff'},{ label: 'Equipment', value: 'equip' }, { label: 'Surfase', value: 'surf' }, { label: 'Thermometer', value: 'therm' }]
+const tabs = [
+  { label: 'Staff', value: 'staff', title: 'Schedule Staff Absences', subtitle: 'Plan and track staff absences' },
+  { label: 'Equipment', value: 'equip', title: 'Schedule Equipment Logs', subtitle: 'Plan and track upcoming maintenance and performance checks for lab equipments' },
+  { label: 'Surfase', value: 'surf', title: 'Schedule Surfaces', subtitle: 'Plan and track cleaning schedules for surfaces' },
+  { label: 'Thermometer', value: 'therm', title: 'Schedule Thermometers', subtitle: 'Plan and track  maintenance checks for thermometers' }]
 
 export const ScheduleDefine = () => {
   const [activeTab, setActiveTab] = useState('equip'); // staff | equip | surf | therm
@@ -66,7 +71,7 @@ export const ScheduleDefine = () => {
   const [items, setItems] = useState(null);
   const [scheduleState, dispatchSchedule] = useReducer(scheduleReducer, null);
   const { enqueueSnackbar } = useSnackbar();
-  
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -78,7 +83,7 @@ export const ScheduleDefine = () => {
         switch (activeTab) {
           case 'staff': {
             fetchResponse = await UserAPI.getAll();
-            const staff = fetchResponse.filter(staff =>staff.active).map(staff => {
+            const staff = fetchResponse.filter(staff => staff.active).map(staff => {
               return {
                 id: staff._id,
                 name: staff.username,
@@ -93,10 +98,10 @@ export const ScheduleDefine = () => {
             const equips = fetchResponse.map(logTemp => {
               return {
                 id: logTemp._id,
-                name: <p>{logTemp.eq_details[0].name} <sapn className= 'font-bold text-sm rounded-full text-black bg-primaryLight py-1 px-2'>{reccurencs[logTemp.type].at(0).toLocaleUpperCase()}</sapn></p>,
+                name: <p>{logTemp.eq_details[0].name} <sapn className='font-bold text-sm rounded-full text-black bg-primaryLight py-1 px-2'>{reccurencs[logTemp.type].at(0).toLocaleUpperCase()}</sapn></p>,
                 // name: `${logTemp.eq_details[0].name} <sapn>[${reccurencs[logTemp.type].at(0)}]</sapn>`,
                 recurrence: logTemp.type,
-                type:'equip'
+                type: 'equip'
 
               }
             }).filter((item, index, self) =>
@@ -111,7 +116,7 @@ export const ScheduleDefine = () => {
               return {
                 id: surface._id,
                 name: surface.name,
-                type:'surf'
+                type: 'surf'
               }
             });
             setItems(surfaces);
@@ -151,7 +156,7 @@ export const ScheduleDefine = () => {
       type: 'item',
       id,
       name,
-      itemType : itemType || activeTab,
+      itemType: itemType || activeTab,
       recurrence,
     })
   }
@@ -178,14 +183,20 @@ export const ScheduleDefine = () => {
       </ListItem>
     ))}
   </List>
-  
-return (
-  <>
-    <TabsSidebarLayout tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarElement={
-      sidebarElement
-    } >
-        <Scheduler scheduleState={scheduleState} dispatchSchedule={dispatchSchedule} />
-    </TabsSidebarLayout>
+
+  return (
+    <>
+      <TabsSidebarLayout tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarElement={
+        sidebarElement
+      } >
+        <div className='p-8 mx-auto space-y-4'>
+          <PageHeader
+            title={tabs.find(tab => tab.value === activeTab).title}
+            subtitle={tabs.find(tab => tab.value === activeTab).subtitle }
+          />
+          <Scheduler scheduleState={scheduleState} dispatchSchedule={dispatchSchedule} />
+        </div>
+      </TabsSidebarLayout>
     </>
   )
 }

@@ -33,6 +33,7 @@ import * as React from "react";
 import { ScheduleAssign as Scheduler } from "../Schedule/ScheduleAssign.jsx";
 import useAuth from "../../hooks/useAuth.js";
 import { LabAPI } from "../../apis/LabAPI.js";
+import PageHeader from "../../components/Global/PageHeader.jsx";
 
 export const LOG_TYPES = [
 	"Daily",
@@ -486,13 +487,11 @@ function LogConfig() {
 	return (
 		<>
 			<Grid
-				container
 				direction="column"
-				width="100%"
-				p="4rem"
-				spacing="2rem"
+				className="mx-auto space-y-4 container py-8"
 			>
-				<Grid item ml="auto">
+				<div className="flex justify-between items-center">
+					<PageHeader title='Log Configs' subtitle='Manage equipments log configs '/>
 					<Button
 						variant="contained"
 						onClick={handleOpenDialog}
@@ -500,8 +499,8 @@ function LogConfig() {
 					>
 						New
 					</Button>
-				</Grid>
-				<Grid item width="inherit">
+				</div>
+				<Grid className='!p-0' item width="100%">
 					<DataGrid
 						columns={columns}
 						rows={logConfs}

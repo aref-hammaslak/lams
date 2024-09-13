@@ -55,7 +55,6 @@ function App() {
 							<Route path="thermometers" element={<Thermometer />} />
 						</Route>
 
-						<Route path="users2/*" element={<Users />} />
 						<Route path="log" element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
 							<Route path="auto-fill" element={<AutoLog />} />
 							<Route path="status" element={<LogsStatus />} />

@@ -95,7 +95,7 @@ function CalendarDay(props) {
 
             <div
 
-                className={` ${(!outsideCurrentMonth && dayItem || isInItemRange ) && 'group-hover:block'} z-10 top-1 right-1 cursor-pointer absolute hidden rounded-full`}>
+                className={` ${(!outsideCurrentMonth && dayItem || isInItemRange ) && 'group-hover:block'} z-10 top-1 right-0 cursor-pointer absolute hidden rounded-full`}>
                 {showItemRange && isInItemRange && (
                     <GridDeleteIcon
                         onClick={() => {
@@ -252,7 +252,7 @@ export function CustomDateRangPicker(props) {
 
     return (
         <div className={`${className} relative`}>
-            <List className='flex flex-row max-w-[700px] gap-2 m-auto bg-primaryLight '>
+            <List className='flex flex-row max-w-[610px] py-0 px-2 gap-2 m-auto bg-primaryLight '>
                 {
                     pre_maidRanges.map(({ value, label }, i) => {
                         return (
@@ -280,7 +280,7 @@ export function CustomDateRangPicker(props) {
                     style={{
                         height: 800
                     }}
-                    className='!w-[640px]  max-h-[410px] !mt-0'
+                    className='!w-[600px]  max-h-[410px] !mt-0'
                     // value={dayjs(dateRange.start.format('YYYY-MM-DD'))}
                     renderLoading={() => <DayCalendarSkeleton />}
                     slots={{
@@ -308,7 +308,7 @@ export function CustomDateRangPicker(props) {
                     }}
                 />
             </LocalizationProvider>
-            <div className={`${calendarView !== 'day' && 'hidden'} absolute inset-x-0 h-10 px-[46px] z-0 bg-white flex items-center top-[88px]`}>
+            <div className={`${calendarView !== 'day' && 'hidden'} absolute inset-x-0 h-10 px-[28px] z-0 bg-white flex items-center top-[70px]`}>
                 <div className='   flex justify-between w-full'>
                     {
                         daysOfWeek.map((day, i) => (

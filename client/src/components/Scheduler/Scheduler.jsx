@@ -204,7 +204,7 @@ export const Scheduler = (props) => {
 
 
   return (
-    <div className='p-8 flex  gap-4 items-center mx-auto  '>
+    <div className=' flex  gap-4 items-center   '>
       {
         scheduleState?.type !== 'staff' && (
           <Tabs value={scheduleState?.recurrence} className='border-b rounded-lg px-2 pb-2 flex !justify-between  z-10 bg-primaryLight'>

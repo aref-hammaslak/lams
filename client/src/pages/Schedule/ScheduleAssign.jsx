@@ -34,6 +34,7 @@ import { DayDialog } from "../../components/Scheduler/DayDialog.jsx";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import useAuth from "../../hooks/useAuth.js";
 import { LabAPI } from "../../apis/LabAPI.js";
+import PageHeader from "../../components/Global/PageHeader.jsx";
 
 const REC_COLOR = {
 	daily: "primary",
@@ -142,32 +143,30 @@ export const ScheduleAssign = () => {
 	};
 
 	return (
-		<>
-
+		<div className="container mx-auto py-8 space-y-4 ">
+			<PageHeader title='Assign Schedules' subtitle='View and assign schedules to staff'/>
 			<Grid
-
 				direction="column"
-				padding="1rem"
 				alignItems="center"
 				justifyContent="center"
-				marginTop="2rem"
-				className="container mx-auto py-14"
 			>
-				<Grid item alignSelf="stretch" mb="2rem">
-					<Stack direction="row" spacing="2rem">
-						<IconButton size="large" onClick={prevMonth} color="primary">
+				<Grid alignSelf="stretch" mb="2rem">
+					<Stack alignItems="center"  direction="row" spacing="2rem">
+						<IconButton className="bg-white" size="large" onClick={prevMonth} color="primary">
 							<ChevronLeftIcon />
 						</IconButton>
 						<DatePicker
+							className="bg-white"
 							format="YYYY-MM"
 							views={["year", "month"]}
 							value={date}
 							onChange={(newDate) => changeDate(newDate)}
 						/>
-						<IconButton size="large" onClick={nextMonth} color="primary">
+						<IconButton className="bg-white" size="large" onClick={nextMonth} color="primary">
 							<ChevronRightIcon />
 						</IconButton>
 						<Autocomplete
+							className="bg-white"
 							disableClearable
 							value={schType}
 							sx={{ width: "10rem" }}
@@ -402,51 +401,13 @@ export const ScheduleAssign = () => {
 					)}
 				</MenuItem>
 			</Menu>
-			{/* <Menu
-				open={Boolean(selectedDay)}
-				anchorEl={anchorEl}
-				anchorOrigin={{
-					vertical: "center",
-					horizontal: "center",
-				}}
-				onClose={() => {
-					selectDay(null);
-					endEdit();
-				}}
-			>
-				<Stack direction="column">
-					<Grid container justifyContent="space-between" padding="0.5rem">
-						<Grid item>
-							<Typography fontWeight="bolder">
-								{item ? "Edit Schedule" : "New Schedule"}
-							</Typography>
-						</Grid>
-						<Grid item>
-							<CloseIcon
-								onClick={() => selectDay(null)}
-								sx={{
-									"&:hover": { cursor: "pointer", color: "black" },
-									color: "gray",
-								}}
-							/>
-						</Grid>
-					</Grid>
-					<Divider />
-					<ShMenu
-						onClose={() => selectDay(null)}
-						item={item}
-						date={days[selectedDay]?.date}
-						onSubmit={handleSubmit}
-					/>
-				</Stack>
-			</Menu> */}
 			<DayDialog
 				open={Boolean(expandedDay)}
 				day={expandedDay}
 				info={items}
 				onClose={() => expandDay(null)}
 			/>
-		</>
+		</div>
 	);
 }
 

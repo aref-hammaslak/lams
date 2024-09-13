@@ -21,7 +21,7 @@ export const RootLayout = () => {
                     </>
                 }
             </nav>
-            <main className='mt-[64px] w-full' style={{ position: 'relative' }}>
+            <main className='mt-[64px]  bg-gray-50 w-full' style={{ position: 'relative' }}>
                     <Outlet />
             </main>
         </>

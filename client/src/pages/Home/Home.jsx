@@ -64,7 +64,7 @@ function Home() {
 				<Button size="sm" onClick={() => setShowLabDetails(false)} className={`${(!showLabDetails || role !== 'admin') && 'hidden'} !mt-0 bg-primaryDark`}>back</Button>
 				<p className="text-gray-700 text-sm col-span-12">
 					{showLabDetails ? 'Staff ' : 'Labs '}
-					overview with monthly and annully report
+					overview with their recent activity
 				</p>
 
 			</div>

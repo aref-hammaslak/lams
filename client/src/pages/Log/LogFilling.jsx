@@ -12,6 +12,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useNavigate, useLocation } from "react-router-dom";
 import { DailyLogsStepper } from "../../components/LogFilling/DailyLogsStepper";
 import { ClosableSidebar } from "../../components/Global/ClosableSidebar";
+import PageHeader from "../../components/Global/PageHeader";
 
 export function LogFilling() {
 
@@ -60,8 +61,9 @@ export function LogFilling() {
 			<ClosableSidebar isOpen={isOpen} toggleIsOpen={toggleIsOpen} >
 				<LogTempFilters/>
 			</ClosableSidebar>
-			<Box className={`pt-12 pb-20  px-10 transition-all   ${isOpen ? 'ml-[250px]' : ''}  `}>
-				{<LogsPagination />}
+			<Box className={`pt-12 pb-20  px-10 transition-all space-y-4   ${isOpen ? 'ml-[250px]' : ''}  `}>
+				<PageHeader title='Equipment Logs' subtitle='Track view and manage equipment usage and maintenance logs' />
+				<LogsPagination />
 
 			</Box>
 		</Box>

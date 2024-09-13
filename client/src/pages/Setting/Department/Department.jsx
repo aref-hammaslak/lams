@@ -35,6 +35,7 @@ import { tableCellClasses } from "@mui/material/TableCell";
 import useAuth from "../../../hooks/useAuth.js";
 import { LabAPI } from "../../../apis/LabAPI.js";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../../components/Global/PageHeader.jsx";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
 	[`&.${tableCellClasses.head}`]: {
@@ -128,8 +129,9 @@ function Department() {
 	return (
 		<>
 
-			<Container sx={{ marginTop: "130px" }}>
-				<Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+			<Container className="pt-8">
+				<div className="flex justify-between items-center">
+					<PageHeader title='Departmants' subtitle='Manage lab departmants ' />
 					<Button
 						variant="contained"
 						onClick={handleOpen}
@@ -137,7 +139,7 @@ function Department() {
 					>
 						New
 					</Button>
-				</Box>
+				</div>
 			</Container>
 			<Container maxWidth="lg" sx={{ marginBottom: "50px", marginTop:'20px' }}>
 				<TableContainer component={Paper}>
