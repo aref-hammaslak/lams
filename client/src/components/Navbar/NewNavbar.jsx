@@ -26,6 +26,8 @@ import useAuth from '../../hooks/useAuth';
 import { LabAPI } from '../../apis/LabAPI';
 import { LabIcon } from '../Home/LabIcon';
 import { UserAPI } from '../../apis/UserAPI';
+import { useGetUserRole } from '../../hooks/useGetUserRole';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 
 
@@ -34,26 +36,26 @@ const navItems = [['Home', '/log/logfilling'], ['Schedule', '/log/today']];
 
 function NewNavbar(props) {
     const { window } = props;
-    const [labs, setLabs] = useState([]);
     const [currentLab, setCurrentLab] = useState(null);
-    const { auth, setAuth } = useAuth();
+    const { auth } = useAuth();
     const [mobileOpen, setMobileOpen] = React.useState(false);
-    const  navigate = useNavigate();
+    const userRole = useGetUserRole();
+    const navigate = useNavigate();
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
     useEffect(() => {
         LabAPI.get(auth.lab_id).then(lab => setCurrentLab(lab));
-    }, [ auth.lab_id]);
+    }, [auth.lab_id]);
     const handelLogout = async () => {
         try {
             await UserAPI.logout();
-            navigate('/login',{replace:true})
+            navigate('/login', { replace: true })
         } catch (error) {
             console.log(error)
         }
     }
-    
+
 
 
     const drawer = (
@@ -87,118 +89,148 @@ function NewNavbar(props) {
                     </IconButton>
                     <Logo />
 
-                    <ul className={'hidden space-x-2  ml-8 sm:!flex'} >
-                        <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Link to='/' className='flex items-center gap-1 p-2'>
-                                <HomeIcon className='w-5 h-5' />
-                                <span className='p-0 translate-y-[1px]'>
-                                    Home
-                                </span>
-                            </Link>
-                        </li>
+                    {userRole === 'staff' ? (
+                        <ul className={'hidden space-x-2  ml-8 sm:!flex'} >
+                            <li className=' text-white transition  rounded hover:bg-white hover:text-primary' >
+                                <Link to='/' className='flex items-center gap-1 p-2'>
+                                    <HomeIcon className='w-5 h-5' />
+                                    <span className='p-0 translate-y-[1px]'>
+                                        Home
+                                    </span>
+                                </Link>
+                            </li>
+                            <li className=' text-white transition  rounded hover:bg-white hover:text-primary' >
+                                <Link to='/log/status' className='flex items-center gap-1 p-2'>
+                                    <ScheduleIcon className='w-5 h-5' />
+                                    <span className='p-0 translate-y-[1px]'>
+                                        Assignments
+                                    </span>
+                                </Link>
+                            </li>
+                            <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
+                                <Link to='/log/fill' className='flex items-center gap-1 p-2'>
+                                    <AssignmentIcon className='w-5 h-5' />
+                                    <span className='p-0 translate-y-[1px]'>
+                                        Logs
+                                    </span>
+                                </Link>
+                            </li>
+                        </ul>
+                    ) : (
+                        <ul className={'hidden space-x-2  ml-8 sm:!flex'} >
+                            <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
+                                <Link to='/' className='flex items-center gap-1 p-2'>
+                                    <HomeIcon className='w-5 h-5' />
+                                    <span className='p-0 translate-y-[1px]'>
+                                        Home
+                                    </span>
+                                </Link>
+                            </li>
 
-                        <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu >
-                                <MenuHandler>
-                                    <div className='flex items-center gap-1 cursor-pointer p-2'>
-                                        <AssignmentIcon className='w-5 h-5' />
-                                        <span className='p-0 translate-y-[1px]'>
-                                            Log
-                                        </span>
-                                        <ArrowDropDownIcon className='pr-0' />
-                                    </div>
+                            <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
+                                <Menu >
+                                    <MenuHandler>
+                                        <div className='flex items-center gap-1 cursor-pointer p-2'>
+                                            <AssignmentIcon className='w-5 h-5' />
+                                            <span className='p-0 translate-y-[1px]'>
+                                                Log
+                                            </span>
+                                            <ArrowDropDownIcon className='pr-0' />
+                                        </div>
 
-                                </MenuHandler>
-                                <MenuList >
-                                    {
-                                        [['View Status', 'log/status'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
-                                        ].map(([label, path], i) => (
-                                            <MenuItem key={i} className='hover:text-primary py-0' >
-                                                <Link className='inline-block w-full hover:text-primary py-2' to={path}>
-                                                    {label}
-                                                </Link>
-                                            </MenuItem>
-                                        ))
+                                    </MenuHandler>
+                                    <MenuList >
+                                        {
+                                            [['View Status', 'log/status'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
+                                            ].map(([label, path], i) => (
+                                                <MenuItem key={i} className='hover:text-primary py-0' >
+                                                    <Link className='inline-block w-full hover:text-primary py-2' to={path}>
+                                                        {label}
+                                                    </Link>
+                                                </MenuItem>
+                                            ))
 
-                                    }
+                                        }
 
-                                </MenuList>
-                            </Menu>
-                        </li>
+                                    </MenuList>
+                                </Menu>
+                            </li>
 
-                        <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu >
-                                <MenuHandler>
-                                    <div className='flex items-center gap-1 cursor-pointer p-2'>
-                                        <ScheduleIcon className='w-5 h-5' />
-                                        <span className='p-0 translate-y-[1px]'>
-                                            Schedule
-                                        </span>
-                                        <ArrowDropDownIcon className='pr-0' />
-                                    </div>
+                            <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
+                                <Menu >
+                                    <MenuHandler>
+                                        <div className='flex items-center gap-1 cursor-pointer p-2'>
+                                            <ScheduleIcon className='w-5 h-5' />
+                                            <span className='p-0 translate-y-[1px]'>
+                                                Schedule
+                                            </span>
+                                            <ArrowDropDownIcon className='pr-0' />
+                                        </div>
 
-                                </MenuHandler>
-                                <MenuList >
-                                    {
-                                        [['Define', 'schedule/define'], ['Assign', 'schedule/assign'],
-                                        ].map(([label, path], i) => (
-                                            <MenuItem key={i} className='hover:text-primary py-0' >
-                                                <Link className='inline-block w-full hover:text-primary py-2' to={path}>
-                                                    {label}
-                                                </Link>
-                                            </MenuItem>
-                                        ))
+                                    </MenuHandler>
+                                    <MenuList >
+                                        {
+                                            [['Define', 'schedule/define'], ['Assign', 'schedule/assign'],
+                                            ].map(([label, path], i) => (
+                                                <MenuItem key={i} className='hover:text-primary py-0' >
+                                                    <Link className='inline-block w-full hover:text-primary py-2' to={path}>
+                                                        {label}
+                                                    </Link>
+                                                </MenuItem>
+                                            ))
 
-                                    }
+                                        }
 
-                                </MenuList>
-                            </Menu>
-                        </li>
+                                    </MenuList>
+                                </Menu>
+                            </li>
 
-                        <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Menu >
-                                <MenuHandler>
-                                    <div className='flex items-center gap-1 cursor-pointer p-2'>
-                                        <SettingsIcon className='w-5 h-5' />
-                                        <span className='p-0 translate-y-[1px]'>
-                                            Setting
-                                        </span>
-                                        <ArrowDropDownIcon />
-                                    </div>
+                            <li className='flex items-center  space-x-1 text-white transition-colors rounded hover:bg-white hover:text-primary' >
+                                <Menu >
+                                    <MenuHandler>
+                                        <div className='flex items-center gap-1 cursor-pointer p-2'>
+                                            <SettingsIcon className='w-5 h-5' />
+                                            <span className='p-0 translate-y-[1px]'>
+                                                Setting
+                                            </span>
+                                            <ArrowDropDownIcon />
+                                        </div>
 
-                                </MenuHandler>
-                                <MenuList>
-                                    {
-                                        [['Laboratories', 'setting/laboratories'],['Log Configs', 'setting/log-configs'], ['Departments', 'setting/departments'], ['Equipments', 'setting/equipments'],
-                                        ['users', 'setting/users'], ['Surfaces', 'setting/surfaces'], ['Thermometers', 'setting/thermometers'],].map(([label, path], i) => (
-                                            <MenuItem key={i} className='hover:text-primary py-0' >
-                                                <Link className='inline-block w-full hover:text-primary py-2' to={path}>
-                                                    {label}
-                                                </Link>
-                                            </MenuItem>
-                                        ))
+                                    </MenuHandler>
+                                    <MenuList>
+                                        {
+                                            [ ['Log Configs', 'setting/log-configs'], ['Departments', 'setting/departments'], ['Equipments', 'setting/equipments'],
+                                            ['users', 'setting/users'], ['Surfaces', 'setting/surfaces'], ['Thermometers', 'setting/thermometers'],].map(([label, path], i) => (
+                                                <MenuItem key={i} className='hover:text-primary py-0' >
+                                                    <Link className='inline-block w-full hover:text-primary py-2' to={path}>
+                                                        {label}
+                                                    </Link>
+                                                </MenuItem>
+                                            ))
 
-                                    }
+                                        }
 
-                                </MenuList>
-                            </Menu>
-                        </li>
-                        <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
-                            <Link to='/' className='flex items-center gap-1 p-2'>
-                                <BarChartIcon className='w-5 h-5' />
-                                <span className='p-0 translate-y-[1px]'>
-                                    Report
-                                </span>
-                            </Link>
-                        </li>
+                                    </MenuList>
+                                </Menu>
+                            </li>
+                            <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
+                                <Link to='/' className='flex items-center gap-1 p-2'>
+                                    <BarChartIcon className='w-5 h-5' />
+                                    <span className='p-0 translate-y-[1px]'>
+                                        Report
+                                    </span>
+                                </Link>
+                            </li>
 
 
-                    </ul>
+                        </ul>
+                    )}
+
                     <Box sx={{ flexGrow: 1 }} />
                     <div className='flex items-center gap-1'>
 
                         <Typography className='bg-white pr-4 pl-2 py-1 rounded flex items-center'>
-                            <LabIcon className=' !w-6 '/>
+                            <LabIcon className=' !w-6 ' />
                             <sapn className='font-bold text-lg text-primary'>
                                 {currentLab?.name}
                             </sapn>
@@ -225,9 +257,18 @@ function NewNavbar(props) {
                                         <AccountBoxIcon /> Profile
                                     </Link>
                                 </MenuItem>
+                                {
+                                    userRole === 'admin' && (
+                                        <MenuItem className='py-0'>
+                                            <Link className='inline-block py-2 w-full hover:text-primary' to='/laboratories'>
+                                                <ListAltIcon /> Laboratories
+                                            </Link>
+                                        </MenuItem>
+                                    )
+                                }
 
                                 <MenuItem onClick={handelLogout} className='py-0'>
-                                    <a  className=' py-2 hover:text-primary w-full inline-block space-x-1'><LogoutIcon /><span>Logout</span></a></MenuItem>
+                                    <a className=' py-2 hover:text-primary w-full inline-block space-x-1'><LogoutIcon /><span>Logout</span></a></MenuItem>
                             </MenuList>
                         </Menu>
                     </div>
