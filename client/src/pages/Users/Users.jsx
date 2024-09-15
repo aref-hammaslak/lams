@@ -24,12 +24,8 @@ import BiotechOutlinedIcon from "@mui/icons-material/BiotechOutlined";
 import Typography from "@mui/material/Typography";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const USER_ROLES = {
-	'1001': { label: 'staff', value: [1001] },
-	'1001,1923': { label: 'supervisor', value: [1001, 1923] },
-	'staff': [1001],
-	'supervisor': [1001, 1923]
-}
+import { USER_ROLES } from "../../consts/index.js";
+
 
 function Profile({ onUserDelete }) {
 	const [error, setError] = useState(null);
