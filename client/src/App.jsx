@@ -29,48 +29,56 @@ import { LogFillingProvider } from "./contexts/LogFillingProvider.jsx";
 import { DayProvider } from "./contexts/DayProvider.jsx";
 import { ScheduleDefine } from "./pages/Schedule/ScheduleDefine.jsx";
 import { ScheduleAssign } from "./pages/Schedule/ScheduleAssign.jsx";
+import { Profile } from "./pages/Users/Profile.jsx";
 function App() {
-	const allRoles = [ROLES.admin, ROLES.supervisor, ROLES.staff];
-	const adminAndSupervisor = [ROLES.admin, ROLES.supervisor];
-	const onllyAdmin = [ROLES.admin];
 
 	return (
 		<>
 			<Routes>
-				<Route element={<RequireAuth allowedRolse={allRoles} />}>
+				{/** All rolse has access */}
+				<Route element={<RequireAuth allowedRolse={[ROLES.staff]} />}>
 
 
 					<Route path="/" element={<RootLayout />}>
 						<Route path="" element={<Home />} />
-						<Route element={<RequireAuth allowedRolse={onllyAdmin} />}>
-							<Route path="profile" element={<AdminProfile />} />
-						</Route>
-						<Route path="setting">
-							<Route path="users/*" element={<Users />} />
+						<Route path="profile" element={<Profile />} />
+
+						{/** Only addmin has access */}
+						<Route element={<RequireAuth allowedRolse={[ROLES.admin]} />}>
 							<Route path="laboratories" element={<AdminLabs />} />
-							<Route path="log-configs" element={<LogConfig />} />
-							<Route path="equipments" element={<Equipment />} />
-							<Route path="departments" element={<Department />} />
-							<Route path="surfaces" element={<Surface />} />
-							<Route path="thermometers" element={<Thermometer />} />
+						</Route>
+
+						{/** Admin and supervisor have access */}
+						<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]}/>}>
+							<Route path="setting">
+								<Route path="users/*" element={<Users />} />
+								<Route path="log-configs" element={<LogConfig />} />
+								<Route path="equipments" element={<Equipment />} />
+								<Route path="departments" element={<Department />} />
+								<Route path="surfaces" element={<Surface />} />
+								<Route path="thermometers" element={<Thermometer />} />
+							</Route>
+							<Route path="schedule">
+								<Route path="define" element={<ScheduleDefine />} />
+								<Route path="assign" element={<ScheduleAssign />} />
+							</Route>
 						</Route>
 
 						<Route path="log" element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
-							<Route path="auto-fill" element={<AutoLog />} />
 							<Route path="status" element={<LogsStatus />} />
 							<Route path="fill" element={<LogFilling />} />
+							<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]}/>}> 
+								<Route path="auto-fill" element={<AutoLog />} />
+							</Route>
 						</Route>
-						<Route path="schedule">
-							<Route path="define" element={<ScheduleDefine />} />
-							<Route path="assign" element={<ScheduleAssign />} />
-						</Route>
+
 					</Route>
 				</Route>
 
 
 				{/* PUBLIC ROUTES */}
 				<Route path="/login" element={<Login />} />
-				{/*<Route path="*" element={<NotFound />} /> */}
+				{/* <Route path="*" element={<NotFound />} /> */}
 				<Route path="/unauthorized" element={<Unauthorized />} />
 			</Routes>
 		</>
