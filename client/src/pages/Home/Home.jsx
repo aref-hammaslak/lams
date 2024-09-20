@@ -8,6 +8,10 @@ import { UserAPI } from "../../apis/UserAPI.js";
 import { useSnackbar } from 'notistack';
 import { useGetUserRole } from "../../hooks/useGetUserRole.js";
 import { LabAPI } from "../../apis/LabAPI.js";
+import { LogsStatus } from "../Log/LogsStatus.jsx";
+import { DayProvider } from "../../contexts/DayProvider.jsx";
+import { Calendar } from "../../components/Calendar/assignmentsCalendar/Clalendar.jsx";
+import PageHeader from "../../components/Global/PageHeader.jsx";
 
 
 function Home() {
@@ -30,8 +34,8 @@ function Home() {
 			setCurrentLab(curlab);
 			console.log("🚀 ~ curlab:", curlab)
 		})()
-			
-	},[auth])
+
+	}, [auth])
 
 	const { enqueueSnackbar } = useSnackbar();
 
@@ -51,7 +55,14 @@ function Home() {
 	}
 
 
-
+	if (role === 'staff') {
+		return (
+			
+				<div className='p-8 space-y-4'>
+					<PageHeader title='Home' subtitle='Home page' />
+				</div>
+		)
+	}
 
 	return (
 		<div className="container mx-auto py-8 ">
@@ -72,7 +83,7 @@ function Home() {
 			{
 				showLabDetails ? (
 					<>
-					{currenLab._id && <LabStaffOverview lab={currenLab}/>}
+						{currenLab._id && <LabStaffOverview lab={currenLab} />}
 					</>
 				) : (
 					<LabsOverview onLabChange={handelLabChange} />

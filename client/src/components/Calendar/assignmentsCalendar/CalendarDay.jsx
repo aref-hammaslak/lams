@@ -13,9 +13,9 @@ import { useGetUserRole } from '../../../hooks/useGetUserRole';
 import { Tooltip, } from '@mui/material';
 
 
-const CalendarDay = ({ content }) => {
-
-    const { setNavigatedFromLogsStatus, stepperDispatch } = useContext(logFillingContext);
+const CalendarDay = (props) => {
+    const { content, onClickAssignment: handleClickAssignment } = props;
+    const {  stepperDispatch } = useContext(logFillingContext);
     const navigate = useNavigate();
     const role = useGetUserRole();
     // const role = 'staff';
@@ -59,9 +59,8 @@ const CalendarDay = ({ content }) => {
             date: content.date,
         })
 
-        navigate('/log/fill', { preventScrollReset: false });
-        setNavigatedFromLogsStatus(true);
-        window.scrollTo(0, 0);
+        // navigate('/log/fill', { preventScrollReset: false });
+        handleClickAssignment();
     }
 
     if (!content.tasks || taskCount === 0) return (

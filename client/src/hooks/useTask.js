@@ -1,18 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react'
-import DayContext, { DayMap } from '../contexts/DayProvider'
+import DayContext from '../contexts/DayProvider'
 import { userTaskAPI } from '../apis/userTaskAPI';
 import dayjs from 'dayjs';
 import useAuth from './useAuth';
+import { RefreshContext } from '../contexts/RefreshProvider';
+import { SellOutlined } from '@mui/icons-material';
 
 const useTask = ({ isAdmin }) => {
   const { days, setDays, currDate } = useContext(DayContext);
   const [loading, setLoading] = useState(false);
   const [tasksmap, setTasksmap] = useState([]);
-  const { lab_id, _id } = useAuth();
-  const user_id = _id;
-
+  const { auth:{lab_id, id:user_id} } = useAuth();
+  const { needToRefresh } = useContext(RefreshContext);
 
   useEffect(() => {
+
     async function fetchTasks() {
       
       const sm = currDate.startOf('month');
@@ -25,13 +27,10 @@ const useTask = ({ isAdmin }) => {
       if (isAdmin) {
         params.lab_id = lab_id;
         userTasks = await userTaskAPI.fetchAllInLab(params);
-        console.log("🚀 ~ fetchTasks ~ userTasks:", userTasks)
         setTasksmap(userTasks);
-        
-
       } else {
         userTasks = await userTaskAPI.fetchById(user_id, params);
-        setTasksmap(userTasks?.schedulemaps);
+        setTasksmap(userTasks?.schedulemaps ?? []);
       }
 
     }
@@ -41,12 +40,19 @@ const useTask = ({ isAdmin }) => {
       fetchTasks();
     } catch (error) {
       console.error(error);
+      setLoading(false);
     }
 
-  }, [currDate]);
+  }, [currDate, needToRefresh]);
 
   useEffect(() => {
-    if (!tasksmap) return setLoading(false);
+    console.log("🚀 ~ useEffect ~ tasksmap:", tasksmap)
+    if (!tasksmap.length ) {
+      
+      if (loading === true) setLoading(false); 
+      return
+    }
+    
     const daysmap = new Map();
     let i = 0;
     days.forEach((dayValue, day) => {
@@ -66,8 +72,6 @@ const useTask = ({ isAdmin }) => {
     setDays(daysmap);
     setLoading(false);
   }, [tasksmap])
-
-
 
   return {
     loading

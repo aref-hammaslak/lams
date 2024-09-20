@@ -3,8 +3,8 @@ import { Spinner } from '@material-tailwind/react'
 
 export const Loading = ({className}) => {
   return (
-      <div className={`${className} fixed h-full w-full inset-0 flex items-center bg-transparent justify-center bg-gray-50 bg-opacity-70 z-50`} >
+      <div className={`${className} absolute h-full  w-full top-0 right-0 bg-gray-50  flex items-center justify-center  bg-opacity-40 z-50`} >
           <Spinner />
       </div>
-  )
+  )     
 }

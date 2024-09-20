@@ -6,37 +6,31 @@ import { api } from '../apis/configs/axiosConfig';
 
 const useEquLog = (logTempFilters) => {
   const [equLogs, setEquLogs] = useState([]);
-  const [fetchLoading, setFetchLoading] = useState(false);
-  const [createLoading, setCreateLoading] = useState(false);
-  const [updateLoading, setUpdateLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [fetchError, setFetchError] = useState(null);
-  const [createError, setCreateError] = useState(null);
-  const [updateError, setUpdateError] = useState(null);
-  const [deleteError, setDeleteError] = useState(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
 
   const fetchAllEquLogs = useCallback(async (params) => {
-    setFetchLoading(true);
-    setFetchError(null);
+    setLoading(true);
+    setError(null);
     try {
       const data = await EquLogAPI.fetchAll(params);
       setEquLogs(data);
       // enqueueSnackbar('EquLogs fetched successfully!', { variant: 'success' });
     } catch (err) {
-      setFetchError(err.message);
+      setError(err.message);
       enqueueSnackbar(`Error fetching Logs: ${err.message}`, { variant: 'error' });
     } finally {
-      setFetchLoading(false);
+      setLoading(false);
     }
   }, [EquLogAPI, enqueueSnackbar]);
 
   const autoFillLogs = async () => {
     try {
-      setFetchLoading(true);
+      setLoading(true);
       const { startDate, endDate , logTemp} = logTempFilters;
       const { _id: logTempId } = logTemp;
       const response = await api.request({
@@ -67,15 +61,15 @@ const useEquLog = (logTempFilters) => {
 
     catch (error) {
       enqueueSnackbar(error.message, { variant: 'error' });
-      setFetchLoading(false);
+      setLoading(false);
     } finally {
-      setFetchLoading(false);
+      setLoading(false);
     }
   }
 
   const createEquLog = async (data) => {
-    setCreateLoading(true);
-    setCreateError(null);
+    setLoading(true);
+    setError(null);
 
     try {
       const newEquLog = await EquLogAPI.create(data);
@@ -83,17 +77,17 @@ const useEquLog = (logTempFilters) => {
       enqueueSnackbar('Log created successfully!', { variant: 'success' });
       return newEquLog;
     } catch (err) {
-      setCreateError(err.message);
+      setError(err.message);
       enqueueSnackbar(`Error creating log: ${err.message}`, { variant: 'error' });
 
     } finally {
-      setCreateLoading(false);
+      setLoading(false);
     }
   };
 
   const updateEquLog = async (id, data) => {
-    setUpdateLoading(true);
-    setUpdateError(null);
+    setLoading(true);
+    setError(null);
     try {
       const updatedEquLog = await EquLogAPI.update(id, data);
       setEquLogs((prev) =>
@@ -101,27 +95,27 @@ const useEquLog = (logTempFilters) => {
       );
       enqueueSnackbar('Log updated successfully!', { variant: 'success' });
     } catch (err) {
-      setUpdateError(err.message);
+      setError(err.message);
       enqueueSnackbar(`Error updating log: ${err.message}`, { variant: 'error' });
     } finally {
-      setUpdateLoading(false);
+      setLoading(false);
     }
   };
 
   const deleteEquLog = async (id) => {
-    setDeleteLoading(true);
-    setDeleteError(null);
+    setLoading(true);
+    setError(null);
     let error = null;
     try {
       await EquLogAPI.delete(id);
       setEquLogs((prev) => prev.filter((log) => log._id !== id));
       enqueueSnackbar('Log deleted successfully!', { variant: 'success' });
     } catch (err) {
-      setDeleteError(err.message);
+      setError(err.message);
       enqueueSnackbar(`Error deleting log: ${err.message}`, { variant: 'error' });
       error = err;
     } finally {
-      setDeleteLoading(false);
+      setLoading(false);
     }
     return error;
   };
@@ -130,14 +124,7 @@ const useEquLog = (logTempFilters) => {
 
   return {
     equLogs,
-    fetchLoading,
-    createLoading,
-    updateLoading,
-    deleteLoading,
-    fetchError,
-    createError,
-    updateError,
-    deleteError,
+    loading,
     fetchAllEquLogs,
     autoFillLogs,
     createEquLog,

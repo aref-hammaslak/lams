@@ -16,7 +16,7 @@ export const ScheduleAPI = {
 		});
 		return response.data.payload;
 	},
-	getAll: async function (item, start_date, end_date, type, expand, groupBy, recurrence, cancel = false) {
+	getAll: async function (item, start_date, end_date, type, expand, groupBy, recurrence,raw, cancel = false) {
 		const response = await api.request({
 			url: "/schedule/",
 			method: "GET",
@@ -27,7 +27,8 @@ export const ScheduleAPI = {
 				'end-date': end_date,
 				type,
 				'expand-item': expand,
-				'group-by': groupBy
+				'group-by': groupBy,
+				raw
 			},
 			signal: cancel
 				? cancelApiObject[this.getAll.name].handleRequestCancellation().signal

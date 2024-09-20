@@ -26,7 +26,6 @@ const userTaskAPI = {
                 method: 'GET',
                 params
             });
-            console.log(response);
             return this.handleResponse(response);
         } catch (error) {
             this.handleError(error);

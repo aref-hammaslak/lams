@@ -9,17 +9,16 @@ import { Tooltip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CancelIcon from "@mui/icons-material/Close";
 import { useContext } from "react";
-import { AlertContext } from "../../contexts/AlertProvider";
 import { useSnackbar } from "notistack";
 import { logFillingContext } from "../../contexts/LogFillingProvider";
-import useEquLog from "../../hooks/useEquLog";
+import { RefreshContext } from "../../contexts/RefreshProvider";
 
 const RenderActions = ({ row, apiRef, ...params }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { logTempFilters, equLog } = useContext(logFillingContext);
-  const { items: logItems, _id: temp_id, schedule, startDate, endDate } = logTempFilters.logTemp;
-
-  const { createEquLog, updateEquLog, createError, deleteEquLog, deleteError } = equLog;
+  const { items: logItems, _id: temp_id, schedule } = logTempFilters.logTemp;
+  const { handelRefresh } = useContext(RefreshContext);
+  const { createEquLog, updateEquLog, deleteEquLog } = equLog;
   const ref = apiRef.current;
   const rowMode = row.mode;
   const getUndefinedRow = useCallback(() => {
@@ -50,11 +49,12 @@ const RenderActions = ({ row, apiRef, ...params }) => {
     }
     const serverAction = row.action;
     switch (serverAction) {
-      case 'create':{
+      case 'create': {
         const newLog = await createEquLog(data);
         if (newLog) {
           ref.updateRows([{ id: row.id, _id: newLog._id, mode: "view", isLoged: true }]);
           ref.stopRowEditMode({ id: row.id });
+          handelRefresh();
         } else {
           ref.updateRows([{ id: row.id, mode: "view", isLoged: false }]);
           ref.stopRowEditMode({ id: row.id, ignoreModifications: true });
@@ -62,26 +62,19 @@ const RenderActions = ({ row, apiRef, ...params }) => {
         break;
       }
       case 'update': {
-        const newLog = await updateEquLog(row._id,data);
+        const newLog = await updateEquLog(row._id, data);
         if (newLog) {
           ref.stopRowEditMode({ id: row.id });
+          handelRefresh();
         } else {
           ref.stopRowEditMode({ id: row.id, ignoreModifications: true });
         }
-        ref.updateRows([{ id: row.id, mode: "view"}]);
+        ref.updateRows([{ id: row.id, mode: "view" }]);
         break;
       }
       default:
         break;
     }
-
-
-
-
-
-
-
-
   }, [enqueueSnackbar, ref, row]);
 
   const handleCancel = useCallback(() => {
@@ -105,7 +98,9 @@ const RenderActions = ({ row, apiRef, ...params }) => {
           date: row.date,
         },
       ]);
+      handelRefresh();
     }
+
 
   }, [deleteEquLog, getUndefinedRow, ref, row]);
 
@@ -139,7 +134,7 @@ const RenderActions = ({ row, apiRef, ...params }) => {
           <GridDeleteIcon className="cursor-pointer" onClick={handleDelete} />
         </Tooltip>
         <Tooltip title="Edit">
-            <EditIcon className="cursor-pointer" onClick={handleEdit} />
+          <EditIcon className="cursor-pointer" onClick={handleEdit} />
         </Tooltip>
       </div>
     );
@@ -148,7 +143,7 @@ const RenderActions = ({ row, apiRef, ...params }) => {
       EditModeIcons
     ) : (
       <Tooltip title="Log">
-          <GridAddIcon className="cursor-pointer" onClick={handleAddLog} />
+        <GridAddIcon className="cursor-pointer" onClick={handleAddLog} />
       </Tooltip>
     );
   }

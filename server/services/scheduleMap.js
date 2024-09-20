@@ -51,14 +51,7 @@ export async function getScheduleMapsForDate(date, userId, itemType, itemId) {
     itemId = new mongoose.Types.ObjectId(itemId);
 
     const result = await ScheduleMapModel.aggregate([
-        {
-            $lookup: {
-                from: 'schedules',
-                localField: 'user_sch_id',
-                foreignField: '_id',
-                as: 'user_sch',
-            },
-        },
+
         {
             $lookup: {
                 from: 'schedules',
@@ -90,7 +83,7 @@ export async function getScheduleMapsForDate(date, userId, itemType, itemId) {
         },
         {
             $match: {
-                'user_sch.id': {
+                'user_id': {
                     $eq: userId
                 }
             }

@@ -11,9 +11,9 @@ import {
 
 const router = Router();
 
-router.get('/', isLoggedIn, isSup, catchAsync(getAllLogTemplates))
+router.get('/', isLoggedIn , catchAsync(getAllLogTemplates))
     .post('/', isLoggedIn, isSup, catchAsync(createLogTemplate))
-    .get('/:id', isLoggedIn, isSup, catchAsync(getLogTemplate))
+    .get('/:id', isLoggedIn,  catchAsync(getLogTemplate))
     .delete('/:id', isLoggedIn, isSup, catchAsync(removeLogTemplate))
     .patch('/:id', isLoggedIn, isSup, catchAsync(updateLogTemplate));
 

@@ -17,22 +17,23 @@ import useTask from "../../../hooks/useTask.js";
 import CalendarDay from "./CalendarDay.jsx";
 import { Spinner } from "@material-tailwind/react";
 import { useGetUserRole } from "../../../hooks/useGetUserRole.js";
+import { Loading } from "../../Global/Loading.jsx";
 
 
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = (props) => {
-    const { filter } = props;
+    const { filter, onClickAssignment } = props;
     const { days, setDays, currDate, setCurrDate, nextMonth, prevMonth, filteredDays, seFilteredDays } = useContext(DayContext);
     
     const role = useGetUserRole();
-    const { loading } = useTask({ isAdmin: role === 'admin' || role === 'supervisor' ? true : false });
+    const { loading } = useTask({ isAdmin: role === 'staff' ? false : true});
     const today = dayjs().startOf("day");
 
     const applyFilter = useCallback(function (day) {
         const { tasks } = day;
-        if (!filter.type) return day;
+        if (!filter?.type) return day;
         const newTasks = tasks?.filter((task) => {
             switch (filter?.type) {
                 case 'equip':
@@ -57,16 +58,8 @@ export const Calendar = (props) => {
         );
         seFilteredDays(newDays)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [days])
+    }, [days, filter])
     
-    useEffect(() => {
-        const newDays = new DayMap(
-            Array.from(days, ([key, value]) => [dayjs(key), applyFilter(value, key, days)])
-        );
-        seFilteredDays(newDays);
-
-    }, [filter])
-
     return (
         <>
 
@@ -123,7 +116,7 @@ export const Calendar = (props) => {
                                     }
                                 </p>
                                 <Divider />
-                                <CalendarDay key={key} content={day} />
+                                <CalendarDay key={key} content={day} onClickAssignment={onClickAssignment} />
                                 {/* {loading ?
                                     <div className="flex items-center justify-center flex-1 !text-secondry"><Spinner className="w-5 h-5" /></div> :
                                     <CalendarDay key={key} content={day} />} */}
@@ -134,6 +127,11 @@ export const Calendar = (props) => {
 
                 </Grid>
             </Grid>
+            {
+                loading && (
+                    <Loading className='!fixed !m-0'/>
+                )
+            }
 
         </>
     );

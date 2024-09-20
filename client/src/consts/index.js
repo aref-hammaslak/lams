@@ -12,4 +12,11 @@ const ROLES = {
 	staff: 1001
 }
 
-export {reccurencs, ROLES}
+const USER_ROLES = {
+	'1001': { label: 'staff', value: [1001] },
+	'1001,1923': { label: 'supervisor', value: [1001, 1923] },
+	'staff': [1001],
+	'supervisor': [1001, 1923]
+}
+
+export { reccurencs, ROLES, USER_ROLES }

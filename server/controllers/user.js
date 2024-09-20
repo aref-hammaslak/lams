@@ -106,6 +106,7 @@ export const createUser = async (req, res) => {
     const { password, ...data } = req.body;
 
     const user = new User({ ...data, lab_id: req.user.lab_id });
+    
     try {
         await User.register(user, password);
     } catch (error) {

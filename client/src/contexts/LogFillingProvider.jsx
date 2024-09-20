@@ -1,9 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useReducer } from 'react'
 import { useState, createContext, useEffect } from 'react';
-import useLogTemp from '../hooks/useLogTemp';
 import useEquLog from '../hooks/useEquLog';
-import { useLocation } from 'react-router-dom';
 
 
 const stepperInitialState = {
@@ -68,31 +66,15 @@ export const logFillingContext = createContext({});
 
 const LogFillingProvider = ({ children }) => {
   const [logTempFilters, setLogTempFilters] = useState({});
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [displayLogs, setDisplayLogs] = useState(false);
-  const [navigatedFromLogsStatus, setNavigatedFromLogsStatus] = useState(false);
-  const { equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading, } = useLogTemp(logTempFilters, setLogTempFilters, navigatedFromLogsStatus);
   const equLog = useEquLog(logTempFilters);
-  const location = useLocation();
   const [stepperState, stepperDispatch] = useReducer(stepperReducer,  stepperInitialState );
   
 
-  useEffect(() => {
-    function handleHashChange() {
-      if (navigatedFromLogsStatus && location.pathname !== '/log/fill') setNavigatedFromLogsStatus(false);
-    }
-    handleHashChange();
-  }, [location]);
-
-
-
-
-
   return (
     <logFillingContext.Provider value={{
-      logTempFilters, setLogTempFilters, equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading,
-      isDrawerOpen, setIsDrawerOpen, displayLogs, setDisplayLogs, equLog
-      , navigatedFromLogsStatus, setNavigatedFromLogsStatus, stepperState, stepperDispatch
+      logTempFilters, setLogTempFilters,
+       equLog
+      , stepperState, stepperDispatch
     }} >
       {children}
     </logFillingContext.Provider>

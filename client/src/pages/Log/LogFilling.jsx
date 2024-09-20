@@ -1,70 +1,29 @@
 import {
 	Box,
-	Button,
-	Drawer,
-	Tooltip,
 } from "@mui/material";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { LogsPagination } from "../../components/LogFilling/LogsPagination";
 import { LogTempFilters } from "../../components/LogFilling/LogTempFilters";
-import { logFillingContext } from "../../contexts/LogFillingProvider";
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import { useNavigate, useLocation } from "react-router-dom";
-import { DailyLogsStepper } from "../../components/LogFilling/DailyLogsStepper";
 import { ClosableSidebar } from "../../components/Global/ClosableSidebar";
 import PageHeader from "../../components/Global/PageHeader";
 
 export function LogFilling() {
-
-	const { navigatedFromLogsStatus, setNavigatedFromLogsStatus, stepperState, setLogTempFilters, } = useContext(logFillingContext)
 	const [isOpen, setIsOpen] = useState(true);
 	function toggleIsOpen() {
 		setIsOpen(n => !n);
 	}
-	const navigate = useNavigate();
-
-
-
-	if (navigatedFromLogsStatus) return (
-
-		<>
-
-			<Button
-				startIcon={<ArrowBackIosIcon />}
-				className={"absolute mb-10 left-8 -top-[60px]"}
-				variant="contained"
-				onClick={() => { navigate(-1); setNavigatedFromLogsStatus(false) }}
-			>
-				back to logs status
-			</Button>
-			<div className=" container pt-4 mt-[160px]  bg-white  mx-auto   px-4  ">
-
-				<div className={"border p-4"} >
-					<DailyLogsStepper />
-					<Box className={"bg-white mt-4  "}>
-						{<LogsPagination />}
-
-					</Box>
-				</div>
-			</div>
-		</>
-
-
-	);
 	return (
 		<Box
 			className={
 				" bg-gray-50 w-full  min-h-screen   justify-end  relative"
 			}
 		>
-
 			<ClosableSidebar isOpen={isOpen} toggleIsOpen={toggleIsOpen} >
 				<LogTempFilters/>
 			</ClosableSidebar>
-			<Box className={`pt-12 pb-20  px-10 transition-all space-y-4   ${isOpen ? 'ml-[250px]' : ''}  `}>
+			<Box className={`pt-12 pb-20 relative  px-10 transition-all space-y-4   ${isOpen ? 'ml-[250px]' : ''}  `}>
 				<PageHeader title='Equipment Logs' subtitle='Track view and manage equipment usage and maintenance logs' />
-				<LogsPagination />
-
+				<LogsPagination minHight={true} />
 			</Box>
 		</Box>
 	);

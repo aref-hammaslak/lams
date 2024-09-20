@@ -19,8 +19,9 @@ import { AutoLog } from "./pages/Log/AutoLog.jsx";
 import { Calendar } from "./components/Calendar";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Users from "./pages/Users";
-import Unauthorized from "./pages/LabManagement/Unauthorized/Unauthorized.jsx";
+import { Unauthorized } from "./pages/Unauthorized/Unauthorized.jsx";
 import { ROLES } from "./consts/index.js"
+import { NotFound } from "./pages/NotFound/NotFound.jsx";
 import {
 	LogsStatus
 
@@ -49,7 +50,7 @@ function App() {
 						</Route>
 
 						{/** Admin and supervisor have access */}
-						<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]}/>}>
+						<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]} />}>
 							<Route path="setting">
 								<Route path="users/*" element={<Users />} />
 								<Route path="log-configs" element={<LogConfig />} />
@@ -64,10 +65,11 @@ function App() {
 							</Route>
 						</Route>
 
-						<Route path="log" element={<LogFillingProvider><DayProvider></DayProvider></LogFillingProvider>}>
-							<Route path="status" element={<LogsStatus />} />
-							<Route path="fill" element={<LogFilling />} />
-							<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]}/>}> 
+						<Route path="log">
+							<Route path="status" element={<LogFillingProvider><DayProvider><LogsStatus /></DayProvider></LogFillingProvider>} />
+
+							<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]} />}>
+								<Route path="fill" element={<LogFillingProvider><DayProvider><LogFilling /></DayProvider></LogFillingProvider>} />
 								<Route path="auto-fill" element={<AutoLog />} />
 							</Route>
 						</Route>
@@ -78,7 +80,7 @@ function App() {
 
 				{/* PUBLIC ROUTES */}
 				<Route path="/login" element={<Login />} />
-				{/* <Route path="*" element={<NotFound />} /> */}
+				<Route path="*" element={<NotFound />} />
 				<Route path="/unauthorized" element={<Unauthorized />} />
 			</Routes>
 		</>

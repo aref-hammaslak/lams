@@ -8,6 +8,7 @@ import DayContext from '../../contexts/DayProvider';
 
 export const DailyLogsStepper = () => {
   const { stepperState, stepperDispatch, setLogTempFilters } = useContext(logFillingContext);
+  
   const { activeStep, isLastStep, isFirstStep, filters, date } = stepperState;
   const { filteredDays } = useContext(DayContext);
 
@@ -15,8 +16,6 @@ export const DailyLogsStepper = () => {
   const handlePrev = () => !isFirstStep && stepperDispatch({ type: 'prev' });
 
   useEffect(() => {
-        console.log("🚀 ~ useEffect ~ activeStep:", activeStep)
-    console.log("🚀 ~ useEffect ~ filters:", filters)
     setLogTempFilters(filters[activeStep ]);
   }, [stepperState.activeStep, stepperState.filters]);
 
@@ -109,7 +108,9 @@ export const DailyLogsStepper = () => {
           <ChevronRightIcon className='w-10 h-10  ' />
         </button>
       </div>
+
       <Stepper
+        className=' mx-auto'
         completedLineClassName='bg-primaryDark'
         activeLineClassName='bg-secondry'
         activeStep={activeStep}
@@ -133,7 +134,8 @@ export const DailyLogsStepper = () => {
           ))
         }
       </Stepper>
-      <div className="mt-16 flex justify-between">
+
+      <div className="mt-16 flex justify-end gap-4">
         <Button className='bg-primaryDark' onClick={handlePrev} disabled={isFirstStep}>
           Prev log
         </Button>

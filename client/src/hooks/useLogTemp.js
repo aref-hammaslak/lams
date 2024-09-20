@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { LogTmpAPI } from '../apis/LogTmpAPI';
-import { reccurencs } from '../consts';
-import { SliderValueLabel } from '@mui/material';
 import dayjs from 'dayjs';
 
 const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus ) => {
@@ -9,12 +7,11 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
     const [equipments, setEquipments] = useState([]);
     const [recurrenceTypeCodes, setRecurrenceTypeCodes] = useState([]);
     const [logSchedules, setLogSchedules] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
 
-        if(navigatedFromLogsStatus)  return;
-            const fetchData = async () => {
+        const fetchData = async () => {
         setLoading(true);
         try {
             const data = await LogTmpAPI.getAllScheduled();
@@ -22,13 +19,14 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
             updateSetDefaults({ type: 0, data })
         } catch (error) {
             console.error(error);
+            setLoading(false);
         } finally {
             setLoading(false);
         }
     };
         fetchData();
 
-    }, [navigatedFromLogsStatus]);
+    }, []);
 
     const findEquipmentId = (equipmentName, data = false) => {
         if (data) {
@@ -38,22 +36,19 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
         }
         const equipment = scheduledLogTemps.find(({ _id }) => _id === equipmentName);
         const equipmentId = equipment?.types[0].documents[0].eq_id;
-        console.log(equipmentId);
         return equipmentId;
     }
 
     const updateSetDefaults = ({ type, value, data }) => {
-        
-
         switch (type) {
             case 0: {
                 const scheduledLogTemps = data;
-                const equipments = scheduledLogTemps.map(({ _id }) => _id);
+                const equipments = scheduledLogTemps.map(({ _id }) => _id).sort();
                 setEquipments(equipments);
 
                 let selectedEquipment = scheduledLogTemps.find(({ _id }) => _id === equipments[0]);
 
-                const types = selectedEquipment.types.map(({ type }) => type);
+                const types = selectedEquipment.types.map(({ type }) => type).sort((a,b)=> a-b);
                 setRecurrenceTypeCodes(types);
 
                 const logSchedules = scheduledLogTemps
@@ -63,10 +58,7 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
 
                 setLogSchedules(logSchedules);
 
-                const { startDate, endDate } = getDefaultDate({
-                    initial_date: logSchedules[0].schedule.initial_date,
-                    end_date: logSchedules[0].schedule.end_date
-                })
+                const { startDate, endDate } = getDefaultDate();
 
                 setLogTempFilters({
                     ...logTempFilters,
@@ -82,7 +74,7 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
             case 1: {
                 let selectedEquipment = scheduledLogTemps.find(({ _id }) => _id === value);
 
-                const types = selectedEquipment.types.map(({ type }) => type);
+                const types = selectedEquipment.types.map(({ type }) => type).sort((a, b) => a - b);
                 setRecurrenceTypeCodes(types);
 
                 const logSchedules = scheduledLogTemps
@@ -92,19 +84,12 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
 
                 setLogSchedules(logSchedules);
 
-                const { startDate, endDate } = getDefaultDate({
-                    initial_date: logSchedules[0].schedule.initial_date,
-                    end_date: logSchedules[0].schedule.end_date
-                })
-
                 setLogTempFilters({
                     ...logTempFilters,
                     equipment: value,
                     reccurence: types[0],
                     logTemp: logSchedules[0],
                     eq_id: findEquipmentId(value),
-                    startDate,
-                    endDate,
                 });
                 break;
             }
@@ -116,52 +101,22 @@ const useLogTemp = (logTempFilters, setLogTempFilters, navigatedFromLogsStatus )
 
                 setLogSchedules(logSchedules);
 
-                const { startDate, endDate } = getDefaultDate({
-                    initial_date: logSchedules[0].schedule.initial_date,
-                    end_date: logSchedules[0].schedule.end_date
-                })
-
                 setLogTempFilters({
                     ...logTempFilters,
-
                     reccurence: value,
-                    startDate,
-                    endDate,
                     logTemp: logSchedules[0],
                 });
                 break;
 
-            }
-            case 3: {
-                const { startDate, endDate } = getDefaultDate({
-                    initial_date: value.initial_date,
-                    end_date: value.end_date
-                })
-                setLogTempFilters({
-                    ...logTempFilters,
-                    logTemp: value,
-                    startDate,
-                    endDate,
-                });
-                break;
             }
             default:
                 break;
         }
     }
 
-    const getDefaultDate = ({ initial_date, end_date }) => {
-        const initilaDate = dayjs(initial_date);
-        const endSchDate = dayjs(end_date);
-        const startOfMonth = dayjs().startOf('month');
-        const today = dayjs();
-
-        // the code itself is clear, no need for comment
-        // const startDate = initilaDate.isBefore(startOfMonth) ? startOfMonth : initilaDate;
-        // const endDate = endSchDate.isBefore(today) ? endSchDate:today;
+    const getDefaultDate = () => {
         const startDate = dayjs().startOf('month');
         const endDate = dayjs().endOf('month');
-
         return { startDate, endDate };
     }
 

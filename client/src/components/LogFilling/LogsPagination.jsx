@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Grid from "@mui/material/Grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { generateLogColumns, generateLogRows } from "./generateLogRowsCols.util";
@@ -8,38 +8,48 @@ import isToday from 'dayjs/plugin/isToday';
 import { useGridApiRef } from "@mui/x-data-grid";
 import { logFillingContext } from "../../contexts/LogFillingProvider";
 import InfoIcon from '@mui/icons-material/Info';
+import { Loading } from "../Global/Loading";
+import { ScheduleAPI } from "../../apis/ScheduleAPI";
 
-const LogsPagination = (props) => {
-	const { logTempFilters, displayLogs, equLog, loading, navigatedFromLogsStatus, logSchedules } = useContext(logFillingContext);
-	const { fetchAllEquLogs, equLogs, fetchLoading, deleteError, deleteLoading, updateLoading, createLoading } = equLog;
-	const { _id: temp_id, schedule, startDate, endDate } = logTempFilters?.logTemp ?? {};
+const LogsPagination = ({ minHight, navigatedFromLogsStatus = false, disableColumnMenu=false, disableColumnSorting=false }) => {
+	const { logTempFilters, equLog, } = useContext(logFillingContext);
+	const { fetchAllEquLogs, equLogs, loading } = equLog;
+	const { _id: temp_id } = logTempFilters?.logTemp ?? '' ;
+	const [schedules, setSchedules] = useState([]);
 
 	const fecthQueryParams = {
 		temp_id,
-		start_date: startDate,
-		end_date: endDate
+		start_date: dayjs(logTempFilters?.startDate).format('YYYY-MM-DD'),
+		end_date: dayjs(logTempFilters?.endDate).add(1, 'day').format('YYYY-MM-DD')
 	}
 
 	useEffect(() => {
 		fetchAllEquLogs(fecthQueryParams);
-	}, [logTempFilters, navigatedFromLogsStatus]);
+	}, [ logTempFilters]);
+
+	useEffect(() => {
+		(async () => {
+			const schedules = await ScheduleAPI.getAll(temp_id, null, null, 'equipment', false, null, null, true)
+			setSchedules(schedules);
+		})()
+	},[temp_id])
 
 	const apiRef = useGridApiRef();
 
 	const rows = useMemo(() => {
+	
 
-		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef, logSchedules, navigatedFromLogsStatus ? false : true);
+		if (equLogs, logTempFilters.logTemp) return generateLogRows(logTempFilters, equLogs, apiRef, schedules, !navigatedFromLogsStatus);
 		return [];
-	}, [equLogs, deleteError]);
+	}, [equLogs]);
 
 	const columns = useMemo(() => {
 		let columnsData = [
-			{ label: 'Date', type: 'date' },
-			{ label: 'actions', type: 'actions' }
+			{field:'date', label: 'Date', type: 'date'},
+			{ label: 'actions', type: 'actions', }
 		];
 		if (!logTempFilters?.logTemp) {
-			// if (!displayLogs) return [];
-			return columnsData;
+			return [];
 		}
 		columnsData = [
 			columnsData[0],
@@ -48,7 +58,8 @@ const LogsPagination = (props) => {
 		]
 
 		return generateLogColumns(columnsData, apiRef);
-	}, [apiRef, displayLogs, logTempFilters?.logTemp?.items])
+	}, [logTempFilters])
+	console.log("🚀 ~ rows ~ rows:", rows)
 
 	const getRowClassName = (params) => {
 		const { isLoged, date } = params.row;
@@ -69,70 +80,92 @@ const LogsPagination = (props) => {
 		let className = "h-auto overflow-hidden ";
 		return className;
 	};
-	return (
-		<Grid className={`outline-none  bg-white relative `} item width="inherit">
-			{
-				rows.length ? (
-					<DataGrid
-						apiRef={apiRef}
-						columns={columns}
-						density="standard"
-						loading={fetchLoading || deleteLoading || createLoading || updateLoading || loading}
-						emptyRowsMessage={loading ? "Loading..." : "No Logs found"}
-
-
-						slotProps={{
-							loadingOverlay: {
-								variant: 'linear-progress',
-								noRowsVariant: 'skeleton',
-							},
-							noRowsOverlay: {
-								children: fetchLoading ? <sapn>Loading...</sapn> : <span>
-									No log found
-								</span>
-							}
-						}}
-						rows={rows}
-						getRowHeight={() => 65}
-						className={`${!navigatedFromLogsStatus && 'min-h-[75vh]'} px-4 pb-8 rounded-lg shadow`}
-						disableRowSelectionOnClick
-						disableColumnSelector
-						getRowClassName={getRowClassName}
-						getCellClassName={getCellClassName}
-						onCellDoubleClick={
-							(_, event) => {
-								event.defaultMuiPrevented = true;
-							}
-						}
-						onRowEditStop={(_, event) => {
-							event.defaultMuiPrevented = true;
-						}}
-
-						editMode="row"
-						sortingOrder={['desc', 'asc']}
-						initialState={{
-							pagination: {
-								paginationModel: { pageSize: 25 },
-							},
-							sorting: {
-								sortModel: [{ field: "date", sort: "desc" }],
-							},
-						}}
-						hideFooter={navigatedFromLogsStatus || rows.length < 26}
-					/>
-				) : (
-						<div className=" font-semibold text-lg left-1/2 top-[calc(70vh/2)] -translate-x-1/2 -translate-y-1/2 border p-20 rounded-lg  absolute flex items-center justify-center bg-white shadow ">
-							<p className="space-x-1 flex items-center ">
+	const CustomNoRows = () => {
+		return (
+				<div className="flex items-center justify-center w-full h-full  ">
+					{
+						(
+						<p className="space-x-1 flex items-center  font-semibold text-lg text-gray-700  ">
 								<InfoIcon className="text-red-500 " />
 								<sapn>
-									No Log Found
+									No Scheduled Log Found
 								</sapn>
 							</p>
-						</div>
-			)}
+						)
+					}
 
+				</div>
+		)
+	}
+	return (
+		<>
+			{
+				loading && <Loading className='!fixed !m-0'/>
+			}
+			<Grid className={`outline-none  bg-white relative `} item width="inherit">
+				{
+					// rows.length || loading ?
+						(
+							<DataGrid
+								apiRef={apiRef}
+								columns={ columns}
+								density="standard"
+								rows={rows}
+								getRowHeight={() => 65}
+							className={`${minHight && 'min-h-[75vh]'} ${!rows.length  && minHight && 'h-[60vh]'}  overflow-auto px-4 pb-8 rounded-lg shadow `}
+								
+								disableRowSelectionOnClick
+								disableColumnSelector
+								getRowClassName={getRowClassName}
+								getCellClassName={getCellClassName}
+								onCellDoubleClick={
+									(_, event) => {
+										event.defaultMuiPrevented = true;
+									}
+								}
+								onRowEditStop={(_, event) => {
+									event.defaultMuiPrevented = true;
+								}}
+								editMode="row"
+							sortingOrder={['desc', 'asc']}
+							slots={{
+								noRowsOverlay: CustomNoRows
+								
+								}}
+								initialState={{
+									pagination: {
+										paginationModel: { pageSize: 25 },
+									},
+									sorting: {
+										sortModel: [{ field: "date", sort: "desc" }],
+									},
+								}}
+								disableColumnMenu={disableColumnMenu}
+								disableColumnSorting={disableColumnSorting}
+								hideFooter={navigatedFromLogsStatus || rows.length < 26}
+							/>
+						) 
+						// :
+						// (
+						// 	<div className=" font-semibold text-lg left-1/2 top-[calc(70vh/2)] -translate-x-1/2 -translate-y-1/2 border p-20 rounded-lg  absolute flex items-center justify-center w-[360px] h-[200px] bg-white shadow ">
+						// 		{
+						// 				(
+						// 					<p className="space-x-1 flex items-center ">
+						// 						<InfoIcon className="text-red-500 " />
+						// 						<sapn>
+						// 							No Log Found
+						// 						</sapn>
+						// 					</p>
+						// 				)
+						// 		}
 
-		</Grid>
+						// 	</div>
+						// )
+				}
+
+			</Grid>
+		</>
+
 
 	);
 };

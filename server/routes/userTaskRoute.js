@@ -6,6 +6,6 @@ import { isAdmin, isLoggedIn, isSup } from '../middlewares/auth.js';
 const router = Router();
 
 router.get('/', isLoggedIn,  isSup, userTaskController.getAllUserTasks);
-router.get('/:id', isLoggedIn,isSup, userTaskController.getUserTaskById)
+router.get('/:id', isLoggedIn, userTaskController.getUserTaskById)
 
 export default router;

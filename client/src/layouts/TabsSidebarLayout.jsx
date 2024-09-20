@@ -8,7 +8,7 @@ export const TabsSidebarLayout = (props) => {
     return (
         <div>
             {/* Nav tabs */}
-            <Tabs value={activeTab} className='w-full border-b fixed z-20 bg-white'>
+            <Tabs value={activeTab} className='w-svw border-b fixed z-20  bg-white'>
                 <IconButton onClick={toggleSidebar} className='!absolute left-2 top-2 z-20  bg-primaryDark' >
                     {
                         isSidebarOpen ?

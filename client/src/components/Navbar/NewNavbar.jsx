@@ -107,14 +107,6 @@ function NewNavbar(props) {
                                     </span>
                                 </Link>
                             </li>
-                            <li className=' text-white transition transition-colors rounded hover:bg-white hover:text-primary' >
-                                <Link to='/log/fill' className='flex items-center gap-1 p-2'>
-                                    <AssignmentIcon className='w-5 h-5' />
-                                    <span className='p-0 translate-y-[1px]'>
-                                        Logs
-                                    </span>
-                                </Link>
-                            </li>
                         </ul>
                     ) : (
                         <ul className={'hidden space-x-2  ml-8 sm:!flex'} >

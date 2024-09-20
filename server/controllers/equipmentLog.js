@@ -222,17 +222,29 @@ export async function updateEquipmentLog(req, res) {
         throw logNotFoundError;
     }
 
-    if ('user_id' in data) {
-        const logCreator = await getUserById(data.user_id);
-        if (!logCreator) {
-            if (!canUserChangeDeleted(req.user)) {
-                throw new ExpressError(`User not allowed to delete this log made by deleted user`, 401);
-            }
-        } else if (!await canUserChangeOther(req.user, logCreator)) {
-            throw new ExpressError(`User not allowed to delete this log`, 401);
+    // if ('user_id' in data) {
+    //     const logCreator = await getUserById(data.user_id);
+    //     if (!logCreator) {
+    //         if (!canUserChangeDeleted(req.user)) {
+    //             throw new ExpressError(`User not allowed to delete this log made by deleted user`, 401);
+    //         }
+    //     } else if (!await canUserChangeOther(req.user, logCreator)) {
+    //         throw new ExpressError(`User not allowed to delete this log`, 401);
+    //     }
+    // } else {
+    //     data.user_id = userId;
+    // }
+
+
+    const logCreator = await getUserById(equipmentLog.user_id);
+    console.log("🚀 ~ updateEquipmentLog ~ logCreator:", logCreator)
+    if (!logCreator) {
+        if (!canUserChangeDeleted(req.user)) {
+            throw new ExpressError(`User not allowed to delete this log made by deleted user`, 401);
         }
-    } else {
-        data.user_id = userId;
+    }
+    if (!await canUserChangeOther(req.user, logCreator)) {
+        throw new ExpressError(`User not allowed to delete this log`, 401);
     }
 
     try {

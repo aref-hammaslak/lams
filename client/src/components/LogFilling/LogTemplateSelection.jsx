@@ -8,18 +8,23 @@ import { MenuItem, FormControl, Select, InputLabel, Box } from "@mui/material";
 import PropTypes from "prop-types";
 import { reccurencs } from "../../consts";
 import { logFillingContext } from "../../contexts/LogFillingProvider";
-
+import useLogTemp from "../../hooks/useLogTemp";
+import { Loading } from "../Global/Loading";
 
 function LogTemplateSelection() {
-	const { logTempFilters, equipments, logSchedules, recurrenceTypeCodes, updateSetDefaults, loading } = useContext(logFillingContext);
+	const { logTempFilters, setLogTempFilters } = useContext(logFillingContext);
+	const { equipments,  recurrenceTypeCodes, updateSetDefaults, loading  } = useLogTemp(logTempFilters, setLogTempFilters);
 
 	return (
 		<>
-
-			<Box className={"flex gap-4  justify-center  flex-col"}>
-
+  
+			<div className={"flex gap-4  justify-center  flex-col !relative"}>
+				{             
+					loading && <Loading/>          
+				}  
+      
 				<FormControl className={" bg-white "}>
-					<InputLabel id="">Equipment</InputLabel>
+					<InputLabel id="">Equipment</InputLabel>       
 
 					<Select
 
@@ -55,24 +60,7 @@ function LogTemplateSelection() {
 						))}
 					</Select>
 				</FormControl>
-				{/* <FormControl className={" bg-white "}>
-					<InputLabel >Choose Schedule</InputLabel>
-					<Select
-						label="Choose an option"
-						value={JSON.stringify(logTempFilters.logTemp)}
-						onChange={(e) => {
-
-							updateSetDefaults({ type: 3, value: JSON.parse(e.target.value) });
-						}}
-					>
-						{logSchedules?.map((logSchedule, index) => (
-							<MenuItem key={index} value={JSON.stringify(logSchedule)}>
-								{logSchedule.schedule.initial_date.split("T")[0]}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl> */}
-			</Box>
+			</div>
 
 		</>
 
