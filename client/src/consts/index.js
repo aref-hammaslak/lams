@@ -3,7 +3,7 @@ const reccurencs = [
 	"weekly",
 	"monthly",
 	"quarterly",
-	"semi-annually",
+	"semiannually",
 	"annually",
 ];
 const ROLES = {

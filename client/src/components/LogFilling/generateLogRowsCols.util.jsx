@@ -16,8 +16,6 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 // Function to generate log rows based on the given initial date, end date, recurrence, and log template
 function generateLogRows(logTempFilters, equLogs , apiRef, schedules, allLogs) {
    
-    // if(allLogs)  schedules = schedules.map(item => item.schedule);
-    // else schedules = [logTempFilters?.logTemp.schedule];
     if (!allLogs) schedules = [logTempFilters?.logTemp.schedule];
 
     const ref = apiRef.current;

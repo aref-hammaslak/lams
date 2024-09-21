@@ -99,7 +99,7 @@ const EquLogAPI = {
   handleError(error) {
         if (error.response) {
             console.error('Server responded with an error:', error.response.data);
-            throw new Error(error.response.data.error._message || 'API request failed');
+            throw new Error(error.response.data.error._message || error.response.data.error.message || 'API request failed');
         } else if (error.request) {
             console.error('No response received:', error.request);
             throw new Error('No response received');
