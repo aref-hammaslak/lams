@@ -11,7 +11,9 @@ import {
     destroyUser,
     setAdminLab,
     getSelf,
-    toggleUser
+    toggleUser,
+    resetPassword,
+    changePassword
 } from '../controllers/user.js';
 
 import {
@@ -45,6 +47,8 @@ router.get('/', isLoggedIn, isSup, catchAsync(getAll))
     // ]), catchAsync(updateUser))
     .patch('/toggle/:id', isLoggedIn, isSup, catchAsync(toggleUser))
     .delete('/:id', isLoggedIn, isSup, catchAsync(destroyUser))
-    .get('/admin/:lab_id', isLoggedIn, isAdmin, catchAsync(setAdminLab));
+    .get('/admin/:lab_id', isLoggedIn, isAdmin, catchAsync(setAdminLab))
+    .post('/reset-password/:id', isLoggedIn,isSup, catchAsync(resetPassword))
+    .post('/change-password/:id', isLoggedIn , catchAsync(changePassword))
 
 export default router;

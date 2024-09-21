@@ -1,10 +1,12 @@
 import User, { absenceSchema } from '../models/User.js';
+
 import lodash from 'lodash';
 const { omit } = lodash;
 
 import { canUserAccessRole, canUserChangeOther, isUserPrivileged } from '../services/userRole.js';
 import ExpressError from '../utils/ExpressError.js';
 import moment from 'moment';
+import Thermometer from '../models/Thermometer.js';
 
 /**
  * @type {import("express").RequestHandler}
@@ -39,12 +41,12 @@ export const getUser = async (req, res) => {
     const { expand_absences } = req.query;
     try {
         const user = await User.findById(id).lean();
-        
+
         if (!user) throw new Error("User not found");
         if (expand_absences) {
             const from = req.query.from || moment().startOf('month');
             const to = req.query.to || moment().endOf('month').add(1, 'days');
-            user.absences =  User.getAbsenceDays(user.absences, from , to);
+            user.absences = User.getAbsenceDays(user.absences, from, to);
         }
 
         return res.send({
@@ -105,8 +107,8 @@ export const logout = async (req, res) => {
 export const createUser = async (req, res) => {
     const { password, ...data } = req.body;
 
-    const user = new User({ ...data, lab_id: req.user.lab_id });
-    
+    const user = new User({ ...data, lab_id: req.user?.lab_id });
+
     try {
         await User.register(user, password);
     } catch (error) {
@@ -225,6 +227,59 @@ export const updateUser = async (req, res) => {
         payload: user
     });
 };
+
+/**
+ * @type { import('express').RequestHandler} 
+ */
+export const resetPassword = async (req, res) => {
+    const { id: userId } = req.params;
+    const { newPassword } = req.body
+    try {
+        const user = await User.findById(userId);
+        if (!user) throw new ExpressError('User not found', 400);
+        if (req.user._id === userId) throw new ExpressError('You are not allow to reset your password', 401);
+        if (!canUserChangeOther(req.user, user)) throw new ExpressError("Unauthorized request!", 401);
+        await user.setPassword(newPassword);
+        await user.save();
+
+        res.send({
+            success: true,
+            payload: user,
+            message: 'Password reseted successfully'
+        })
+
+    } catch (error) {
+        throw new ExpressError(error.message, 500);
+    }
+}
+
+/**
+ *@type {import('express').RequestHandler} 
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res
+ */
+export const changePassword = async (req, res) => {
+    const { id: userId } = req.params;
+    const { oldPassword, newPassword } = req.body;
+    try {
+        const user = await User.findById(userId);
+        if (!user) throw new ExpressError("User not found", 400);
+        if (!canUserChangeOther(req.user, user)) throw new ExpressError("Unauthorized request!", 401);
+        if (!oldPassword || !newPassword) throw new ExpressError("oldPassword or newPassword not provided", 400);
+
+        await user.changePassword(oldPassword, newPassword); 
+        await user.save();
+        res.send({
+            success: true,
+            payload: user,
+            message: 'User password changed sucessfully'
+        })
+
+    } catch (error) {
+         throw new ExpressError(error.message, 500);
+    }
+}
+
 
 /**
  * @type {import("express").RequestHandler}

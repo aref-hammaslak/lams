@@ -237,14 +237,13 @@ export async function updateEquipmentLog(req, res) {
 
 
     const logCreator = await getUserById(equipmentLog.user_id);
-    console.log("🚀 ~ updateEquipmentLog ~ logCreator:", logCreator)
     if (!logCreator) {
         if (!canUserChangeDeleted(req.user)) {
             throw new ExpressError(`User not allowed to delete this log made by deleted user`, 401);
         }
     }
     if (!await canUserChangeOther(req.user, logCreator)) {
-        throw new ExpressError(`User not allowed to delete this log`, 401);
+        throw new ExpressError(`User not allowed to update this log`, 401);
     }
 
     try {
