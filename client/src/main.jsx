@@ -13,6 +13,10 @@ import theme from "./theme.mui";
 import AlertProvider from "./contexts/AlertProvider";
 import { SnackbarProvider } from 'notistack';
 import { ThemeProvider as TWThemeProvider } from "@material-tailwind/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
    <React.StrictMode>
@@ -20,22 +24,25 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <StyledEngineProvider injectFirst>
          <TWThemeProvider>
             <CssBaseline />
-            <AuthProvider>
-               <BrowserRouter>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                     <SnackbarProvider maxSnack={3}>
-                        <AlertProvider>
-                           <ThemeProvider theme={theme}>
-                              <Routes>
-                                 <Route path="/*" element={<App />} />
-                              </Routes>
-                           </ThemeProvider>
-                        </AlertProvider>
-                     </SnackbarProvider>
+            <QueryClientProvider client={queryClient}>
+               <ReactQueryDevtools initialIsOpen={false} />
+               <AuthProvider>
+                  <BrowserRouter>
+                     <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <SnackbarProvider maxSnack={3}>
+                           <AlertProvider>
+                              <ThemeProvider theme={theme}>
+                                 <Routes>
+                                    <Route path="/*" element={<App />} />
+                                 </Routes>
+                              </ThemeProvider>
+                           </AlertProvider>
+                        </SnackbarProvider>
 
-                  </LocalizationProvider>
-               </BrowserRouter>
-            </AuthProvider>
+                     </LocalizationProvider>
+                  </BrowserRouter>
+               </AuthProvider>
+            </QueryClientProvider>
          </TWThemeProvider>
       </StyledEngineProvider>
    </React.StrictMode >
