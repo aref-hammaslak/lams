@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
 import ScheduleMap from './ScheduleMap.js';
+import EquipmentLogModel from './EquipmentLog.js';
 
 const offsetSchema = new mongoose.Schema({
     date: Date,
@@ -46,7 +47,7 @@ const scheduleSchema = new mongoose.Schema({
 
 scheduleSchema.index({ type: 1, id: 1, initial_date: 1, recurrence: 1 }, { unique: true });
 
-scheduleSchema.pre(["deleteOne", "findOneAndDelete", "updateOne", "findOneAndUpdate"], { document: true, query: true }, async function () {
+scheduleSchema.pre(["deleteOne", "findOneAndDelete", "updateOne", "findOneAndUpdate", "remove"], { document: true, query: true }, async function () {
     let id;
     if ('_id' in this) {
         // Document
@@ -60,10 +61,8 @@ scheduleSchema.pre(["deleteOne", "findOneAndDelete", "updateOne", "findOneAndUpd
         throw new Error('middleware failed to get document ID');
     }
 
-    const maps = await ScheduleMap.find({ $or: [{ user_id: id }, { sch_id: id }] });
-    maps.forEach(async (doc) => {
-        await doc.deleteOne();
-    });
+    const mapsDeletion = await ScheduleMap.deleteMany({ $or: [{ user_id: id }, { sch_id: id }] });
+    const logsDeletion = await EquipmentLogModel.deleteMany({ sch_id: id });
 });
 
 const ScheduleModel = mongoose.model('Schedule', scheduleSchema);
