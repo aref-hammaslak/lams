@@ -4,6 +4,7 @@ import useAuth from "../../hooks/useAuth";
 
 const RequireAuth = ({allowedRolse}) => {
   const { auth } = useAuth();
+  console.log("🚀 ~ RequireAuth ~ useAuth():", useAuth())
   console.log('requireAuth', auth);
   const location = useLocation();
   

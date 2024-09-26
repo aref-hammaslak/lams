@@ -98,8 +98,8 @@ export const ScheduleDefine = () => {
             const equips = fetchResponse.map(logTemp => {
               return {
                 id: logTemp._id,
-                name: <p>{logTemp.eq_details[0].name} <sapn className='font-bold text-sm rounded-full text-black bg-primaryLight py-1 px-2'>{reccurencs[logTemp.type].at(0).toLocaleUpperCase()}</sapn></p>,
-                // name: `${logTemp.eq_details[0].name} <sapn>[${reccurencs[logTemp.type].at(0)}]</sapn>`,
+                name: <p>{logTemp.eq_details[0].name} <span className='font-bold text-sm rounded-full text-black bg-primaryLight py-1 px-2'>{reccurencs[logTemp.type].at(0).toLocaleUpperCase()}</span></p>,
+                // name: `${logTemp.eq_details[0].name} <span>[${reccurencs[logTemp.type].at(0)}]</span>`,
                 recurrence: logTemp.type,
                 type: 'equip'
 
@@ -192,7 +192,7 @@ export const ScheduleDefine = () => {
         <div className='p-8 mx-auto space-y-4'>
           <PageHeader
             title={tabs.find(tab => tab.value === activeTab).title}
-            subtitle={tabs.find(tab => tab.value === activeTab).subtitle }
+            subtitle={tabs.find(tab => tab.value === activeTab).subtitle}
           />
           <Scheduler scheduleState={scheduleState} dispatchSchedule={dispatchSchedule} />
         </div>

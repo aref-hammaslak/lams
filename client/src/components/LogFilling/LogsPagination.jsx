@@ -87,9 +87,9 @@ const LogsPagination = ({ minHight, navigatedFromLogsStatus = false, disableColu
 					(
 						<p className="space-x-1 flex items-center  font-semibold text-lg text-gray-700  ">
 							<InfoIcon className="text-red-500 " />
-							<sapn>
+							<span>
 								No Scheduled Log Found
-							</sapn>
+							</span>
 						</p>
 					)
 				}

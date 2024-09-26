@@ -66,12 +66,12 @@ export function AutoLog() {
 				id: i,
 				date: dayjs(log.date).format('YYYY-MM-DD'),
 				...log.items,
-				
+
 			}
 		})
 	}, [filledLogs]);
 	const gridColumns = useMemo(() => {
-		
+
 		if (!filledLogs || filledLogs?.length === 0) return;
 
 		const cols = Object.keys(gridRows[0]).filter(key => key !== 'id').map(key => {
@@ -79,7 +79,7 @@ export function AutoLog() {
 				field: key,
 				headerName: key.at(0).toUpperCase() + key.slice(1),
 				// flex: 1
-				minWidth:200
+				minWidth: 200
 			}
 		})
 
@@ -94,21 +94,21 @@ export function AutoLog() {
 				<AutoLogFilters loading={loading} handlelAutoFill={handlelAutoFill} />
 			</ClosableSidebar>
 			{/* body */}
-			<div className={`${isOpen ? 'ml-[250px]': ''}`}>
+			<div className={`${isOpen ? 'ml-[250px]' : ''}`}>
 				<div className={`py-16 px-10  ${isOpen ? 'w-[calc(100vw-254px)]' : ''} overflow-hidden m-auto bg-gray-50 min-h-[calc(100vh-64px)] relative`}>
 					{
 						filledLogs ? (<DataGrid
 							columns={gridColumns}
 							rows={gridRows}
 							className="bg-white overflow-x-auto"
-							
+
 						/>) : (
 							<div className=" font-semibold text-lg left-1/2 top-[calc(85vh/2)] -translate-x-1/2 -translate-y-1/2 border p-20 rounded-lg  absolute flex items-center justify-center bg-white shadow ">
 								<p className="space-x-1 flex items-center ">
 									<InfoIcon className="text-red-500 " />
-									<sapn>
+									<span>
 										No Log Found
-									</sapn>
+									</span>
 								</p>
 							</div>
 						)

@@ -31,6 +31,7 @@ import { DayProvider } from "./contexts/DayProvider.jsx";
 import { ScheduleDefine } from "./pages/Schedule/ScheduleDefine.jsx";
 import { ScheduleAssign } from "./pages/Schedule/ScheduleAssign.jsx";
 import { Profile } from "./pages/Users/Profile.jsx";
+import { Messages } from "./pages/Mesages/Messages.jsx";
 function App() {
 
 	return (
@@ -43,6 +44,7 @@ function App() {
 					<Route path="/" element={<RootLayout />}>
 						<Route path="" element={<Home />} />
 						<Route path="profile" element={<Profile />} />
+						<Route path="messages" element={<Messages/>}/>
 
 						{/** Only addmin has access */}
 						<Route element={<RequireAuth allowedRolse={[ROLES.admin]} />}>

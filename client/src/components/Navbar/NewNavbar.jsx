@@ -28,6 +28,8 @@ import { LabIcon } from '../Home/LabIcon';
 import { UserAPI } from '../../apis/UserAPI';
 import { useGetUserRole } from '../../hooks/useGetUserRole';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import { useQuery } from '@tanstack/react-query';
+import { MessageAPI } from '../../apis/MessageAPI';
 
 
 
@@ -56,9 +58,14 @@ function NewNavbar(props) {
         }
     }
 
-
+    const { data: unReadMessagesCount } = useQuery({
+        queryKey: ['messagesUnreadCount'],
+        queryFn: async () => await MessageAPI.getUnreadCount(),
+        initialData : 0
+    })
 
     const drawer = (
+    
         <Box onClick={handleDrawerToggle} className='w-[240px]'>
             <Box className='flex items-center justify-center py-4 text-blue-950'>
                 <Logo />
@@ -191,7 +198,7 @@ function NewNavbar(props) {
                                     </MenuHandler>
                                     <MenuList>
                                         {
-                                            [ ['Log Configs', 'setting/log-configs'], ['Departments', 'setting/departments'], ['Equipments', 'setting/equipments'],
+                                            [['Log Configs', 'setting/log-configs'], ['Departments', 'setting/departments'], ['Equipments', 'setting/equipments'],
                                             ['users', 'setting/users'], ['Surfaces', 'setting/surfaces'], ['Thermometers', 'setting/thermometers'],].map(([label, path], i) => (
                                                 <MenuItem key={i} className='hover:text-primary py-0' >
                                                     <Link className='inline-block w-full hover:text-primary py-2' to={path}>
@@ -223,18 +230,21 @@ function NewNavbar(props) {
 
                         <Typography className='bg-white pr-4 pl-2 py-1 rounded flex items-center'>
                             <LabIcon className=' !w-6 ' />
-                            <sapn className='font-bold text-lg text-primary'>
+                            <span className='font-bold text-lg text-primary'>
                                 {currentLab?.name}
-                            </sapn>
+                            </span>
                         </Typography>
-                        <IconButton
-                            size="large"
-                            color="inherit"
-                        >
-                            <Badge badgeContent={17} color="error">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
+                        <Link to={'/messages'}>
+                            <IconButton
+                                size="large"
+                                color="inherit"
+                            >
+                                <Badge badgeContent={unReadMessagesCount} color="error">
+                                    <NotificationsIcon />
+                                </Badge>
+                            </IconButton>
+                        </Link>
+
 
                         <Menu animate={{
                             mount: { y: 0 },

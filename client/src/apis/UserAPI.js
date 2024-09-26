@@ -61,11 +61,11 @@ export const UserAPI = {
 		});
 		return response.data.payload;
 	},
-	getAll: async function (q = undefined, cancel = false) {
+	getAll: async function (q = undefined, select, cancel = false) {
 		const response = await api.request({
 			url: "/users/",
 			method: "GET",
-			params: { q },
+			params: { q, select },
 			signal: cancel
 				? cancelApiObject[this.getAll.name].handleRequestCancellation().signal
 				: undefined,
