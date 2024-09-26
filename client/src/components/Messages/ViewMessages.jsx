@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { MessageAPI } from '../../apis/MessageAPI';
 import useAuth from '../../hooks/useAuth';
 import { Pagination } from '@mui/material';
-import {Loading} from '../Global/Loading'
+import { Loading } from '../Global/Loading'
 import { MessageItem } from './MessageItem';
 
 export const ViewMessages = () => {
@@ -36,11 +36,17 @@ export const ViewMessages = () => {
       </div>
       <div className='flex-1 relative overflow-y-auto scrollbar-thin space-y-1  py-2 mb-4'>
         {isLoading && <Loading />}
+        {data?.messages.length === 0 &&
+          (<div className='flex w-full h-full justify-center items-center'>
+            <p className='font-medium text-gray-700'>
+              No {messageType} message yet!
+            </p>
+          </div>)}
         {data?.messages.map((message, i) => (
           <MessageItem key={i} messageItem={message} type={messageType} />
         ))}
       </div>
-      <Pagination page={pageNum} color='primary' onChange={(_,page)=> setPageNum(page)} count={data?.totalPage}  variant="outlined" shape="rounded" />
+      <Pagination page={pageNum} color='primary' onChange={(_, page) => setPageNum(page)} count={data?.totalPage} variant="outlined" shape="rounded" />
     </div>
   )
 }

@@ -9,13 +9,15 @@ import {
 	Grid,
 	Box,
 	Paper,
-	CircularProgress
+	CircularProgress,
+	IconButton
 } from "@mui/material";
 import dayjs from "dayjs";
 import { ScheduleAPI } from "../../apis/ScheduleAPI.js";
 import { useEffect, useRef, useState } from "react";
 import DeviceThermostatRoundedIcon from "@mui/icons-material/DeviceThermostatRounded.js";
 import TableRestaurantRoundedIcon from "@mui/icons-material/TableRestaurantRounded.js";
+import CloseIcon from '@mui/icons-material/Close';
 import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded.js";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
@@ -81,7 +83,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 						isAbsentToday: staff.isAbsentToday,
 						items
 					}
-				}).filter((staff) => staff.active );
+				}).filter((staff) => staff.active);
 				setStaff(deserializedStaff)
 				const notAssignedItems = day.schedules.map((sch) => {
 					return {
@@ -112,74 +114,6 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 		console.log(error);
 		enqueueSnackbar('Something went wrong', { variant: 'error' });
 	}, [error])
-
-	// useEffect(() => {
-	// 	loading || setLoading(true);
-	// 	setSelectedCount(0);
-	// 	if (!day) {
-	// 		setAssignments([]);
-	// 		setItems([]);
-	// 		setLoading(false);
-	// 		return;
-	// 	}
-	// 	const assignments = day?.schedules.filter(sch => sch.type === 'user')
-	// 		.map(user => ({
-	// 			...user,
-	// 			...info[user.type]?.[user.id]
-	// 		})) || [];
-	// 	const items = day?.schedules.filter(sch => sch.type !== 'user')
-	// 		.map(item => ({
-	// 			...item,
-	// 			...info[item.type]?.[item.id]
-	// 		})) || [];
-
-	// 	ScheduleAPI.getMaps(
-	// 		day.date.format('YYYY-MM-DD'),
-	// 		day.date.format('YYYY-MM-DD'),
-	// 		false,
-	// 		'user_sch_id'
-	// 	).then(
-	// 		maps => {
-	// 			let itemsToRemove = [];
-	// 			console.log({
-	// 				maps
-	// 			});
-	// 			let newAssignments = assignments;
-	// 			Object.keys(maps).forEach(user_sch_id => {
-	// 				console.log({
-	// 					user_sch_id
-	// 				});
-	// 					newAssignments = newAssignments.map(userSch => {
-	// 						if (userSch._id === user_sch_id) {
-	// 							const user_items = maps[user_sch_id].map(m => ({
-	// 								...items.find(i => i._id === m.item_sch_id),
-	// 								sch_map: m
-	// 							}));
-	// 							console.log({
-	// 								user_items
-	// 							});
-	// 							return {
-	// 								...userSch,
-	// 								items: user_items
-	// 							}
-	// 						} else {
-	// 							return userSch;
-	// 						}
-	// 					})
-	// 				itemsToRemove = itemsToRemove.concat(maps[user_sch_id].map(m => m.item_sch_id))
-	// 			});
-	// 			setAssignments(newAssignments);
-	// 			setItems(
-	// 				items.filter( i => !itemsToRemove.includes(i._id))
-	// 			);
-	// 			setLoading(false);
-	// 		},
-	// 		err => {
-	// 			setError(err);
-	// 			setLoading(false);
-	// 		}
-	// 	);
-	// }, [day, toggleReload]);
 
 	const assignTasks = async (user) => {
 		setLoading(true);
@@ -217,13 +151,16 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 
 	return (
 		<Dialog open={open} fullWidth maxWidth='md' onClose={onClose}>
-			{loading
-				? <DialogTitle>
+			<IconButton onClick={onClose} className="absolute right-4 top-4">
+				<CloseIcon className="w-7 h-7"/>
+			</IconButton>
+			{loading ?
+				<DialogTitle>
 					<CircularProgress
-					// sx={{ px: '0.7rem' }}
 					/>
-				</DialogTitle>
-				: <DialogTitle component={Box}>
+				</DialogTitle> :
+
+				<DialogTitle component={Box}>
 					{day?.date.isSame(today)
 						? <Typography
 							variant='h4' fontWeight='900'
@@ -297,7 +234,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 									<Divider />
 									<Grid container>
 										{user?.items?.map(item => (
-											
+
 											info[item.type] ? (
 												<Grid item key={item._id}>
 													<BoxController
@@ -349,9 +286,9 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 														)}
 													/>
 												</Grid>
-												) : null
-											
-		
+											) : null
+
+
 										))}
 									</Grid>
 								</Grid>
