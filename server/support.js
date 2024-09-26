@@ -22,6 +22,7 @@ export function basicErrorHandler(err, req, res, next) {
         });
     } else {
         // req.log.error(err);
+        console.error(err)
         return res.status(500).send({
             success: false,
             error: process.env.NODE_ENV === 'deployment'

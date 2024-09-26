@@ -31,7 +31,7 @@ const upload = multer({
 
 router.use('/task', userTaskRouter);
 
-router.get('/', isLoggedIn, isSup, catchAsync(getAll))
+router.get('/', isLoggedIn , catchAsync(getAll))
     .post('/login', auth, login)
     .get('/logout', isLoggedIn, logout)
     .get('/self', isLoggedIn, getSelf)

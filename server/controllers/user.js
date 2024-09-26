@@ -12,24 +12,21 @@ import Thermometer from '../models/Thermometer.js';
  * @type {import("express").RequestHandler}
  */
 export const getAll = async (req, res) => {
-    try {
-        const { q } = req.query;
+    const { q } = req.query;
+    let select = req.query.select?.split(',') || ['username', 'name', 'active', 'absences'];
+    select = select.map(item => item.trim());
 
-        const query = { lab_id: req.user.lab_id, roles: { $ne: 2005 }, _id: { $ne: req.user._id } };
-        if (q) {
-            query.$or = [{ username: { $regex: q } }, { name: { $regex: q } }];
-        }
-
-        const users = await User.find(query, { username: 1, name: 1, active: 1, absences: 1 });
-        // const users = await User.find(query);
-
-        res.send({
-            success: true,
-            payload: users
-        });
-    } catch (error) {
-        throw new ExpressError(error.message, 500);
+    const query = { lab_id: req.user.lab_id, roles: { $ne: 2005 }, _id: { $ne: req.user._id } };
+    if (q) {
+        query.$or = [{ username: { $regex: q } }, { name: { $regex: q } }];
     }
+
+    const users = await User.find(query).select(select);
+
+    res.send({
+        success: true,
+        payload: users
+    });
 
 };
 
@@ -267,7 +264,7 @@ export const changePassword = async (req, res) => {
         if (!canUserChangeOther(req.user, user)) throw new ExpressError("Unauthorized request!", 401);
         if (!oldPassword || !newPassword) throw new ExpressError("oldPassword or newPassword not provided", 400);
 
-        await user.changePassword(oldPassword, newPassword); 
+        await user.changePassword(oldPassword, newPassword);
         await user.save();
         res.send({
             success: true,
@@ -276,7 +273,7 @@ export const changePassword = async (req, res) => {
         })
 
     } catch (error) {
-         throw new ExpressError(error.message, 500);
+        throw new ExpressError(error.message, 500);
     }
 }
 

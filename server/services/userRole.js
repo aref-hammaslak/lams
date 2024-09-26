@@ -1,6 +1,6 @@
 import UserRoleModel from "../models/UserRole.js";
 
-const USER_ROLES = {
+export const USER_ROLES = {
     Staff: 1001,
     Supervisor: 1923,
     Admin: 2005,

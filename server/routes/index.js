@@ -14,6 +14,7 @@ import pmServiceRouter from "./pmServiceRoute.js";
 import equipmentLogRoute from "./equipmentLogRoute.js";
 import surfaceLogRoute from "./surfaceLogRoute.js";
 import equipLogAutoFillRoute from './equipLogAutoFillRoute.js';
+import messagesRoute from './messageRoute.js';
 
 export const setRoutes = (app) => {
     app.use('/users', userRoute);
@@ -29,6 +30,7 @@ export const setRoutes = (app) => {
     app.use('/user-role', userRoleRouter);
     app.use('/calibration', calibrationRouter);
     app.use('/pm-service', pmServiceRouter);
+    app.use('/messages', messagesRoute)
     app.use('/log/equipment/auto-fill', equipLogAutoFillRoute)
     app.use('/log/equipment', equipmentLogRoute);
     app.use('/log/surface', surfaceLogRoute);
