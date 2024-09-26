@@ -13,7 +13,7 @@ const getDate = (date) => {
     if (date.isSame(today, 'day')) return 'Today';
     if (date.isSame(yserterday, 'day')) return 'Yesterday';
     if (date.isSame(twoDaysAgo, 'day')) return 'Two Days Ago';
-    return date.format('YYYY-MM-DD');
+    return date.format('YYYY/MM/DD');
 }
 
 export const MessageItem = (props) => {
@@ -30,8 +30,10 @@ export const MessageItem = (props) => {
             return await MessageAPI.MarkMessageAsRead(messageId);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['messages', 'sent', 1] });
-            queryClient.refetchQueries({ queryKey: ['messages'] })
+            queryClient.invalidateQueries({ queryKey: ['messages'] });
+            queryClient.refetchQueries({ queryKey: ['messages'] });
+            queryClient.invalidateQueries({ queryKey: ['messagesUnreadCount'] });
+            queryClient.refetchQueries({ queryKey: ['messagesUnreadCount'] })
         }
     })
     const handelClick = () => {

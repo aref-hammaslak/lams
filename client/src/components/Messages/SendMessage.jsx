@@ -46,8 +46,8 @@ export const SendMessage = () => {
     onSuccess: () => {
       setRecipients([]);
       setMessage('');
-      queryClient.invalidateQueries({ queryKey: ['messages' , 'sent', 1] });
-      queryClient.refetchQueries({ queryKey: ['messages'] })
+      queryClient.invalidateQueries({ queryKey: ['message']});
+      queryClient.refetchQueries({queryKey:['messages']})
       enqueueSnackbar('Message sent successfully!',{variant:'success'})
     }
   })

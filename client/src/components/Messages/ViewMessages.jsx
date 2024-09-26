@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageAPI } from '../../apis/MessageAPI';
 import useAuth from '../../hooks/useAuth';
 import { Pagination } from '@mui/material';
@@ -17,15 +17,17 @@ export const ViewMessages = () => {
       const queryParams = {
         page: pageNum,
         limit: 10,
-        populate: messageType === 'sent' ? 'recipientId': 'senderId'
+        populate: messageType === 'sent' ? 'recipientId' : 'senderId'
       };
       if (messageType === 'received') queryParams.recipientId = userId;
       else queryParams.senderId = userId;
-      const messages = await  MessageAPI.getAll(queryParams);
+      const messages = await MessageAPI.getAll(queryParams);
       return messages;
     }
   })
-  console.log('totalPage', data?.totalPage);
+
+  useEffect(() => setPageNum(1), [messageType]);
+
   return (
     <div className='w-full h-full relative flex flex-col'>
       <div className='w-full flex border-b border-primary'>
