@@ -15,6 +15,6 @@ router.get('/', isLoggedIn, isSup, catchAsync(getWholeSchedule))
     .post('/:type/:id', isLoggedIn, isSup, catchAsync(setScheduleAssignment))
     .get('/:id', isLoggedIn, isSup, catchAsync(getScheduleAssignment))
     .patch('/:id', isLoggedIn, isSup, catchAsync(updateScheduleAssignment))
-    .delete('/:id', isLoggedIn, isSup, catchAsync(deleteScheduleAssignment));
+    .delete('/:ids', isLoggedIn, isSup, catchAsync(deleteScheduleAssignment));
 
 export default router;

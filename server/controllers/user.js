@@ -137,7 +137,7 @@ export const updateUser = async (req, res) => {
     const self = req.user;
 
     const { id } = req.params;
-    const { add_absence, delete_absence } = req.query;
+    const { add_absences, delete_absences } = req.query;
     const updates = req.body;
 
     let user = await User.findById(id);
@@ -157,31 +157,31 @@ export const updateUser = async (req, res) => {
     }
 
 
-    if (add_absence) {
+    if (add_absences) {
 
         try {
-            const newAbsence = {
-                startDate: req.body.start_date,
-                endDate: req.body.end_date,
-                reason: req.body.resoan,
-            }
-            const user = await User.addAbsence(id, newAbsence);
+            const { newAbsences } = req.body;
+            if (!Array.isArray(newAbsences)) throw new Error("Absences must be an array");
+            const user = await User.addAbsence(id, newAbsences);
             return res.status(200).send({
                 success: true,
-                payload: user
+                payload: 'Absences aded sucussfully'
             })
         } catch (error) {
             throw new ExpressError(error.message, 400);
         }
     }
 
-    if (delete_absence) {
+    if (delete_absences) {
         try {
-            user = await User.deleteAbsence(id, req.query.absence_id);
+            const { absenceIds } = req.body;
+            if(!Array.isArray(absenceIds)) throw new Error("AbsenceIds must be an array");
+            
+            user = await User.deleteAbsence(id, absenceIds);
 
             return res.status(200).send({
                 success: true,
-                payload: user
+                message: 'Absences deleted seuccesfully'
             })
         } catch (error) {
             console.error(error);

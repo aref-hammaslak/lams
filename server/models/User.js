@@ -142,40 +142,34 @@ userSchema.statics.getAbsenceDays = function (absences, from, to) {
 }
 
 
-userSchema.statics.addAbsence = async function (userId, absence) {
+userSchema.statics.addAbsence = async function (userId,absences ) {
+    console.log("🚀 ~ absences:", absences)
     try {
         const user = await this.findById(userId);
         if (!user) {
             throw new Error('User not found');
         }
-
-        const hasOverlap = user.absences.some(existingAbsence =>
-            isOverlap(absence, existingAbsence)
-        );
-
-        if (hasOverlap) {
-            throw new Error('The new absence overlaps with an existing absence.');
-        }
-
-        user.absences.push(absence);
+        // absencesSchemas = absences.map(absence => new absenceSchema(absence));
+        user.absences.push( ...absences);
         await user.save();
+        
+        console.log("🚀 ~ user:", user)
         return user;
     } catch (error) {
         throw new Error(error.message);
     }
 };
 
-userSchema.statics.deleteAbsence = async function (userId, absenceId) {
+userSchema.statics.deleteAbsence = async function (userId, absenceIds) {
     try {
         const user = await this.findById(userId);
         if (!user) {
             throw new Error('User not found');
         }
-        const absenceIndex = user.absences.findIndex(absence => { return new mongoose.Types.ObjectId(absenceId).equals(absence._id) });
-        if (absenceIndex === -1) {
-            throw new Error("Absence not found");
-        }
-        user.absences.splice(absenceIndex, 1) // Removes the absence with the matching ID
+        let { absences } = user;
+        let newAbsences = absences.filter(({ _id: absence_id }) => !absenceIds.includes(absence_id.toString()));
+        user.absences = newAbsences;
+
         await user.save();
         return user;
     } catch (error) {

@@ -69,7 +69,7 @@ export const ScheduleDefine = () => {
   const [activeTab, setActiveTab] = useState('equip'); // staff | equip | surf | therm
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [items, setItems] = useState(null);
-  const [scheduleState, dispatchSchedule] = useReducer(scheduleReducer, null);
+  const [scheduleState, dispatchSchedule] = useReducer(scheduleReducer, {});
   const { enqueueSnackbar } = useSnackbar();
 
   const toggleSidebar = () => {

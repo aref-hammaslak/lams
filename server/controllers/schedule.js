@@ -134,66 +134,156 @@ export async function getWholeSchedule(req, res) {
 export async function setScheduleAssignment(req, res) {
     const { lab_id } = req.user;
     const { type, id } = req.params;
-    const { recurrence, offsets } = req.body;
+    const { schedules } = req.body;  // Expecting an array of schedules
 
-    const initial_date = new Date(req.body['initial_date']);
-    const end_date = (req.body.end_date) ? new Date(req.body['end_date']) : undefined;
+    const results = [];
+
     try {
-        if (! await validateItem(type, id, lab_id)) {
-            res.status(404);
-            res.send({
-                success: false,
-                error: 'Item not found'
+        // Iterate over each schedule in the array
+        for (const schedule of schedules) {
+            const { recurrence, initial_date: initDate, end_date: endDate } = schedule;
+
+            const initial_date = new Date(initDate);
+            const end_date = endDate ? new Date(endDate) : undefined;
+
+            // Validation: Check if item exists
+            if (! await validateItem(type, id, lab_id)) {
+                results.push({
+                    success: false,
+                    status: 404,
+                    error: 'Item not found',
+                    schedule: schedule
+                });
+                continue;
+            }
+
+            // Validation: Check recurrence for equipment
+            if (type === 'equipment') {
+                const logTemp = await LogTemplate.findById(id);
+                if (RECCURENCES[logTemp.type] !== recurrence) {
+                    results.push({
+                        success: false,
+                        status: 400,
+                        error: `You cannot set a ${recurrence} schedule for ${RECCURENCES[logTemp.type]} log template`,
+                        schedule: schedule
+                    });
+                    continue;
+                }
+            }
+
+            // Validation: Check for overlapping schedules
+            // if (await isOverlappingWithOtherSchedules({ lab_id, id, type, recurrence, initial_date, end_date })) {
+            //     results.push({
+            //         success: false,
+            //         status: 400,
+            //         error: 'There is overlap with other schedules',
+            //         schedule: schedule
+            //     });
+            //     continue;
+            // }
+
+            // Create the schedule
+            const sched = new ScheduleModel({
+                lab_id,
+                initial_date,
+                recurrence,
+                end_date,
+                type,
+                id,
             });
 
-            return;
-        }
-        
-        if (type === 'equipment') {
-            const logTemp = await LogTemplate.findById(id);
-            if (RECCURENCES[logTemp.type] !== recurrence) {
-                return res.status(400).send({
-                    success: false,
-                    error: `You can not set a ${recurrence} schedule for ${RECCURENCES[logTemp.type]} log template`
-                })
-            }
-        }
-        
-        //make sure there is no overlap with same schedules
-        if (await isOverlappingWithOtherSchedules({lab_id, id, type, recurrence,initial_date, end_date})) {
-            return res.status(400).send({
-                success: false,
-                error: 'There is overlap with other schedules'
-            })
+            await sched.save();
+
+            results.push({
+                success: true,
+                status: 200,
+                payload: sched
+            });
         }
 
-        
-
-        const sched = new ScheduleModel({
-            lab_id,
-            initial_date,
-            recurrence,
-            end_date,
-            type,
-            id,
-            offsets
-        });
-        await sched.save();
-
-
+        // Send the batch results as the response
         res.send({
             success: true,
-            payload: sched
+            payload:results
         });
+
     } catch (error) {
         console.log(error);
-        res.status(400).send({
+        res.status(500).send({
             success: false,
-            error
-        })
+            error: 'An error occurred while processing schedules.',
+            details: error.message
+        });
     }
-
 }
+
+
+
+// export async function setScheduleAssignment(req, res) {
+//     const { lab_id } = req.user;
+//     const { type, id } = req.params;
+//     const { recurrence, offsets } = req.body;
+
+//     const initial_date = new Date(req.body['initial_date']);
+//     const end_date = (req.body.end_date) ? new Date(req.body['end_date']) : undefined;
+
+//     try {
+
+//         if (! await validateItem(type, id, lab_id)) {
+//             res.status(404);
+//             res.send({
+//                 success: false,
+//                 error: 'Item not found'
+//             });
+
+//             return;
+//         }
+
+//         if (type === 'equipment') {
+//             const logTemp = await LogTemplate.findById(id);
+//             if (RECCURENCES[logTemp.type] !== recurrence) {
+//                 return res.status(400).send({
+//                     success: false,
+//                     error: `You can not set a ${recurrence} schedule for ${RECCURENCES[logTemp.type]} log template`
+//                 })
+//             }
+//         }
+
+//         //make sure there is no overlap with same schedules
+//         if (await isOverlappingWithOtherSchedules({ lab_id, id, type, recurrence, initial_date, end_date })) {
+//             return res.status(400).send({
+//                 success: false,
+//                 error: 'There is overlap with other schedules'
+//             })
+//         }
+
+
+
+//         const sched = new ScheduleModel({
+//             lab_id,
+//             initial_date,
+//             recurrence,
+//             end_date,
+//             type,
+//             id,
+//             offsets
+//         });
+//         await sched.save();
+
+
+//         res.send({
+//             success: true,
+//             payload: sched
+//         });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(400).send({
+//             success: false,
+//             error
+//         })
+//     }
+
+// }
 
 /**
  * @type {import("express").RequestHandler}
@@ -229,12 +319,18 @@ export async function updateScheduleAssignment(req, res) {
  */
 export async function deleteScheduleAssignment(req, res) {
     const { lab_id } = req.user;
-    const { id } = req.params;
+    const { ids } = req.params;  
 
-    const sched = await ScheduleModel.findOneAndDelete({ _id: id, lab_id }, {}, { new: true });
+    const idArray = ids.split(','); 
+
+    const deletedSchedules = await ScheduleModel.deleteMany({
+        _id: { $in: idArray },
+        lab_id
+    });
+
     res.send({
         success: true,
-        payload: sched
+        message: `${deletedSchedules.deletedCount} schedules deleted.`,
     });
 }
 
@@ -287,7 +383,7 @@ async function isOverlappingWithOtherSchedules({ lab_id, id, type, recurrence, i
         }]);
     console.log(result);
     console.log(result.length > 0);
-    
+
     return result.length > 0;
 }
 

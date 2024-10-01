@@ -36,11 +36,11 @@ export const ScheduleAPI = {
 		});
 		return response.data.payload;
 	},
-	create: async function (item_type, item_id, initial_date, end_date, recurrence, cancel = false) {
+	create: async function (item_type, item_id,schedules, cancel = false) {
 		const response = await api.request({
 			url: `/schedule/${item_type}/${item_id}`,
 			method: "POST",
-			data: { initial_date, end_date, recurrence },
+			data: {schedules },
 			signal: cancel
 				? cancelApiObject[this.create.name].handleRequestCancellation().signal
 				: undefined,

@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useId, useState } from 'react'
 import { Tabs, TabsHeader, Tab, IconButton, List, ListItem, Typography, Button } from '@material-tailwind/react'
 import { CustomDateRangPicker } from './CustomDateRangPicker';
-import { DateField } from '@mui/x-date-pickers';
-import { Divider } from '@mui/material';
 import { reccurencs } from '../../consts';
 import { useSnackbar } from 'notistack';
 import { ScheduleAPI } from '../../apis/ScheduleAPI';
 import { UserAPI } from '../../apis/UserAPI';
 import dayjs from 'dayjs';
-import { ResetTvRounded } from '@mui/icons-material';
+import { useScheduleDefine } from '../../hooks/useScheduleDefine';
+import { CustomDialog } from '../Global/CustomDialog';
+import {Loading} from '../../components/Global/Loading'
 
 const tabs = [
   { label: 'Daily', value: 0 },
@@ -21,11 +21,13 @@ const tabs = [
 
 export const Scheduler = (props) => {
   const { scheduleState, dispatchSchedule } = props;
-  const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const [dayItems, setDayItems] = useState(new Map());
-  const [refreshDayItems, setRefreshDayItems] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
+  const [isEditting, setIsEditting] = useState(false);
+  const { selecetedDays, handelToggleDay, handelToggleDays, scheduleDays, scheduleMutation, isLoading, saveNewSchedules, isPending, clearSelcectedDays } = useScheduleDefine(scheduleState, currentMonth);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+
 
   const handelAddSchedule = async () => {
     setLoading(true);
@@ -89,13 +91,6 @@ export const Scheduler = (props) => {
     }
   }
 
-  const handelRangeChange = useCallback((start, end) => {
-    dispatchSchedule({
-      type: 'dateRange',
-      start,
-      end
-    })
-  }, [dispatchSchedule]);
 
   const handleRecurrChange = (newRecurr) => {
     dispatchSchedule({
@@ -133,74 +128,7 @@ export const Scheduler = (props) => {
     }
   }
 
-  useEffect(() => {
-    if (!scheduleState?.id) {
-      setDayItems(new Map());
-      return;
-    }
-    const fetchAbsencesScheduleData = async () => {
-      try {
-        const { id: userId } = scheduleState;
-        const staff = await UserAPI.get(userId, {
-          expand_absences: true,
-          from: currentMonth,
-          to: currentMonth.endOf('month')
 
-        })
-        const { absences } = staff;
-        const dayItems = new Map();
-        absences.forEach(absence => {
-          dayItems.set(dayjs(absence.date).format('YYYY-MM-DD'), {
-            id: absence.absence_id,
-            type: 'absence',
-            itemStartDate: dayjs(absence.startDate),
-            itemEndDate: dayjs(absence.endDate),
-          })
-        });
-        setDayItems(dayItems);
-      } catch (error) {
-
-        enqueueSnackbar('Something went wrong', { variant: 'error' });
-        throw new Error('something went wrong');
-      }
-
-
-    }
-    const fetchESTScheduleData = async () => {
-      try {
-        const { id: itemId } = scheduleState;
-        const schedules = await ScheduleAPI.getAll(
-          itemId,
-          currentMonth.format('YYYY-MM-DD'),
-          currentMonth.endOf('month').format('YYYY-MM-DD'),
-          undefined,
-          undefined,
-          'date',
-          reccurencs[scheduleState.recurrence],
-        )
-        const dayItems = new Map();
-        Object.values(schedules).map(sch => {
-          const sc = sch[0]
-          dayItems.set(sch[0].date.split('T')[0], {
-            id: sc._id,
-            date: sc.date,
-          });
-        })
-
-        setDayItems(dayItems);
-      } catch (error) {
-
-        enqueueSnackbar(error.message, { variant: 'error' });
-        throw new Error('something went wrong');
-      }
-    }
-    if (scheduleState.type === 'staff') {
-      fetchAbsencesScheduleData();
-    } else {
-      fetchESTScheduleData();
-    }
-
-  }, [scheduleState?.id, refreshDayItems, currentMonth])
 
 
   return (
@@ -232,18 +160,74 @@ export const Scheduler = (props) => {
           </Tabs>
         )
       }
+      <div className='relative'>
+        <div className='absolute z-30 right-20 top-[18px]  flex justify-end  '>
+          {!isEditting ?
+            (<Button ripple={false}
+              onClick={() => setIsEditting(true)}
+              className='text-md px-2 tracking-wider py-1 text-yellow-800 ' variant='text'>
+              Edit
+            </Button>) :
+            (<>
+              <Button ripple={false}
+                onClick={() => { setIsDialogOpen(true);  }}
+                className='text-md px-2 tracking-wider py-1 text-green-800 ' variant='text'>
+                save
+              </Button>
+              <Button
+                onClick={() => { clearSelcectedDays(); }}
+                className='text-md px-2 tracking-wider py-1 text-red-600 ' variant='text'>
+                Clear
+              </Button>
+              <Button
+                onClick={() => { setIsEditting(false);  }}
+                className='text-md px-2 tracking-wider py-1 text-orange-600 ' variant='text'>
+                cnacel
+              </Button>
 
-      <CustomDateRangPicker
-        dayItems={dayItems}
-        className='space-y-8  border shadow rounded-lg bg-white'
-        onDeleteItme={(id) => {
-          handeleDeleteItem(id);
-        }}
-        scheduleState={scheduleState}
-        onRangeChange={handelRangeChange}
-        onMonthChange={setCurrentMonth}
-      />
-      <div className='bg-white  p-2  rounded-lg '>
+            </>)
+          }
+        </div>
+
+        {
+          isLoading && isPending (
+            <Loading/>
+          )
+        }
+        
+        <CustomDateRangPicker
+          onSelectedDaysChang={handelToggleDays}
+          onSelectedDayChange={handelToggleDay}
+          selecetedDays={isEditting ? selecetedDays : scheduleDays}
+          className='space-y-8  border shadow rounded-lg bg-white'
+          onDeleteItme={(id) => {
+            handeleDeleteItem(id);
+          }}
+          selectionDisabled={!isEditting}
+          currentMonth={currentMonth}
+          scheduleState={scheduleState}
+          onMonthChange={(month) => {
+            setIsEditting(false);
+            setCurrentMonth(month);
+          }}
+        />
+
+      </div>
+      {isDialogOpen &&
+        <CustomDialog
+          title='Are you sure to save items?'
+          subTitle='this action will replace new scedules wiht old ones and will delete the all the logs associated wiht them'
+          confirmText='save'
+          onClose={() => setIsDialogOpen(false)}
+          onCancel={() =>  setIsDialogOpen(false)}
+        onConfirm={() => {
+          saveNewSchedules();
+          setIsEditting(false);
+          setIsDialogOpen(false);
+          }}
+        />}
+
+      {/* <div className='bg-white  p-2  rounded-lg '>
         <div className='space-y-4'>
           <Typography className='flex flex-col justify-between items-center'>
             <span className='mr-4  font-normal text-gray-600'>
@@ -286,7 +270,7 @@ export const Scheduler = (props) => {
           )
         }
 
-      </div>
+      </div> */}
     </div>
   )
 }
