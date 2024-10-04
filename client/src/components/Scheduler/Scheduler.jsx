@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useId, useState } from 'react'
 import { Tabs, TabsHeader, Tab, IconButton, List, ListItem, Typography, Button } from '@material-tailwind/react'
 import { CustomDateRangPicker } from './CustomDateRangPicker';
-import { reccurencs } from '../../consts';
 import { useSnackbar } from 'notistack';
-import { ScheduleAPI } from '../../apis/ScheduleAPI';
 import { UserAPI } from '../../apis/UserAPI';
 import dayjs from 'dayjs';
 import { useScheduleDefine } from '../../hooks/useScheduleDefine';
@@ -28,109 +26,13 @@ export const Scheduler = (props) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 
-
-  const handelAddSchedule = async () => {
-    setLoading(true);
-    let { id, type, recurrence, startDate, endDate } = scheduleState;
-    endDate = endDate.add(1, 'day').format('YYYY-MM-DD');
-    startDate = startDate.format('YYYY-MM-DD');
-    try {
-      await ScheduleAPI.create(type, id, startDate, endDate, reccurencs[recurrence])
-      enqueueSnackbar('Schedule added successfully', { variant: 'success' });
-      setRefreshDayItems(n => !n);
-    } catch (error) {
-      console.log(error);
-      if (error.response.data.error) {
-        enqueueSnackbar(error.response.data.error, { variant: 'error' })
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handelAddAbsence = async () => {
-    const { id: userId } = scheduleState;
-    try {
-      await UserAPI.updateUser(userId, {
-        start_date: scheduleState.startDate,
-        end_date: scheduleState.endDate.add(1, 'days'),
-      }, {
-        add_absence: true
-      })
-      enqueueSnackbar('Absence added successfully', { variant: 'success' })
-      setRefreshDayItems(n => !n);
-    } catch (error) {
-      console.error(error);
-      if (error.response.data) {
-        enqueueSnackbar(error.response.data.error.message, { variant: 'error' });
-      } else {
-        enqueueSnackbar('Something went wrong')
-      }
-
-    }
-
-  }
-
-  const handeldeleteAbsence = async (absenceId) => {
-    const { id: userId } = scheduleState;
-    try {
-      await UserAPI.updateUser(userId, {}, {
-        delete_absence: true,
-        absence_id: absenceId
-      })
-      enqueueSnackbar('Absence deleted successfully', { variant: 'success' })
-      setRefreshDayItems(n => !n);
-    } catch (error) {
-      console.error(error);
-      if (error.response.data) {
-        enqueueSnackbar(error.response.data.error.message, { variant: 'error' });
-      } else {
-        enqueueSnackbar('Something went wrong')
-      }
-
-    }
-  }
-
-
   const handleRecurrChange = (newRecurr) => {
     dispatchSchedule({
       type: 'recurrence',
       recurrence: newRecurr,
     })
   }
-
-  const handeldeleteSchedule = async (sch_id) => {
-    try {
-      await ScheduleAPI.destroy(sch_id);
-      enqueueSnackbar('schedule deleted successfully', { variant: 'success' })
-      setRefreshDayItems(n => !n);
-    } catch (error) {
-      console.error(error);
-      if (error.response.data) {
-        enqueueSnackbar(error.response.data.error.message, { variant: 'error' });
-      } else {
-        enqueueSnackbar('Something went wrong')
-      }
-
-    }
-  }
-
-  const handeleDeleteItem = (id) => {
-    switch (scheduleState.type) {
-      case 'staff':
-        handeldeleteAbsence(id);
-        break;
-      case 'equipment': case 'surface': case 'thermometer':
-        handeldeleteSchedule(id);
-        break;
-      default:
-        break;
-    }
-  }
-
-
-
-
+  
   return (
     <div className=' flex  gap-4 items-center   '>
       {
@@ -161,11 +63,11 @@ export const Scheduler = (props) => {
         )
       }
       <div className='relative'>
-        <div className='absolute z-30 right-20 top-[18px]  flex justify-end  '>
+        <div className='absolute z-30  right-20 top-[18px]  flex justify-end  '>
           {!isEditting ?
             (<Button ripple={false}
               onClick={() => setIsEditting(true)}
-              className='text-md px-2 tracking-wider py-1 text-yellow-800 ' variant='text'>
+              className='text-md px-2 tracking-wider    py-1 text-yellow-800 ' variant='text'>
               Edit
             </Button>) :
             (<>
@@ -200,9 +102,6 @@ export const Scheduler = (props) => {
           onSelectedDayChange={handelToggleDay}
           selecetedDays={isEditting ? selecetedDays : scheduleDays}
           className='space-y-8  border shadow rounded-lg bg-white'
-          onDeleteItme={(id) => {
-            handeleDeleteItem(id);
-          }}
           selectionDisabled={!isEditting}
           currentMonth={currentMonth}
           scheduleState={scheduleState}
@@ -226,51 +125,6 @@ export const Scheduler = (props) => {
           setIsDialogOpen(false);
           }}
         />}
-
-      {/* <div className='bg-white  p-2  rounded-lg '>
-        <div className='space-y-4'>
-          <Typography className='flex flex-col justify-between items-center'>
-            <span className='mr-4  font-normal text-gray-600'>
-              START:
-            </span>
-            <span className='font-bold text-primary text-xl'>
-              {
-                scheduleState?.startDate.format('YYYY-MM-DD')
-              }
-            </span>
-          </Typography>
-          <Typography className='flex flex-col justify-between items-center'>
-            <span className='mr-4  font-normal text-gray-600'>
-              END:
-            </span>
-            <span className='font-bold text-primary text-xl'>
-              {
-                scheduleState?.endDate.format('YYYY-MM-DD')
-              }
-            </span>
-
-          </Typography>
-        </div>
-        <Divider className='mt-4 mb-8' />
-
-        {
-          scheduleState?.type === 'staff' ? (
-            <Button className='w-full bg-primaryDark ' onClick={handelAddAbsence} disabled={loading}>
-              <span className='tracking-widest'>
-                Add absence
-              </span>
-            </Button>
-          ) : (
-            <Button className='w-full bg-primaryDark ' onClick={handelAddSchedule} disabled={loading}>
-              <span className='tracking-widest'>
-                Add schedule
-              </span>
-            </Button>
-
-          )
-        }
-
-      </div> */}
     </div>
   )
 }
