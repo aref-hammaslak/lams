@@ -19,9 +19,11 @@ const CalendarDay = (props) => {
     const navigate = useNavigate();
     const role = useGetUserRole();
     // const role = 'staff';
+    console.log(content);
 
     const taskCount = content.tasks?.reduce((count, task) => {
-        if (task.sch.type !== 'equipment') return count;
+
+        if (task?.sch?.type !== 'equipment') return count;
         return count + 1;
     }, 0)
     // const taskCount = content.tasks?.length;

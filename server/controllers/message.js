@@ -61,7 +61,6 @@ export const createMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
     const { recipientId, senderId, unread, senderType } = req.query;  // Extract query parameters
     const { roles: userRoles, _id: userId } = req.user;
-    console.log("🚀 ~ getMessages ~ userId:", userId)
 
     // Build the query object dynamically based on the provided query parameters
     const query = {};

@@ -95,6 +95,7 @@ export const ScheduleDefine = () => {
           }
           case 'equip': {
             fetchResponse = await LogTmpAPI.getAll();
+            fetchResponse = fetchResponse.sort((a, b) => a.type - b.type);
             const equips = fetchResponse.map(logTemp => {
               return {
                 id: logTemp._id,

@@ -47,7 +47,7 @@ const scheduleSchema = new mongoose.Schema({
 
 scheduleSchema.index({ type: 1, id: 1, initial_date: 1, recurrence: 1 }, { unique: true });
 
-scheduleSchema.pre(["deleteOne", "findOneAndDelete", "updateOne", "findOneAndUpdate", "remove"], { document: true, query: true }, async function () {
+scheduleSchema.pre(["deleteOne","deleteMany", "findOneAndDelete", "updateOne", "findOneAndUpdate", "remove"], { document: true, query: true }, async function () {
     let id;
     if ('_id' in this) {
         // Document

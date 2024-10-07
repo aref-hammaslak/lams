@@ -115,7 +115,7 @@ export const Scheduler = (props) => {
       {isDialogOpen &&
         <CustomDialog
           title='Are you sure to save items?'
-          subTitle='this action will replace new scedules wiht old ones and will delete the all the logs associated wiht them'
+          subTitle='this action will replace new scedules wiht old ones and will delete all the logs associated wiht them'
           confirmText='save'
           onClose={() => setIsDialogOpen(false)}
           onCancel={() =>  setIsDialogOpen(false)}

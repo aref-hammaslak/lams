@@ -955,10 +955,6 @@ video {
   margin-bottom: 1rem;
 }
 
-.mb-8 {
-  margin-bottom: 2rem;
-}
-
 .ml-0\.5 {
   margin-left: 0.125rem;
 }
@@ -3519,11 +3515,6 @@ video {
 .text-gray-500 {
   --tw-text-opacity: 1;
   color: rgb(158 158 158 / var(--tw-text-opacity));
-}
-
-.text-gray-600 {
-  --tw-text-opacity: 1;
-  color: rgb(117 117 117 / var(--tw-text-opacity));
 }
 
 .text-gray-700 {
