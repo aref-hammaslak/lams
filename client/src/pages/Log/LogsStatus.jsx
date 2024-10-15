@@ -20,6 +20,9 @@ import { LogsPagination } from '../../components/LogFilling/LogsPagination';
 import { logFillingContext } from '../../contexts/LogFillingProvider';
 import { Loading } from '../../components/Global/Loading';
 import { RefreshProvider } from '../../contexts/RefreshProvider';
+import { LogsStatusFilterContext } from '../../contexts/LogsStatusFilterProvider';
+import { json } from 'react-router-dom';
+import context from 'react-bootstrap/esm/AccordionContext';
 const tabs = [
   {
     label: 'All',
@@ -40,9 +43,28 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 const LogsStatus = () => {
-  const [filter, setFilter] = useState({});
-  const [activeTab, setActiveTab] = useState('all');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const filterContext = useContext(LogsStatusFilterContext);
+  // alert(JSON.stringify(context));
+
+  const [filter, setFilter] = useState(() => {
+    
+    if (filterContext.filter) {
+      const filter = filterContext.filter;
+      filterContext.setFilter(null);
+      return filter;
+    }
+    return {};
+  });
+
+
+  const [activeTab, setActiveTab] = useState(() => {
+    if (filterContext.filter) return 'staff';
+    return 'all';
+  }); // all | staff | equip
+
+
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => filterContext.filter);
   const [items, setItems] = useState([]);
   const userRole = useGetUserRole();
   const [isDialogOpen, setIsDiologOpen] = useState(false);
@@ -66,7 +88,9 @@ const LogsStatus = () => {
 
             setItems(deserializedEquips);
             // set first item as default filter
-            handleFilterChange(deserializedEquips[0]?.id, 'equip');
+            if (!filterContext.filter) {
+              handleFilterChange(deserializedEquips[0]?.id, 'equip');
+            }
             break;
           }
           case 'staff': {
@@ -77,7 +101,9 @@ const LogsStatus = () => {
             }).filter((staff) => staff.active);
             setItems(deserializedStaff)
             // set first item as default filter
-            handleFilterChange(deserializedStaff[0]?.id, 'staff');
+            if (!filterContext.filter) {
+              handleFilterChange(deserializedStaff[0]?.id, 'staff');
+            }
             break;
           }
           default:

@@ -20,7 +20,6 @@ export const LabStaffOverview = ({lab}) => {
             try {
                 let staff = await LabAPI.getLabUsersStats(lab._id);
                 staff = staff.filter(staff => staff.username !== 'admin');
-                console.log("🚀 ~ staff:", staff)
                 setStaff(staff);
             } catch (error) {
                 console.error(error);

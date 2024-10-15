@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Button, Tooltip, Typography } from '@material-tailwind/react'
 import { PieChart } from '@mui/x-charts/PieChart';
 import { Toolbar } from '@mui/material';
@@ -6,14 +6,29 @@ import { CustomPieChart } from './CustomPieChart';
 import InfoIcon from '@mui/icons-material/Info';
 import { LabIcon } from './LabIcon';
 import PersonIcon from '@mui/icons-material/Person';
+import { useNavigate } from 'react-router-dom';
+import { LogsStatusFilterContext } from '../../contexts/LogsStatusFilterProvider';
 
 export const StaffStatsCard = ({staffInfo}) => {
-    const { name, email, phone, category, stats } = staffInfo;
+    const { _id, name,  stats } = staffInfo;
     const currYearStats = stats.logs.currentYear;
     const currMonthStats = stats.logs.currentMonth;
+    const { setFilter } = useContext(LogsStatusFilterContext);
+    const navigate = useNavigate();
+    
+    const handelNavigateToLogsStatus = () => {
+        setFilter({
+            id: _id,
+            type: 'staff'
+        })
+        navigate('/log/status');
+    }
+
     return (
         <div className='min-w-[300px] shadow h-[190px] grid  grid-cols-2 gap-y-2 bg-primaryLight rounded p-4'>
-            <Typography className='col-span-2   text-center font-bold text-lg bg-white border-primaryDark border-2  text-primaryDark py-2 rounded relative group flex justify-center items-center space-x-1'>
+            <Typography
+                onClick={handelNavigateToLogsStatus}
+                className='col-span-2   text-center font-bold text-lg bg-white border-primaryDark border-2  text-primaryDark py-2 rounded relative group flex justify-center items-center space-x-1 cursor-pointer'>
                 <PersonIcon />
                 <span>{name}</span>
             
