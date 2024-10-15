@@ -9,7 +9,9 @@ import logger from './settings/logger.js';
 import session from './settings/session.js';
 import passport from 'passport';
 import { handle404, basicErrorHandler } from './support.js';
-import { setRoutes } from './routes/index.js';
+import {
+    appRouter,
+} from './routes/index.js';
 import dotenv from 'dotenv'
 
 // Load environment variables from.env file (if it exists)
@@ -43,7 +45,7 @@ app.get('/healthcheck', (req, res) => {
     });
 });
 
-setRoutes(app);
+app.use('/api', appRouter);
 
 app.use(handle404);
 app.use(basicErrorHandler);

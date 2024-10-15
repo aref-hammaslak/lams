@@ -15,23 +15,24 @@ import equipmentLogRoute from "./equipmentLogRoute.js";
 import surfaceLogRoute from "./surfaceLogRoute.js";
 import equipLogAutoFillRoute from './equipLogAutoFillRoute.js';
 import messagesRoute from './messageRoute.js';
+import { Router } from 'express';
 
-export const setRoutes = (app) => {
-    app.use('/users', userRoute);
-    app.use('/laboratory', laboratoryRoute);
-    app.use('/department', departmentRoute);
-    app.use('/equipment', equipmentRoute);
-    app.use('/thermometer', thermometerRoute);
-    app.use('/surface', surfaceRoute);
-    app.use('/logTemplate', logTemplateRoute);
-    app.use('/schedule', scheduleRoute);
-    app.use('/schedule-map', scheduleMapRoute);
-    app.use('/upload', docRoute);
-    app.use('/user-role', userRoleRouter);
-    app.use('/calibration', calibrationRouter);
-    app.use('/pm-service', pmServiceRouter);
-    app.use('/messages', messagesRoute)
-    app.use('/log/equipment/auto-fill', equipLogAutoFillRoute)
-    app.use('/log/equipment', equipmentLogRoute);
-    app.use('/log/surface', surfaceLogRoute);
-};
+export const appRouter = Router();
+
+appRouter.use('/users', userRoute);
+appRouter.use('/laboratory', laboratoryRoute);
+appRouter.use('/department', departmentRoute);
+appRouter.use('/equipment', equipmentRoute);
+appRouter.use('/thermometer', thermometerRoute);
+appRouter.use('/surface', surfaceRoute);
+appRouter.use('/logTemplate', logTemplateRoute);
+appRouter.use('/schedule', scheduleRoute);
+appRouter.use('/schedule-map', scheduleMapRoute);
+appRouter.use('/upload', docRoute);
+appRouter.use('/user-role', userRoleRouter);
+appRouter.use('/calibration', calibrationRouter);
+appRouter.use('/pm-service', pmServiceRouter);
+appRouter.use('/messages', messagesRoute)
+appRouter.use('/log/equipment/auto-fill', equipLogAutoFillRoute)
+appRouter.use('/log/equipment', equipmentLogRoute);
+appRouter.use('/log/surface', surfaceLogRoute);
