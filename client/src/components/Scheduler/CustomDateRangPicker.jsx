@@ -53,6 +53,7 @@ export function CustomDateRangPicker(props) {
         const element = document.querySelector(
             '.css-1t0788u-MuiPickersSlideTransition-root-MuiDayCalendar-slideTransition'
         );
+        if (!element) return;
         element.style.height = '600px';
     }, [])
 
