@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogsStatusFilterContext } from '../../contexts/LogsStatusFilterProvider';
 
 export const StaffStatsCard = ({staffInfo}) => {
-    const { _id, name,  stats } = staffInfo;
+    const { _id, username,  stats } = staffInfo;
     const currYearStats = stats.logs.currentYear;
     const currMonthStats = stats.logs.currentMonth;
     const { setFilter } = useContext(LogsStatusFilterContext);
@@ -30,7 +30,7 @@ export const StaffStatsCard = ({staffInfo}) => {
                 onClick={handelNavigateToLogsStatus}
                 className='col-span-2   text-center font-bold text-lg bg-white border-primaryDark border-2  text-primaryDark py-2 rounded relative group flex justify-center items-center space-x-1 cursor-pointer'>
                 <PersonIcon />
-                <span>{name}</span>
+                <span>{username}</span>
             
             </Typography>
 

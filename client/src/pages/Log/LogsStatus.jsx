@@ -97,7 +97,7 @@ const LogsStatus = () => {
             const staff = await UserAPI.getAll();
             console.log(staff)
             const deserializedStaff = staff.map((staff) => {
-              return { id: staff._id, name: staff.name, active: staff.active }
+              return { id: staff._id, name: staff.username, active: staff.active }
             }).filter((staff) => staff.active);
             setItems(deserializedStaff)
             // set first item as default filter
