@@ -163,7 +163,7 @@ export const ScheduleDefine = () => {
   }
 
   useEffect(() => {
-    if (!items) return;
+    if (!items?.length) return;
     const tabFirstItem = items[0];
     const { id, type, name, recurrence } = tabFirstItem;
     dispatchSchedule({
