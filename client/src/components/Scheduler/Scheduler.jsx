@@ -6,7 +6,10 @@ import { UserAPI } from '../../apis/UserAPI';
 import dayjs from 'dayjs';
 import { useScheduleDefine } from '../../hooks/useScheduleDefine';
 import { CustomDialog } from '../Global/CustomDialog';
-import {Loading} from '../../components/Global/Loading'
+import { Loading } from '../../components/Global/Loading'
+import ArrowDropDownCircleIcon from '@mui/icons-material/ArrowDropDownCircle';
+import { Tooltip } from '@mui/material';
+import { Menu, MenuHandler, MenuList, MenuItem } from "@material-tailwind/react";
 
 const tabs = [
   { label: 'Daily', value: 0 },
@@ -22,8 +25,26 @@ export const Scheduler = (props) => {
   const { enqueueSnackbar } = useSnackbar();
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
   const [isEditting, setIsEditting] = useState(false);
-  const { selecetedDays, handelToggleDay, handelToggleDays, scheduleDays, scheduleMutation, isLoading, saveNewSchedules, isPending, clearSelcectedDays } = useScheduleDefine(scheduleState, currentMonth);
+  const { selecetedDays, handelToggleDay, handelToggleDays, scheduleDays, scheduleMutation, isLoading, saveNewSchedules, isPending, clearSelcectedDays, copySchedulesOfMonth } = useScheduleDefine(scheduleState, currentMonth);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setIsEditting(false);
+  }, [scheduleState.id])
+
+  const getMonthItems = () => {
+    const items = []
+    for (let i = 1; i < 13; i++){
+      const month = dayjs(currentMonth).subtract(i, 'month');
+      const item =<MenuItem key={i} onClick={() => copySchedulesOfMonth(month)}>
+        {
+          month.format('MMMM')
+        }
+      </MenuItem>
+      items.push(item);
+    }
+    return items;
+  }
 
 
   const handleRecurrChange = (newRecurr) => {
@@ -32,7 +53,7 @@ export const Scheduler = (props) => {
       recurrence: newRecurr,
     })
   }
-  
+
   return (
     <div className=' flex  gap-4 items-center   '>
       {
@@ -63,7 +84,7 @@ export const Scheduler = (props) => {
         )
       }
       <div className='relative'>
-        <div className='absolute z-30  right-20 top-[18px]  flex justify-end  '>
+        <div className='absolute z-30  right-20 top-[18px]  flex justify-end items-center'>
           {!isEditting ?
             (<Button ripple={false}
               onClick={() => setIsEditting(true)}
@@ -71,8 +92,21 @@ export const Scheduler = (props) => {
               Edit
             </Button>) :
             (<>
+              <Menu>
+                <MenuHandler className="cursor-pointer">
+                    <Tooltip title="Insert predefined schedules">
+                      <ArrowDropDownCircleIcon className='text-gray-700' />
+                    </Tooltip>
+                </MenuHandler>
+                <MenuList className='h-[200px] scrollbar-thin'>
+                  {
+                    getMonthItems()
+                  }
+               </MenuList>
+              </Menu>
+
               <Button ripple={false}
-                onClick={() => { setIsDialogOpen(true);  }}
+                onClick={() => { setIsDialogOpen(true); }}
                 className='text-md px-2 tracking-wider py-1 text-green-800 ' variant='text'>
                 save
               </Button>
@@ -82,7 +116,7 @@ export const Scheduler = (props) => {
                 Clear
               </Button>
               <Button
-                onClick={() => { setIsEditting(false);  }}
+                onClick={() => { setIsEditting(false); }}
                 className='text-md px-2 tracking-wider py-1 text-orange-600 ' variant='text'>
                 cnacel
               </Button>
@@ -92,11 +126,11 @@ export const Scheduler = (props) => {
         </div>
 
         {
-          isLoading && isPending (
-            <Loading/>
+          isLoading && isPending(
+            <Loading />
           )
         }
-        
+
         <CustomDateRangPicker
           onSelectedDaysChang={handelToggleDays}
           onSelectedDayChange={handelToggleDay}
@@ -118,11 +152,11 @@ export const Scheduler = (props) => {
           subTitle='this action will replace new scedules wiht old ones and will delete all the logs associated wiht them'
           confirmText='save'
           onClose={() => setIsDialogOpen(false)}
-          onCancel={() =>  setIsDialogOpen(false)}
-        onConfirm={() => {
-          saveNewSchedules();
-          setIsEditting(false);
-          setIsDialogOpen(false);
+          onCancel={() => setIsDialogOpen(false)}
+          onConfirm={() => {
+            saveNewSchedules();
+            setIsEditting(false);
+            setIsDialogOpen(false);
           }}
         />}
     </div>

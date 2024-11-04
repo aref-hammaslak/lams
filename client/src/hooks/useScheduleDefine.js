@@ -1,13 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserAPI } from "../apis/UserAPI";
 import { ScheduleAPI } from "../apis/ScheduleAPI";
 import { reccurencs } from "../consts";
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery , useQueryClient} from '@tanstack/react-query';
 import dayjs from "dayjs";
 import { useSnackbar } from 'notistack';
-import { useQueryClient } from '@tanstack/react-query'
-import { exact } from "prop-types";
-import { Alert } from "react-bootstrap";
 import { useAuth } from '../hooks/useAuth'
 
 
@@ -15,7 +12,8 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
     const [selecetedDays, setSelectedDays] = useState([]);
     const queryClient = useQueryClient();
     const [scheduleIds, setScheduleIds] = useState([]);
-    const [absenceIds, setAbsenceIds] = useState([]); 
+    const [absenceIds, setAbsenceIds] = useState([]);
+    const [lastCopiedMonth, setLastCopiedMonth] = useState()
     const { enqueueSnackbar } = useSnackbar();
     const { auth: { id: userId } } = useAuth()
 
@@ -63,24 +61,24 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         setSelectedDays([]);
     }
 
-    const fetchAbsencesScheduleData = async () => {
+    const fetchAbsencesScheduleData = async (month) => {
         const { id: userId } = scheduleState;
         const staff = await UserAPI.get(userId, {
             expand_absences: true,
-            from: currentMonth,
-            to: currentMonth.endOf('month')
+            from: month.startOf('month'),
+            to: month.endOf('month')
 
         })
         const { absences } = staff;
         return absences;
     }
 
-    const fetchESTScheduleData = async () => {
+    const fetchESTScheduleData = async (month) => {
         const { id: itemId } = scheduleState;
         const schedules = await ScheduleAPI.getAll(
             itemId,
-            currentMonth.format('YYYY-MM-DD'),
-            currentMonth.endOf('month').format('YYYY-MM-DD'),
+            month.startOf('month').format('YYYY-MM-DD'),
+            month.endOf('month').format('YYYY-MM-DD'),
             undefined,
             undefined,
             'date',
@@ -133,7 +131,6 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         return ranges;
     }
 
-
     const schsMutFn = async () => {
 
         // if ther are some schedules in current month all will be deleted
@@ -145,12 +142,12 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         let { id, type, recurrence } = scheduleState;
 
         // I added retrun the [1] to array be iterable for recurrences greather than 0;
-        const scheduleRanges = scheduleState.recurrence === 0? getRanges() : [1];
+        const scheduleRanges = scheduleState.recurrence === 0 ? getRanges() : [1];
 
         const schedules = scheduleRanges.map(({ startDate, endDate }) => {
 
             //for not daily recurrence set the initialDate to the only selected day and  the endDate to end of the current month
-            startDate = scheduleState.recurrence > 0 ? currentMonth.add(selecetedDays[0] -1, 'day') : startDate
+            startDate = scheduleState.recurrence > 0 ? currentMonth.add(selecetedDays[0] - 1, 'day') : startDate
             endDate = scheduleState.recurrence > 0 ?
                 currentMonth.endOf('month').add(1, 'day') :
                 endDate;
@@ -166,8 +163,8 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
     }
     const abssMutFn = async () => {
         absenceIds.length && await UserAPI.updateUser(scheduleState.id, {
-            absenceIds 
-        }, {  
+            absenceIds
+        }, {
             delete_absences: true
         })
 
@@ -176,11 +173,10 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         const res = UserAPI.updateUser(scheduleState.id, {
             newAbsences
         }, {
-            add_absences:true
+            add_absences: true
         })
         return res;
     }
-
 
     const { mutate: mutateSchedules, isPending } = useMutation({
         mutationKey: ['mutateSchedules'],
@@ -190,7 +186,7 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
                 if (scheduleState.type === 'staff') {
                     return await abssMutFn();
                 }
-                if (scheduleState !== 'staff' ) {
+                if (scheduleState !== 'staff') {
                     return await schsMutFn();
                 }
 
@@ -214,35 +210,55 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         mutateSchedules();
     }
 
+    const schedulesQueryFn = async (month) => {
+        if (scheduleState?.type !== 'staff') {
+            const scheduleDays = await fetchESTScheduleData(month);
+
+            const schIds = [...new Set(Object.values(scheduleDays).map(([item]) => item._id))];
+            setScheduleIds(schIds);
+
+            const days = Object.keys(scheduleDays).map(date => dayjs(date).date());
+            setSelectedDays(days);
+            return days;
+        } else {
+            const absences = await fetchAbsencesScheduleData(month);
+            // alert(JSON.stringify(absences));
+            const days = [];
+            const absIds = [];
+            absences.forEach(abs => {
+                absIds.push(abs.absence_id);
+                days.push(dayjs(abs.date).date());
+            });
+            setSelectedDays(days);
+            setAbsenceIds([...new Set(absIds)]);
+            return days;
+        }
+    }
+
     const { data: scheduleDays, isLoading } = useQuery({
         queryKey: ['schedules', scheduleState, currentMonth],
-        queryFn: async () => {
-            if (scheduleState?.type !== 'staff') {
-                const scheduleDays = await fetchESTScheduleData();
-
-                const schIds = [...new Set(Object.values(scheduleDays).map(([item]) => item._id))];
-                setScheduleIds(schIds);
-
-                const days = Object.keys(scheduleDays).map(date => dayjs(date).date());
-                setSelectedDays(days);
-                return days;
-            } else {
-                const absences = await fetchAbsencesScheduleData();
-                // alert(JSON.stringify(absences));
-                const days = [];
-                const absIds = [];
-                absences.forEach(abs => {
-                    absIds.push(abs.absence_id);
-                    days.push(dayjs(abs.date).date());
-                });
-                setSelectedDays(days);
-                setAbsenceIds([...new Set(absIds)]);
-                return days;
-            }
-        },
+        queryFn: async () => schedulesQueryFn(currentMonth),
         initialData: []
     })
 
+    const { data: prevSchedulMonthDays } = useQuery({
+        queryKey: ['prevMonthSchedules', scheduleState, lastCopiedMonth],
+        queryFn: () => schedulesQueryFn(lastCopiedMonth),
+        initialData: []
+    })
+
+    const copySchedulesOfMonth =  (month) => {
+        setLastCopiedMonth(month);
+    }
+
+    useEffect(() => {
+        setSelectedDays(prevSchedulMonthDays)
+    },[scheduleState, lastCopiedMonth])
+
+    useEffect(() => {
+        queryClient.invalidateQueries({ queryKey: ['prevMonthSchedules'] });
+        queryClient.refetchQueries({ queryKey: ['prevMonthSchedules'] })
+    },[currentMonth, scheduleState])
 
 
     return {
@@ -253,6 +269,7 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         handelToggleDays,
         saveNewSchedules,
         isPending,
-        clearSelcectedDays
+        clearSelcectedDays,
+        copySchedulesOfMonth
     }
 }
