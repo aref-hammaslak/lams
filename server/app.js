@@ -12,13 +12,7 @@ import { handle404, basicErrorHandler } from './support.js';
 import {
     appRouter,
 } from './routes/index.js';
-import dotenv from 'dotenv'
 
-// Load environment variables from.env file (if it exists)
-dotenv.config({
-    path: '../.env',
-    debug: true,
-});
 
 const app = express();
 

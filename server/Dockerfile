@@ -25,6 +25,6 @@ ENV NODE_ENV=deployment
 # Volume for upload
 VOLUME [ "/app/public/uploads" ] 
 
-EXPOSE 80
+EXPOSE 30001
 
 ENTRYPOINT [ "npm", "start" ]
