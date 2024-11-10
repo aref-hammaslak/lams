@@ -78,6 +78,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 					alreadyAssignedItems.push(...items)
 					return {
 						_id: staff._id,
+						username: staff.username,
 						name: staff.name,
 						active: staff.active,
 						isAbsentToday: staff.isAbsentToday,
@@ -213,7 +214,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										// console.log(selectedCount);
 										if (!selectedCount) return;
 										if (user.isAbsentToday) {
-											enqueueSnackbar(`${user.name} is absent today`, { variant: 'error' });
+											enqueueSnackbar(`${user.username} is absent today`, { variant: 'error' });
 											return;
 										}
 										setSelectedCount(0);
@@ -230,7 +231,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										}}
 										fontSize='large'
 									/>
-									<Typography className={`${user.isAbsentToday && 'text-red-600'}`}>{user.name || user.username}</Typography>
+									<Typography className={`${user.isAbsentToday && 'text-red-600'}`}>{user.username}</Typography>
 									<Divider />
 									<Grid container>
 										{user?.items?.map(item => (

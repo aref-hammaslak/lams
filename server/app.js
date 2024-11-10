@@ -30,7 +30,7 @@ app.set('host', host);
 app.use(cors());
 // app.use(logger());
 app.use(session());
-app.use(express.static('public'))
+app.use('/api',express.static('public'))
 
 app.use(express.json());
 app.use(MongoSanitize({ replaceWith: '_' }));

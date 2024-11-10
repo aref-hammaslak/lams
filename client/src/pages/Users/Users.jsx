@@ -27,6 +27,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { USER_ROLES } from "../../consts/index.js";
 
 
+const BASE_URL = import.meta.env.PROD ? '/api/' : 'http://localhost:3001/api/';
+
 function Profile({ onUserDelete }) {
 	const [error, setError] = useState(null);
 	const [user, setUser] = useState(null);
@@ -136,7 +138,8 @@ function Profile({ onUserDelete }) {
 	const openFileHandler = (doc_id) => {
 		DocAPI.get(doc_id).then(
 			(doc) => {
-				setLink(`http://localhost:3001/uploads/${doc.filename}`);
+				setLink(`${BASE_URL}/uploads/${doc.filename}`);
+				
 			},
 			(err) => setError(err)
 		);

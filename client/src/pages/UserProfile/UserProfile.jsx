@@ -48,6 +48,8 @@ import { LabAPI } from "../../apis/LabAPI.js";
 import Home from "../Home/Home.jsx";
 import { Link as MUILink } from "@mui/material";
 
+const BASE_URL = import.meta.env.PROD ? '/api/' : 'http://localhost:3001/api/';
+
 const USER_ROLES = {
 	Staff: [1001],
 	Supervisor: [1001, 1923],
@@ -280,7 +282,7 @@ function UserProfile() {
 	const openFileHandler = (doc_id) => {
 		DocAPI.get(doc_id).then(
 			(doc) => {
-				setLink(`http://localhost:3001/uploads/${doc.filename}`);
+				setLink(`${BASE_URL}/api/uploads/${doc.filename}`);
 			},
 			(err) => setError(err)
 		);
