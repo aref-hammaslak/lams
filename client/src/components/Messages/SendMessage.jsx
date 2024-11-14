@@ -36,8 +36,8 @@ export const SendMessage = () => {
 
 
   const mutation = useMutation({
-    mutationFn: () => {
-      MessageAPI.createMessage({
+    mutationFn: async () => {
+      return await MessageAPI.createMessage({
         senderId: userId,
         recipients: recipents,
         message: message.trim(),
@@ -46,8 +46,7 @@ export const SendMessage = () => {
     onSuccess: () => {
       setRecipients([]);
       setMessage('');
-      queryClient.invalidateQueries({ queryKey: ['message']});
-      queryClient.refetchQueries({queryKey:['messages']})
+      queryClient.invalidateQueries({queryKey:['messages','sent']})
       enqueueSnackbar('Message sent successfully!',{variant:'success'})
     }
   })

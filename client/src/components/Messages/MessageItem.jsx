@@ -17,8 +17,7 @@ const getDate = (date) => {
 }
 
 export const MessageItem = (props) => {
-    const { messageItem: {_id:messageId, createdAt, recipientId, senderId, message, senderType, isRead }, type } = props;
-    console.log("🚀 ~ MessageItem ~ isRead:", isRead)
+    const { messageItem: { _id: messageId, createdAt, recipientId, senderId, message, senderType, isRead }, type } = props;
     const date = getDate(dayjs(createdAt))
     const [open, setOpen] = useState(false);
 
@@ -30,12 +29,11 @@ export const MessageItem = (props) => {
             return await MessageAPI.MarkMessageAsRead(messageId);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['messages'] });
-            queryClient.refetchQueries({ queryKey: ['messages'] });
-            queryClient.invalidateQueries({ queryKey: ['messagesUnreadCount'] });
-            queryClient.refetchQueries({ queryKey: ['messagesUnreadCount'] })
+            queryClient.invalidateQueries({ queryKey: ['messages', type] });
+            queryClient.invalidateQueries({ queryKey: ['messagesUnreadCount'] })
         }
     })
+    
     const handelClick = () => {
         setOpen(!open);
         if (!isRead && type === 'received') mutation.mutate();
@@ -43,22 +41,26 @@ export const MessageItem = (props) => {
 
     const label = () => {
         switch (type) {
-            case 'sent':
+            case 'sent': {
+                if (!recipientId.username) return <span className='text-[15px] font-medium'>Deleted user</span>
                 return <><span className='text-[15px] font-medium'>{recipientId.username}</span>
                     <span className='text-sm text-gray-700'>{recipientId.name}</span></>
-            case 'received':
+            }
+            case 'received': {
+                if (!senderId.username) return <span className='text-[15px] font-medium'>Deleted user</span>
                 if (senderType === 'admin') return <span className='text-sm font-medium'>Supervisor</span>
                 else if (senderType === 'system') return <span>System</span>
                 return <><span className='text-[15px] font-medium'>{senderId.username}</span>
                     <span className='text-sm text-gray-700'>{senderId.name}</span></>
+            }
         }
     }
 
     const getMessageStatus = () => {
         if (isRead)
-            return <MarkChatReadIcon className='text-lg text-green-600'/>
+            return <MarkChatReadIcon className='text-lg text-green-600' />
         else
-            return <MarkChatUnreadIcon  className='text-lg text-red-600'/>
+            return <MarkChatUnreadIcon className='text-lg text-red-600' />
     }
 
     return (

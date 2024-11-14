@@ -690,6 +690,10 @@ video {
   bottom: 4%;
 }
 
+.bottom-full {
+  bottom: 100%;
+}
+
 .left-0 {
   left: 0px;
 }
@@ -951,6 +955,10 @@ video {
   margin-bottom: 0px;
 }
 
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -1189,10 +1197,6 @@ video {
 
 .h-\[74px\] {
   height: 74px;
-}
-
-.h-\[86px\] {
-  height: 86px;
 }
 
 .h-\[calc\(100vh-120px\)\] {
@@ -3189,6 +3193,10 @@ video {
 
 .text-end {
   text-align: end;
+}
+
+.align-baseline {
+  vertical-align: baseline;
 }
 
 .align-middle {
