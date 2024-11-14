@@ -45,6 +45,7 @@ function Home() {
 			name: labName
 		});
 		setShowLabDetails(true);
+		if (labId === auth.lab_id) return;
 		UserAPI.adminLab(labId).then(
 			(user) => {
 				setAuth(user);

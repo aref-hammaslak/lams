@@ -1,17 +1,5 @@
-import {
-	Chip,
-	Icon,
-	Dialog,
-	DialogContent,
-	DialogTitle,
-	Divider,
-	Typography,
-	Grid,
-	Box,
-	Paper,
-	CircularProgress,
-	IconButton
-} from "@mui/material";
+import { Chip, Dialog, DialogContent, DialogTitle, Divider, Typography, Grid, Box, CircularProgress, IconButton } from "@mui/material";
+
 import dayjs from "dayjs";
 import { ScheduleAPI } from "../../apis/ScheduleAPI.js";
 import { useEffect, useRef, useState } from "react";
@@ -23,9 +11,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import { BoxController } from "../BoxController";
 import { UserAPI } from "../../apis/UserAPI.js";
-import { renderEditSingleSelectCell } from "@mui/x-data-grid";
 import { useSnackbar } from "notistack";
-import { ResetTvRounded } from "@mui/icons-material";
 
 const TYPE_COLOR = {
 	'daily': "primary",
@@ -66,7 +52,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 					'user_id'
 				);
 
-				const staff = await UserAPI.getAll();
+				const staff = await UserAPI.getAll(undefined,undefined, true, day.date.format('YYYY-MM-DD'));
 				const deserializedStaff = staff.map((staff) => {
 
 					const items = schMaps[staff._id]?.map(item => {
@@ -81,7 +67,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 						username: staff.username,
 						name: staff.name,
 						active: staff.active,
-						isAbsentToday: staff.isAbsentToday,
+						isAbsent: staff.isAbsent,
 						items
 					}
 				}).filter((staff) => staff.active);
@@ -138,6 +124,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 			setLoading(false);
 		})
 	}
+
 	const removeTask = async (sch_map_id) => {
 		setLoading(true);
 		ScheduleAPI.destroyMap(sch_map_id)
@@ -153,7 +140,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 	return (
 		<Dialog open={open} fullWidth maxWidth='md' onClose={onClose}>
 			<IconButton onClick={onClose} className="absolute right-4 top-4">
-				<CloseIcon className="w-7 h-7"/>
+				<CloseIcon className="w-7 h-7" />
 			</IconButton>
 			{loading ?
 				<DialogTitle>
@@ -180,7 +167,9 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 					}
 				</DialogTitle>
 			}
+
 			<Divider />
+
 			<DialogContent >
 				<Box height='30rem'>
 					<Grid container justifyContent='space-between' alignItems='start'>
@@ -211,9 +200,8 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										} : null
 									}}
 									onClick={() => {
-										// console.log(selectedCount);
 										if (!selectedCount) return;
-										if (user.isAbsentToday) {
+										if (user.isAbsent) {
 											enqueueSnackbar(`${user.username} is absent today`, { variant: 'error' });
 											return;
 										}
@@ -222,6 +210,7 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 									}}
 								>
 									<AddRoundedIcon
+										key={user._id}
 										className='add-task-icon'
 										sx={{
 											position: 'absolute',
@@ -231,7 +220,10 @@ export const DayDialog = ({ open, onClose, day, info }) => {
 										}}
 										fontSize='large'
 									/>
-									<Typography className={`${user.isAbsentToday && 'text-red-600'}`}>{user.username}</Typography>
+									<Typography
+										className={`${user.isAbsent && 'text-red-600'}`}
+									>
+										{user.username}</Typography>
 									<Divider />
 									<Grid container>
 										{user?.items?.map(item => (

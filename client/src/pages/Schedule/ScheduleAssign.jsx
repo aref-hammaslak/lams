@@ -1,23 +1,9 @@
-import {
-	Box,
-	Chip,
-	Grid,
-	Paper,
-	Stack,
-	Typography,
-	CircularProgress,
-	Divider,
-	Link,
-	Autocomplete,
-	TextField,
-	Breadcrumbs,
-} from "@mui/material";
+import { Box, Chip, Grid, Paper, Stack, Typography, CircularProgress, Divider, Link, Autocomplete, TextField, } from "@mui/material";
+
 import { useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft.js";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight.js";
-import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import DeviceThermostatRoundedIcon from "@mui/icons-material/DeviceThermostatRounded";
 import TableRestaurantRoundedIcon from "@mui/icons-material/TableRestaurantRounded";
 import BiotechRoundedIcon from "@mui/icons-material/BiotechRounded";
@@ -26,14 +12,10 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
-import { ShMenu } from "../../components/Scheduler/ShMenu.jsx";
 import { ScheduleAPI } from "../../apis/ScheduleAPI.js";
 import MenuItem from "@mui/material/MenuItem";
 import { DayDialog } from "../../components/Scheduler/DayDialog.jsx";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import useAuth from "../../hooks/useAuth.js";
-import { LabAPI } from "../../apis/LabAPI.js";
 import PageHeader from "../../components/Global/PageHeader.jsx";
 
 const REC_COLOR = {
@@ -53,7 +35,6 @@ const TYPE_ICON = {
 
 export const ScheduleAssign = () => {
 	const navigate = useNavigate();
-	const { auth, setAuth } = useAuth();
 	const today = dayjs().startOf("day");
 	const { error, setError } = useState(null);
 	const {
@@ -64,11 +45,6 @@ export const ScheduleAssign = () => {
 		prevMonth,
 		nextMonth,
 		refresh,
-		startEdit,
-		endEdit,
-		item,
-		selectedDay,
-		selectDay,
 		selectSchedule,
 		selectedSchedule,
 		changeScheduleType,
@@ -88,42 +64,6 @@ export const ScheduleAssign = () => {
 		changeScheduleType(schType.toLowerCase());
 	}, [schType]);
 
-	// const handleSubmit = (data) => {
-	// 	if (item) {
-	// 		console.log(data);
-	// 		ScheduleAPI.update(item._id, {
-	// 			initial_date: data.initial_date.format("YYYY-MM-DD"),
-	// 			recurrence: data.recurrence === "none" ? null : data.recurrence,
-	// 			end_date: data.end_date
-	// 				? data.end_date.add(1, "day").format("YYYY-MM-DD")
-	// 				: null,
-	// 		}).then(
-	// 			(_) => {
-	// 				refresh();
-	// 				endEdit();
-	// 				selectDay(null);
-	// 				selectSchedule(null);
-	// 			},
-	// 			(err) => setError(err)
-	// 		);
-	// 	} else {
-	// 		ScheduleAPI.create(
-	// 			data.type,
-	// 			data.item._id,
-	// 			data.initial_date.format("YYYY-MM-DD"),
-	// 			data.end_date
-	// 				? data.end_date.add(1, "day").format("YYYY-MM-DD")
-	// 				: undefined,
-	// 			data.recurrence === "none" ? undefined : data.recurrence
-	// 		).then(
-	// 			(_) => {
-	// 				refresh();
-	// 				selectDay(null);
-	// 			},
-	// 			(err) => setError(error)
-	// 		);
-	// 	}
-	// };
 
 	const [delConf, setDelConf] = useState(false);
 	const handleDeleteSchedule = () => {
@@ -261,29 +201,12 @@ export const ScheduleAssign = () => {
 										) : (
 											<Box>
 												<Chip
-													// sx={{ marginLeft: '2px' }}
-													size="small"
 													variant="filled"
 													color="success"
 													label={day.date.date()}
 												/>
 											</Box>
 										)}
-										{/* <AddCircleOutlineRoundedIcon
-											color="primary"
-											sx={{
-												display: "none",
-												".ccell:hover &": {
-													display: "block",
-													cursor: "pointer",
-												},
-											}}
-											onClick={(e) => {
-												e.stopPropagation();
-												setAnchorEl(e.currentTarget.parentElement);
-												selectDay(key);
-											}}
-										/> */}
 									</Stack>
 									<Divider />
 									<Box
@@ -382,17 +305,6 @@ export const ScheduleAssign = () => {
 					setDelConf(false);
 				}}
 			>
-				{/* <MenuItem
-					onClick={() => {
-						startEdit(selectedSchedule).then(
-							(_) => { },
-							(err) => setError(err)
-						);
-						setAnchorEl(schAnchor);
-					}}
-				>
-					<Typography color="primary">Edit</Typography>
-				</MenuItem> */}
 				<MenuItem onClick={handleDeleteSchedule}>
 					{delConf ? (
 						<Typography color="warning.main">Sure?</Typography>

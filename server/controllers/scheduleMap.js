@@ -7,6 +7,7 @@ import { getScheduleMapById } from "../services/scheduleMap.js";
 import { isScheduleInLab } from "../services/schedule.js";
 import { isUserInLab } from "../services/user.js";
 import LogTemplate from "../models/LogTemplate.js";
+import User from "../models/User.js";
 
 /**
  * @type {import("express").RequestHandler}
@@ -229,6 +230,11 @@ export async function createScheduleMap(req, res) {
             throw new ExpressError('User  not found in lab', 400);
         }
 
+        const isUserAbsent = await User.isUserAbsent(user_id, date);
+        if (isUserAbsent) {
+            throw new ExpressError('Can not assigne an item to absent staff',400);
+        }
+
         const success = [];
         const failure = [];
 
@@ -244,7 +250,9 @@ export async function createScheduleMap(req, res) {
             const schedMap = new ScheduleMapModel({ date, user_id, sch_id });
             try {
                 const duplicateAssignemtn = await ScheduleMapModel.find({ date, sch_id });
-                console.log("🚀 ~ createScheduleMap ~ duplicateAssignemtn:", duplicateAssignemtn)
+
+
+                
                 
                 if (duplicateAssignemtn.length > 0) throw new Error("This item already has been assigned to a user");
                 

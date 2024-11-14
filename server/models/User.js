@@ -99,16 +99,16 @@ const userSchema = new Schema({
 userSchema.set('toJSON', { virtuals: true });
 userSchema.set('toObject', { virtuals: true });
 
-userSchema.virtual('isAbsentToday').get(function () {
-    const today = moment();
-    if (!this.absences) return false;
-    for (const absence of this.absences) {
+userSchema.statics.isUserAbsent = async function (userId, date) {
+    date = moment(date);
+    const {absences} = await this.findById(userId);
+    for (const absence of absences) {
 
         const { startDate, endDate } = absence;
-        if (today.isBetween(startDate, endDate, 'day', '[)')) return true;
+        if (date.isBetween(startDate, endDate, 'day', '[)')) return true;
     }
     return false;
-})
+}
 
 
 userSchema.statics.getAbsenceDays = function (absences, from, to) {

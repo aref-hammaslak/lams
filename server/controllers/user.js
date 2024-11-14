@@ -7,21 +7,35 @@ import { canUserAccessRole, canUserChangeOther, isUserPrivileged } from '../serv
 import ExpressError from '../utils/ExpressError.js';
 import moment from 'moment';
 import Thermometer from '../models/Thermometer.js';
+import dayjs from 'dayjs';
 
 /**
  * @type {import("express").RequestHandler}
  */
 export const getAll = async (req, res) => {
-    const { q } = req.query;
+    const { q , includeAbsenceStatus} = req.query;
     let select = req.query.select?.split(',') || ['username', 'name', 'active', 'absences'];
     select = select.map(item => item.trim());
 
     const query = { lab_id: req.user.lab_id, roles: { $ne: 2005 }, _id: { $ne: req.user._id } };
+
     if (q) {
         query.$or = [{ username: { $regex: q } }, { name: { $regex: q } }];
     }
 
-    const users = await User.find(query).select(select);
+    const users = await User.find(query).select(select).lean();
+    
+        console.log("🚀 ~ getAll ~ includeAbsenceStatus:", includeAbsenceStatus)
+    if (includeAbsenceStatus === 'true') {
+        const date = req.query.date ?? new Date();
+        for (const user of users) {
+            user.isAbsent = await User.isUserAbsent(user._id, date);
+            console.log("🚀 ~ getAll ~ user.isAbsent:", user.isAbsent)
+            console.log(user);
+        }
+    }
+    
+    console.log("🚀 ~ getAll ~ users:", users)
 
     res.send({
         success: true,
