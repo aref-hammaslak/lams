@@ -217,74 +217,6 @@ export async function setScheduleAssignment(req, res) {
     }
 }
 
-
-
-// export async function setScheduleAssignment(req, res) {
-//     const { lab_id } = req.user;
-//     const { type, id } = req.params;
-//     const { recurrence, offsets } = req.body;
-
-//     const initial_date = new Date(req.body['initial_date']);
-//     const end_date = (req.body.end_date) ? new Date(req.body['end_date']) : undefined;
-
-//     try {
-
-//         if (! await validateItem(type, id, lab_id)) {
-//             res.status(404);
-//             res.send({
-//                 success: false,
-//                 error: 'Item not found'
-//             });
-
-//             return;
-//         }
-
-//         if (type === 'equipment') {
-//             const logTemp = await LogTemplate.findById(id);
-//             if (RECCURENCES[logTemp.type] !== recurrence) {
-//                 return res.status(400).send({
-//                     success: false,
-//                     error: `You can not set a ${recurrence} schedule for ${RECCURENCES[logTemp.type]} log template`
-//                 })
-//             }
-//         }
-
-//         //make sure there is no overlap with same schedules
-//         if (await isOverlappingWithOtherSchedules({ lab_id, id, type, recurrence, initial_date, end_date })) {
-//             return res.status(400).send({
-//                 success: false,
-//                 error: 'There is overlap with other schedules'
-//             })
-//         }
-
-
-
-//         const sched = new ScheduleModel({
-//             lab_id,
-//             initial_date,
-//             recurrence,
-//             end_date,
-//             type,
-//             id,
-//             offsets
-//         });
-//         await sched.save();
-
-
-//         res.send({
-//             success: true,
-//             payload: sched
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(400).send({
-//             success: false,
-//             error
-//         })
-//     }
-
-// }
-
 /**
  * @type {import("express").RequestHandler}
  */
@@ -387,7 +319,7 @@ async function isOverlappingWithOtherSchedules({ lab_id, id, type, recurrence, i
     return result.length > 0;
 }
 
-function expandAssignment(val, startDate, endDate, raw = false, includeId = false) {
+export function expandAssignment(val, startDate, endDate, raw = false, includeId = false) {
     if ((val.recurrence && val.initial_date <= endDate)) {
         if (raw)
             return val;

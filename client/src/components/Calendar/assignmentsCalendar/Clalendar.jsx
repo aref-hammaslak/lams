@@ -2,7 +2,6 @@ import {
     Grid, Paper, Stack, Typography, Divider, Breadcrumbs,
 
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft.js";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight.js";
@@ -10,12 +9,9 @@ import dayjs from "dayjs";
 import { useCallback, useContext, useEffect, useState } from "react";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import useAuth from "../../../hooks/useAuth.js";
-import { LabAPI } from "../../../apis/LabAPI.js";
 import DayContext, { DayMap } from "../../../contexts/DayProvider.jsx";
 import useTask from "../../../hooks/useTask.js";
 import CalendarDay from "./CalendarDay.jsx";
-import { Spinner } from "@material-tailwind/react";
 import { useGetUserRole } from "../../../hooks/useGetUserRole.js";
 import { Loading } from "../../Global/Loading.jsx";
 
@@ -99,7 +95,7 @@ export const Calendar = (props) => {
                 <Grid
                     item container columns={7} flexGrow={1} className=' rounded' component={Paper} >
                     {daysOfWeek.map((day, index) => (
-                        <Grid item xs={1} key={index} className='border-x bg-secondry py-2'>
+                        <Grid item xs={1} key={index} className='border-x bg-secondry py-2 '>
                             <Typography className='font-bold text-center ' fontWeight="bold" >{day}</Typography>
                         </Grid>
                     ))}
@@ -107,10 +103,11 @@ export const Calendar = (props) => {
                         Array.from(filteredDays, (([, day], key) => (
                             <Grid
                                 item key={key} xs={1}
-                                className=' pt-2 border border-secondry min-w-[130px] flex flex-col h-[86px]  relative '
+                                className=' pt-2 border border-secondry min-w-[130px] flex flex-col   relative '
                             >
                                 <div className={`absolute ${!day.mute && 'hidden'} inset-0 z-10 backdrop-blur-sm bg-white/30`} />
-                                <p className='mr-2 text-end'>
+
+                                <p className='mr-2 text-end pb-2'>
                                     {
                                         day.date.isSame(today) ? <span className="text-primary">Today</span> : day.date.date()
                                     }

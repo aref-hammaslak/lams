@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import DayContext from '../contexts/DayProvider'
 import { userTaskAPI } from '../apis/userTaskAPI';
 import dayjs from 'dayjs';
 import useAuth from './useAuth';
 import { RefreshContext } from '../contexts/RefreshProvider';
-import { SellOutlined } from '@mui/icons-material';
 
 const useTask = ({ isAdmin }) => {
   const { days, setDays, currDate } = useContext(DayContext);
@@ -62,10 +61,12 @@ const useTask = ({ isAdmin }) => {
 
       const mute = ((dayValue.date.date() > 24 && i < 8) || (dayValue.date.date() < 13 && i > 24)) ? true : false;
       i++;
+      
       daysmap.set(day, {
         tasks: dayTasks?.tasks || [],
         mute,
         date: dayValue.date,
+        notAssignedSchcdulesStatus: dayTasks?.notAssignedSchcdulesStatus
       })
     });
 

@@ -344,10 +344,8 @@ userTaskSchema.statics.getUserTasksById = async function (userId, options) {
 
 userTaskSchema.statics.getAllUserTasksInLab = async function (labId, options) {
     // Get the last day of the current month
-    const lastDayOfMonth = moment().endOf("month").toDate();
-    const firstDayOfMonth = moment().startOf("month").toDate();
 
-    const { startDate = firstDayOfMonth, endDate = lastDayOfMonth } = options;
+    const { startDate , endDate  } = options;
 
     const pipeline = [
         {
