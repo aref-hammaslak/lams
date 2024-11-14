@@ -9,12 +9,14 @@ import dayjs from 'dayjs';
 import { logFillingContext } from '../../../contexts/LogFillingProvider';
 import { Tooltip, } from '@mui/material';
 import { useGetUserRole } from '../../../hooks/useGetUserRole';
+import { LogsStatusFilterContext } from '../../../contexts/LogsStatusFilterProvider';
 
 
 const CalendarDay = (props) => {
     const { content, onClickAssignment: handleClickAssignment } = props;
     const { stepperDispatch } = useContext(logFillingContext);
     const { notAssignedSchcdulesStatus } = content
+    const { activeTab } = useContext(LogsStatusFilterContext);
 
     const role = useGetUserRole();
 
@@ -63,7 +65,7 @@ const CalendarDay = (props) => {
     return (
         <div className={'bg-white  py-4  flex-1 items-center flex flex-col gap-1 transition-colors    hover:bg-primaryLight relative '}>
             {
-                notAssignedSchcdulesStatus && (
+                activeTab === 'all' && notAssignedSchcdulesStatus && (
                     <div className='absolute bottom-full mb-2 left-4  bg-gray-800 flex justify-center align-baseline  w-5 h-5 rounded-full text-white cursor-pointer'>
                         <Tooltip
                             placement='top'

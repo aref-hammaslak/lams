@@ -13,16 +13,12 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 
-
 import { useGetUserRole } from '../../hooks/useGetUserRole';
 import { DailyLogsStepper } from '../../components/LogFilling/DailyLogsStepper';
 import { LogsPagination } from '../../components/LogFilling/LogsPagination';
-import { logFillingContext } from '../../contexts/LogFillingProvider';
 import { Loading } from '../../components/Global/Loading';
 import { RefreshProvider } from '../../contexts/RefreshProvider';
 import { LogsStatusFilterContext } from '../../contexts/LogsStatusFilterProvider';
-import { json } from 'react-router-dom';
-import context from 'react-bootstrap/esm/AccordionContext';
 const tabs = [
   {
     label: 'All',
@@ -56,11 +52,12 @@ const LogsStatus = () => {
     return {};
   });
 
+  const { activeTab, setActiveTab } = useContext(LogsStatusFilterContext) ?? {}
 
-  const [activeTab, setActiveTab] = useState(() => {
-    if (filterContext.filter) return 'staff';
-    return 'all';
-  }); // all | staff | equip
+  // const [activeTab, setActiveTab] = useState(() => {
+  //   if (filterContext.filter) return 'staff';
+  //   return 'all';
+  // }); // all | staff | equip
 
 
 

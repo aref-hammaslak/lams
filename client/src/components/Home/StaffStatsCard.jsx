@@ -13,7 +13,7 @@ export const StaffStatsCard = ({staffInfo}) => {
     const { _id, username,  stats } = staffInfo;
     const currYearStats = stats.logs.currentYear;
     const currMonthStats = stats.logs.currentMonth;
-    const { setFilter } = useContext(LogsStatusFilterContext);
+    const { setFilter , setActiveTab} = useContext(LogsStatusFilterContext);
     const navigate = useNavigate();
     
     const handelNavigateToLogsStatus = () => {
@@ -21,6 +21,7 @@ export const StaffStatsCard = ({staffInfo}) => {
             id: _id,
             type: 'staff'
         })
+        setActiveTab('staff');
         navigate('/log/status');
     }
 
