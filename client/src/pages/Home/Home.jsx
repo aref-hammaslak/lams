@@ -32,7 +32,6 @@ function Home() {
 				console.error(error);
 			}
 			setCurrentLab(curlab);
-			console.log("🚀 ~ curlab:", curlab)
 		})()
 
 	}, [auth])

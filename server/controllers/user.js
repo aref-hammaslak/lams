@@ -35,8 +35,6 @@ export const getAll = async (req, res) => {
         }
     }
     
-    console.log("🚀 ~ getAll ~ users:", users)
-
     res.send({
         success: true,
         payload: users

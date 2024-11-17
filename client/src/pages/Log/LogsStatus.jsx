@@ -71,7 +71,6 @@ const LogsStatus = () => {
     if (userRole === 'staff') return;
     setLoading(true);
     const fetchdata = async () => {
-      console.log(activeTab);
       try {
         switch (activeTab) {
           case 'equip': {

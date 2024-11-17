@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const LogTemplateSchema = new Schema({
     eq_id: {
+        ref: 'Equipment',
         type: Schema.Types.ObjectId,
         required: true,
         immutable: true

@@ -2,7 +2,7 @@ import { api } from "./configs/axiosConfig.js";
 import { defineCancelApiObject } from "./configs/axiosUtils.js";
 
 
-const EquLogAPI = {
+export const EquLogAPI = {
 
 
     async fetchAll(params ={}, cancel = false) {

@@ -39,6 +39,32 @@ export async function autoFillLogTemplateWithId(req, res) {
     }
 }
 
+export async function autoFillOneLogTemplateWithSchId(req, res) {
+    const { date} = req.query;
+    const { logTemp_id , sch_id} = req.params;
+    const {  id: user_id } = req.user;
+
+    const logTemp = await LogTemplate.findById(logTemp_id);
+    const items = logTemp.items.reduce((acc, item) => {
+        acc[item.label] = item.default_value ?? 'some random value';
+        return acc;
+    }, {});
+    const log = {
+        temp_id: logTemp._id,
+        user_id,
+        items: items,
+        sch_id,
+        date
+    }
+    const autoFilledLog = new EquipmentLogModel(log);
+    await autoFilledLog.save();
+    res.send({
+        success: true,
+        payload: autoFilledLog,
+        message: 'The log Filled Automaticlly'
+    })
+}
+
 async function autoFill(logTemp, schedules, user_id, rangeStartDate, rangeEndDate) {
     const autoFilledLogs = [];
     const items = logTemp.items.reduce((acc, item) => {

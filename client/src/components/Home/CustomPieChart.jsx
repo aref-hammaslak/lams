@@ -2,7 +2,6 @@ import React from 'react'
 import { PieChart } from '@mui/x-charts/PieChart';
 
 export const CustomPieChart = ({ stats, className }) => {
-    console.log("🚀 ~ CustomPieChart ~ stats:", stats)
     const data = [{ id: 0, value: stats.done, label: 'Done' },
     { id: 1, value: stats.unDone, label: 'Undone' }
     ]

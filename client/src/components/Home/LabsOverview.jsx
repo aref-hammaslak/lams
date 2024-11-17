@@ -17,7 +17,6 @@ export const LabsOverview = (props) => {
             setLoading(true);
             try {
                 const labs = await LabAPI.getLabsStats();
-                console.log("🚀 ~ labs:", labs)
                 setLabs(labs);
             } catch (error) {
                 console.error(error);

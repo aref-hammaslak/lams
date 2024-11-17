@@ -34,17 +34,6 @@ export const LogTmpAPI = {
 		});
 		return response.data.payload;
 	},
-	// create: async function (data, cancel = false) {
-	// 	const response = await api.request({
-	// 		url: "/logTemplate",
-	// 		method: "POST",
-	// 		data,
-	// 		signal: cancel
-	// 			? cancelApiObject[this.createLab.name].handleRequestCancellation().signal
-	// 			: undefined,
-	// 	})
-	// 	return response.data.payload
-	// },
 	create: async function (name, cancel = false) {
 		const response = await api.request({
 			url: "/logTemplate",

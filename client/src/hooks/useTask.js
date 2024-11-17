@@ -45,7 +45,6 @@ const useTask = ({ isAdmin }) => {
   }, [currDate, needToRefresh]);
 
   useEffect(() => {
-    console.log("🚀 ~ useEffect ~ tasksmap:", tasksmap)
     if (!tasksmap.length ) {
       
       if (loading === true) setLoading(false); 

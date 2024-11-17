@@ -1195,6 +1195,10 @@ video {
   height: 58px;
 }
 
+.h-\[60px\] {
+  height: 60px;
+}
+
 .h-\[74px\] {
   height: 74px;
 }
@@ -1402,6 +1406,10 @@ video {
 
 .w-\[250px\] {
   width: 250px;
+}
+
+.w-\[375px\] {
+  width: 375px;
 }
 
 .w-\[58px\] {

@@ -1,9 +1,11 @@
 
 import { Router } from "express";
-import { autoFillLogTemplateWithId } from "../controllers/equipLogAutoFill.js";
+import { autoFillLogTemplateWithId, autoFillOneLogTemplateWithSchId } from "../controllers/equipLogAutoFill.js";
+import { catchAsync } from "../utils/catchAsync.js";
 const router = Router();
 
-// router.get('/', () => console.log('request recievd'));
-router.get('/:logTemp_id', autoFillLogTemplateWithId);
+
+router.get('/:logTemp_id', catchAsync(autoFillLogTemplateWithId));
+router.get('/:logTemp_id/:sch_id', catchAsync(autoFillOneLogTemplateWithSchId));
 
 export default router;

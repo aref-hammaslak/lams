@@ -40,7 +40,7 @@ export const getAllUserTasks = async (req, res) => {
         const status = [];
         for (const [day, schedulesOfDay] of Object.entries(schedules)) {
 
-            const notAssignedEquipSchs = [];
+            let notAssignedEquipSchs = [];
 
             for (const { _id, type } of schedulesOfDay) {
                 if (type !== 'equipment') continue;
@@ -53,12 +53,33 @@ export const getAllUserTasks = async (req, res) => {
             
             const notAssignedEquipSchIds = notAssignedEquipSchs.map(({ _id }) => _id);
 
-            const notAssEquipSchsFilledCount = await EquipmentLogModel.countDocuments({
-                date: day,
-                sch_id: {
+            notAssignedEquipSchs = await ScheduleModel.find({
+                _id: {
                     $in: notAssignedEquipSchIds
                 }
-            })
+            }).populate({
+                path: 'id',
+                model: 'LogTemplate',
+                as: 'logTemplate',
+                populate: {
+                    path: 'eq_id',
+                    as: 'equip_details'
+                }
+            }).lean();
+
+            let notAssEquipSchsFilledCount = 0;
+            for (const sch of notAssignedEquipSchs) {
+                const sch_log = await EquipmentLogModel.findOne({
+                    date: day,
+                    sch_id: sch._id
+                })
+                if (sch_log) {
+                    notAssEquipSchsFilledCount++;
+                    sch.done = true;
+                    sch.log_id = sch_log._id;
+                }
+                else sch.done = false;
+            }
 
             //if no task or  no not assigned tasks exist go to next iteration
             if (!tasks[day] && !notAssignedEquipSchIds.length) continue;
@@ -69,11 +90,13 @@ export const getAllUserTasks = async (req, res) => {
 
             // inlude tasks per day only if it exist
             if(tasks[day]) dayStatus.tasks = tasks[day][0].tasks
+
             // inlude notAssignedSchcdulesStatus per day only if it exist
             if (notAssignedEquipSchIds.length) {
                 dayStatus.notAssignedSchcdulesStatus = {
                     total: notAssignedEquipSchIds.length,
-                    done: notAssEquipSchsFilledCount
+                    done: notAssEquipSchsFilledCount,
+                    items: notAssignedEquipSchs
                 }
             }
             status.push(dayStatus)
