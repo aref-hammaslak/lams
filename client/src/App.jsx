@@ -15,8 +15,6 @@ import Calibration from "./pages/Management/Calibration/Calibration";
 import PMService from "./pages/Management/PMService/PMService";
 import Reports from "./pages/Reports/Reports";
 import { LogFilling } from "./pages/Log/LogFilling.jsx";
-import { AutoLog } from "./pages/Log/AutoLog.jsx";
-import { Calendar } from "./components/Calendar";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Users from "./pages/Users";
 import { Unauthorized } from "./pages/Unauthorized/Unauthorized.jsx";
@@ -72,7 +70,6 @@ function App() {
 
 							<Route element={<RequireAuth allowedRolse={[ROLES.supervisor]} />}>
 								<Route path="fill" element={<LogFillingProvider><DayProvider><LogFilling /></DayProvider></LogFillingProvider>} />
-								<Route path="auto-fill" element={<AutoLog />} />
 							</Route>
 						</Route>
 

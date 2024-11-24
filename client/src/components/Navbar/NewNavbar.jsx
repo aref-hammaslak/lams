@@ -140,7 +140,7 @@ function NewNavbar(props) {
                                     </MenuHandler>
                                     <MenuList >
                                         {
-                                            [['View Status', 'log/status'], ['Fill', 'log/fill'], ['Auto Fill', 'log/auto-fill'],
+                                            [['View Status', 'log/status'], ['Fill', 'log/fill'], 
                                             ].map(([label, path], i) => (
                                                 <MenuItem key={i} className='hover:text-primary py-0' >
                                                     <Link className='inline-block w-full hover:text-primary py-2' to={path}>
