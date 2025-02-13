@@ -1,0 +1,23 @@
+# Use the official MongoDB image as the base image
+FROM mongo:6.0
+
+# Set the working directory inside the container
+WORKDIR /data/db
+
+# make the db-dump directory
+RUN mkdir /db-dump
+
+# Copy the database dump file into the container
+COPY ./db-dump/ /db-dump
+
+# Restore the dump into MongoDB during the build process
+# Use the `mongorestore` command to load the dump
+# RUN mongorestore --host localhost --port 27017 --drop --dir /db-dump
+
+# Expose the default MongoDB port
+EXPOSE 27017
+
+# Start the MongoDB service
+ENTRYPOINT [ "mongod && mongorestore -d LaMsDB ./db-dump" ]
+
+# mongorestore -d LaMsDB ./db-dump

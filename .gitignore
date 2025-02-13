@@ -1,4 +1,5 @@
 ./**/node_modules
+server/db-dump/
 .env
 # Logs
 logs

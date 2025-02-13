@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: mongo:${MONGODB_VERSION}
+    image: lams-db
     restart: always
     networks:
       - lams-net
@@ -10,22 +10,33 @@ services:
       - db-data:/data/db
       - db-cfg:/data/configdb
 
-  backend:
-    image: ${DOCKER_IMAGE_TAG}
+  api:
+    image: lams-api
     depends_on:
       - db
     restart: always
     networks:
       - lams-net
-    ports:
-      - 127.0.0.1:8090:8080
+   
     environment:
-      LAMS_PORT: 8080
-
-      LAMS_DB_URI:
-      LAMS_SESSION_SECRET:
+      - LAMS_PORT=8080 
+      - LAMS_DB_URI=mongodb://db:27017/LaMsDB
+      # - LAMS_SESSION_SECRET:
     volumes:
       - upload-data:/app/public/uploads
+  
+  client:
+    image: lams-client
+    depends_on:
+      - api
+    environment:
+      - API_URL=http://api:8080
+      - APP_PORT=80
+    networks:
+      - lams-net
+    ports:
+      - "80:80"
+    
 
 networks:
   lams-net:
