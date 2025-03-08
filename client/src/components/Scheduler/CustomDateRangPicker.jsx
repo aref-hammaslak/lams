@@ -12,7 +12,7 @@ import { useState } from 'react';
 
 
 function CalendarDay(props) {
-    const { day, onDayClick, selecetedDays, outsideCurrentMonth, selectionDisabled, className, tabIndex, ...other } = props;
+    const { day, onDayClick, selecetedDays, outsideCurrentMonth, selectionDisabled, className, tabIndex, activeDayColor, ...other } = props;
 
     // const dayItem = dayItems.get(day.format('YYYY-MM-DD'));
     let selectedRangeStyles = '';
@@ -30,7 +30,7 @@ function CalendarDay(props) {
                 }}
                 className={`
                 ${selecetedDays.includes(day.date()) ?
-                        '!bg-primary text-white' :
+                        `${activeDayColor} text-white` :
                         '!bg-white !text-gray-800'}
                 ${className}
                 !rounded shadow text-[16px] !font-normal
@@ -61,12 +61,14 @@ export function CustomDateRangPicker(props) {
         const month = dayjs(currentMonth);
         const monthFirstWeekDay = month.startOf('month').day()
         const rowDays = [];
-        let rowFirstDay = ((row - 1) * 7 - monthFirstWeekDay + 1);
+        let rowFirstDay = ((row - 1) * 7 - monthFirstWeekDay );
         let rowDay = rowFirstDay;
         for (let i = 0; i < 7; i++) {
-            if (rowDay > month.daysInMonth()) break;
-            rowDays.push(rowDay++)
+            rowDay += 1
+            if (rowDay > month.daysInMonth() || rowDay < 1) continue;
+            rowDays.push(rowDay)
         }
+        
         return rowDays;
     }
 
@@ -133,11 +135,12 @@ export function CustomDateRangPicker(props) {
                     }}
                     slotProps={{
                         day: {
-                            className: 'px-9 py-5  m-0 rounded-none !border-none',
+                            className: 'px-9 py-3  m-0 rounded-none !border-none',
                             dayItems,
                             onDeleteItme,
                             selecetedDays,
-                            onDayClick: selectionDisabled ? () => { } : handelDayClick
+                            onDayClick: selectionDisabled ? () => { } : handelDayClick,
+                            activeDayColor: scheduleState.type == 'staff' ? '!bg-primary' : '!bg-red-600'
                         },
                     }}
                 />
@@ -167,9 +170,11 @@ export function CustomDateRangPicker(props) {
             {
                 !rowCheckboxesHidden && (
                     <div className={` absolute top-[65px]  bg-transparent h-10 left-5 z-0 flex flex-col `}>
-                        <div className='   flex justify-between w-full flex-col gap-2.5'>
+                        <div className='   flex justify-between w-full flex-col gap-1.5'>
                             {[1, 2, 3, 4, 5, 6].map((row, i) => (
-                                <div className='flex h-[40px] justify-center gap-2' key={i}>
+                                <div className={`flex h-[40px] justify-center gap-2 
+                                    ${getRowDays(row, currentMonth).length == 0 ? ' hidden': ''}
+                                    `} key={i}>
 
                                     <input
                                         className='cursor-pointer'
