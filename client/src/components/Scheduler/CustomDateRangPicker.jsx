@@ -140,7 +140,7 @@ export function CustomDateRangPicker(props) {
                             onDeleteItme,
                             selecetedDays,
                             onDayClick: selectionDisabled ? () => { } : handelDayClick,
-                            activeDayColor: scheduleState.type == 'staff' ? '!bg-primary' : '!bg-red-600'
+                            activeDayColor: scheduleState.type == 'staff' ? '!bg-red-600' : '!bg-primary'
                         },
                     }}
                 />
