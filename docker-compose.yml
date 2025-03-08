@@ -35,7 +35,7 @@ services:
     networks:
       - lams-net
     ports:
-      - "80:80"
+      - "3000:80"
     
 
 networks:
