@@ -50,9 +50,9 @@ export function CustomDateRangPicker(props) {
     const [calendarView, setCalendarView] = useState('day');
 
     useEffect(() => {
-        const element = document.querySelector(
-            '.css-1t0788u-MuiPickersSlideTransition-root-MuiDayCalendar-slideTransition'
-        );
+        const xpath = '//*[@id="root"]/main/div/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[1]/div[2]/div/div/div[2]';
+        const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
         if (!element) return;
         element.style.height = '600px';
     }, [])
