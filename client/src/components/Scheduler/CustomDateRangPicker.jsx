@@ -50,9 +50,9 @@ export function CustomDateRangPicker(props) {
     const [calendarView, setCalendarView] = useState('day');
 
     useEffect(() => {
-        const element = document.querySelector(
-            '.css-1t0788u-MuiPickersSlideTransition-root-MuiDayCalendar-slideTransition'
-        );
+        const xpath = '//*[@id="root"]/main/div/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[1]/div[2]/div/div/div[2]';
+        const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
         if (!element) return;
         element.style.height = '600px';
     }, [])
@@ -61,11 +61,13 @@ export function CustomDateRangPicker(props) {
         const month = dayjs(currentMonth);
         const monthFirstWeekDay = month.startOf('month').day()
         const rowDays = [];
-        let rowFirstDay = ((row - 1) * 7 - monthFirstWeekDay + 1);
+        let rowFirstDay = ((row - 1) * 7 - monthFirstWeekDay);
         let rowDay = rowFirstDay;
         for (let i = 0; i < 7; i++) {
-            if (rowDay > month.daysInMonth()) break;
-            rowDays.push(rowDay++)
+            rowDay += 1;
+            if (rowDay > month.daysInMonth() || rowDay < 0) continue;
+            rowDays.push(rowDay)
+            
         }
         return rowDays;
     }
@@ -168,19 +170,25 @@ export function CustomDateRangPicker(props) {
                 !rowCheckboxesHidden && (
                     <div className={` absolute top-[65px]  bg-transparent h-10 left-5 z-0 flex flex-col `}>
                         <div className='   flex justify-between w-full flex-col gap-2.5'>
-                            {[1, 2, 3, 4, 5, 6].map((row, i) => (
-                                <div className='flex h-[40px] justify-center gap-2' key={i}>
+                            {[1, 2, 3, 4, 5, 6].map((row, i) => {
+                                const rowDays = getRowDays(row, currentMonth);
+                                
+                                return (
+                                    <div className={`flex h-[40px] justify-center gap-2
+                                        ${rowDays.length == 0 && 'hidden'}
+                                        `} key={i}>
 
-                                    <input
-                                        className='cursor-pointer'
-                                        checked={(() => {
-                                            const rowDays = getRowDays(row, currentMonth);
-                                            return isSubsetOf(rowDays, selecetedDays)
-                                        })()}
-                                        id={i} type='checkbox'
-                                        onChange={(e) => handelToggleRow(row, e.target.checked)} />
-                                </div>
-                            ))}
+                                        <input
+                                            className='cursor-pointer'
+                                            checked={(() => {
+                                                
+                                                return isSubsetOf(rowDays, selecetedDays)
+                                            })()}
+                                            id={i} type='checkbox'
+                                            onChange={(e) => handelToggleRow(row, e.target.checked)} />
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 )

@@ -253,7 +253,7 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
 
     useEffect(() => {
         setSelectedDays(prevSchedulMonthDays)
-    },[scheduleState, lastCopiedMonth])
+    },[scheduleState, lastCopiedMonth, currentMonth])
 
     useEffect(() => {
         queryClient.invalidateQueries({ queryKey: ['prevMonthSchedules'] });
