@@ -210,12 +210,13 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         mutateSchedules();
     }
 
-    const schedulesQueryFn = async (month) => {
+    const schedulesQueryFn = async (month , notSetSchIDs) => {
         if (scheduleState?.type !== 'staff') {
             const scheduleDays = await fetchESTScheduleData(month);
 
             const schIds = [...new Set(Object.values(scheduleDays).map(([item]) => item._id))];
-            setScheduleIds(schIds);
+
+            if (!notSetSchIDs) setScheduleIds(schIds);
 
             const days = Object.keys(scheduleDays).map(date => dayjs(date).date());
             setSelectedDays(days);
@@ -229,8 +230,8 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
                 absIds.push(abs.absence_id);
                 days.push(dayjs(abs.date).date());
             });
+            if (!notSetSchIDs) setAbsenceIds([...new Set(absIds)]);
             setSelectedDays(days);
-            setAbsenceIds([...new Set(absIds)]);
             return days;
         }
     }
@@ -238,27 +239,36 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
     const { data: scheduleDays, isLoading } = useQuery({
         queryKey: ['schedules', scheduleState, currentMonth],
         queryFn: async () => schedulesQueryFn(currentMonth),
-        initialData: []
+        initialData: [],
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['prevMonthSchedules'] });
+            queryClient.refetchQueries({ queryKey: ['prevMonthSchedules'] })
+        }
     })
 
     const { data: prevSchedulMonthDays } = useQuery({
-        queryKey: ['prevMonthSchedules', scheduleState, lastCopiedMonth],
-        queryFn: () => schedulesQueryFn(lastCopiedMonth),
-        initialData: []
+        queryKey: ['prevMonthSchedules', lastCopiedMonth],
+        queryFn: async () => {
+            let days = await schedulesQueryFn(lastCopiedMonth, true);
+            return days;
+        },
+        initialData: [],
+        cacheTime: 0,
+        staleTime: 0,
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        refetchOnReconnect: true
     })
 
     const copySchedulesOfMonth =  (month) => {
+        if (!month) return;
         setLastCopiedMonth(month);
     }
 
     useEffect(() => {
-        setSelectedDays(prevSchedulMonthDays)
+        const days = prevSchedulMonthDays.filter(day => day <= currentMonth.daysInMonth());
+        setSelectedDays(days)
     },[scheduleState, lastCopiedMonth])
-
-    useEffect(() => {
-        queryClient.invalidateQueries({ queryKey: ['prevMonthSchedules'] });
-        queryClient.refetchQueries({ queryKey: ['prevMonthSchedules'] })
-    },[currentMonth, scheduleState])
 
 
     return {
