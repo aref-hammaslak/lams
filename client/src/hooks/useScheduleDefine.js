@@ -145,12 +145,13 @@ export const useScheduleDefine = (scheduleState, currentMonth) => {
         const scheduleRanges = scheduleState.recurrence === 0 ? getRanges() : [1];
 
         const schedules = scheduleRanges.map(({ startDate, endDate }) => {
-
+            startDate = dayjs(startDate)
+            endDate = dayjs(endDate)
             //for not daily recurrence set the initialDate to the only selected day and  the endDate to end of the current month
             startDate = scheduleState.recurrence > 0 ? currentMonth.add(selecetedDays[0] - 1, 'day') : startDate
             endDate = scheduleState.recurrence > 0 ?
                 currentMonth.endOf('month').add(1, 'day') :
-                endDate.format('YYYY/MM/DD');
+                endDate;
 
             return {
                 initial_date: startDate.format('YYYY/MM/DD'),
