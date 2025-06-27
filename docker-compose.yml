@@ -1,17 +1,14 @@
-version: '3.8'
-
 services:
   db:
-    image: lams-db
+    image: mongo:6.0
     restart: always
     networks:
       - lams-net
     volumes:
-      - db-data:/data/db
-      - db-cfg:/data/configdb
+      - lams-db:/data/db
 
   api:
-    image: lams-api
+    image: lams-api:v1.0.0
     depends_on:
       - db
     restart: always
@@ -21,12 +18,12 @@ services:
     environment:
       - LAMS_PORT=8080 
       - LAMS_DB_URI=mongodb://db:27017/LaMsDB
-      # - LAMS_SESSION_SECRET:
+      - LAMS_SESSION_SECRET=1234567890
     volumes:
-      - upload-data:/app/public/uploads
+      - lams-uploads:/app/public/uploads
   
   client:
-    image: lams-client
+    image: lams-client:v1.0.0
     depends_on:
       - api
     environment:
@@ -44,6 +41,5 @@ networks:
     driver: bridge
 
 volumes:
-  db-data:
-  db-cfg:
-  upload-data:
+  lams-db:
+  lams-uploads:
