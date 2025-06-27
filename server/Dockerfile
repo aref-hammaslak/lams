@@ -1,30 +1,18 @@
-FROM node:18-slim
+ARG NODE_VERSION=18
+FROM node:${NODE_VERSION}-slim
 
-# Drop privileges
-USER node
-
-# Set NPM global dependency path
+ARG NPM_MIRROR=https://registry.npmmirror.com
+ENV NPM_CONFIG_REGISTRY=${NPM_MIRROR}
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH=$PATH:/home/node/.npm-global/bin
+ENV NODE_ENV=production
 
-# Set working directory
 WORKDIR /app
-
-# Copy package.json and package-lock.json
 COPY package*.json ./
+RUN npm ci --omit=dev && \
+    npm install -g pm2 && \
+    chown -R node:node /app
 
-# Install dependencies
-RUN npm ci --omit=dev
-
-# Copy app source
 COPY . .
-
-# Assume production environment
-ENV NODE_ENV=deployment
-
-# Volume for upload
-VOLUME [ "/app/public/uploads" ] 
-
-EXPOSE 80
-
-ENTRYPOINT [ "npm", "start" ]
+USER node
+ENTRYPOINT ["pm2-runtime", "start", "npm", "--", "start"]

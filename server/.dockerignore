@@ -10,3 +10,5 @@ lerna-debug.log*
 
 # Static Files
 public/uploads/
+
+node_modules/

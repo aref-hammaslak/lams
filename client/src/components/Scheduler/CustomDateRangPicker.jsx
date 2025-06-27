@@ -53,6 +53,9 @@ export function CustomDateRangPicker(props) {
         const xpath = '//*[@id="root"]/main/div/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[1]/div[2]/div/div/div[2]';
         const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 
+        const xpath = '//*[@id="root"]/main/div/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[1]/div[2]/div/div/div[2]';
+        const element = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
         if (!element) return;
         element.style.height = '600px';
     }, [])
@@ -176,16 +179,17 @@ export function CustomDateRangPicker(props) {
                                     ${getRowDays(row, currentMonth).length == 0 ? ' hidden': ''}
                                     `} key={i}>
 
-                                    <input
-                                        className='cursor-pointer'
-                                        checked={(() => {
-                                            const rowDays = getRowDays(row, currentMonth);
-                                            return isSubsetOf(rowDays, selecetedDays)
-                                        })()}
-                                        id={i} type='checkbox'
-                                        onChange={(e) => handelToggleRow(row, e.target.checked)} />
-                                </div>
-                            ))}
+                                        <input
+                                            className='cursor-pointer'
+                                            checked={(() => {
+                                                
+                                                return isSubsetOf(rowDays, selecetedDays)
+                                            })()}
+                                            id={i} type='checkbox'
+                                            onChange={(e) => handelToggleRow(row, e.target.checked)} />
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 )
