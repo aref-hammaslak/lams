@@ -1,8 +1,11 @@
 {
     "port": 3001,
     "host": "localhost",
-    "logformat": "combined",
-    "logfile": "lams.log",
+    "log":{
+        "format": "combined",
+        "level": "trace",
+        "file": "logs/lams.log"
+    },
     "upload": {
         "path": "./public/uploads",
         "max": 50000000,

@@ -12,6 +12,7 @@ lerna-debug.log*
 
 server/db-dump
 server/public
+server/logs
 node_modules
 client/dist
 client/src/tailwind.output.css

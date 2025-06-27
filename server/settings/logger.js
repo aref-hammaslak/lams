@@ -4,13 +4,14 @@ import bunyan from "bunyan";
 import bunyanMiddleware from 'bunyan-middleware';
 import { createStream } from "rotating-file-stream";
 
-const logFilePath = config.get('logfile');
+const logFilePath = config.get('log.file');
 
 const rfsStream = createStream(logFilePath, {
-    size: '10MB', // rotate every 10 MegaBytes written
-    interval: '1d', // rotate daily
+    size: '10MB',
+    interval: '1d',
     compress: 'gzip'
 });
+
 export const logger = bunyan.createLogger({
     name: 'lams',
     streams: [
@@ -20,7 +21,7 @@ export const logger = bunyan.createLogger({
         },
         {
             stream: rfsStream,
-            level: 'trace'
+            level: config.get('log.level')
         }
     ],
     serializers: bunyan.stdSerializers
