@@ -2,11 +2,11 @@
 import config from 'config';
 import bunyan from "bunyan";
 import bunyanMiddleware from 'bunyan-middleware';
-import rfs from "rotating-file-stream";
+import { createStream } from "rotating-file-stream";
 
 const logFilePath = config.get('logfile');
 
-const rfsStream = rfs.createStream(logFilePath, {
+const rfsStream = createStream(logFilePath, {
     size: '10MB', // rotate every 10 MegaBytes written
     interval: '1d', // rotate daily
     compress: 'gzip'
