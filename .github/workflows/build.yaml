@@ -45,10 +45,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./server
-          file: ./server/Dockerfile
+          file: ./server/
+          push: true
           tags: |
             ${{ env.DOCKER_API_IMAGE_TAG }}
-            ${{ env.DOCKER_API_IMAGE_TAG }}-latest
+            ${{ env.DOCKER_API_IMAGE_TAG }}:latest
 
   build-web:
     runs-on: ubuntu-latest
@@ -71,6 +72,7 @@ jobs:
         with:
           context: ./client
           file: ./client/Dockerfile
+          push: true
           tags: |
             ${{ env.DOCKER_WEB_IMAGE_TAG }}
-            ${{ env.DOCKER_WEB_IMAGE_TAG }}-latest
+            ${{ env.DOCKER_WEB_IMAGE_TAG }}:latest
