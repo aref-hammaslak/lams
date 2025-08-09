@@ -1,10 +1,12 @@
-name: Dokcer Build
+name: Docker Build
 
 on:
   push:
     branches:
       - main
       - feature-ci-cd
+    tags:
+      - "v*" # trigger on version tags like v1.2.3
   workflow_dispatch:
     inputs:
       branch:
@@ -16,17 +18,20 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Needed to push to GHCR
+permissions:
+  contents: read
+  packages: write
+
 env:
   DOCKER_BUILDKIT: 1
   PROJ_NAME: lams
-  DOCKER_API_IMAGE_TAG: ghcr.io/${{ github.repository_owner }}/lams-api:${{ github.ref_name }}
-  DOCKER_WEB_IMAGE_TAG: ghcr.io/${{ github.repository_owner }}/lams-web:${{ github.ref_name }}
   REGISTRY_URL: ghcr.io
   REGISTRY_USERNAME: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build-api:
+  build-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -43,9 +48,23 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
-            image=moby/buildkit:latest  
+            image=moby/buildkit:latest
 
-      - name: Build and push Docker image
+      - name: Docker metadata (backend)
+        id: meta_api
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/lams-backend
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push Docker image (backend)
         uses: docker/build-push-action@v5
         with:
           context: ./server
@@ -53,11 +72,10 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: |
-            ${{ env.DOCKER_API_IMAGE_TAG }}
-            ${{ env.DOCKER_API_IMAGE_TAG }}
+          tags: ${{ steps.meta_api.outputs.tags }}
+          labels: ${{ steps.meta_api.outputs.labels }}
 
-  build-web:
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -74,9 +92,23 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
-            image=moby/buildkit:latest  
+            image=moby/buildkit:latest
 
-      - name: Build and push Docker image
+      - name: Docker metadata (frontend)
+        id: meta_web
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/lams-frontend
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+
+      - name: Build and push Docker image (frontend)
         uses: docker/build-push-action@v5
         with:
           context: ./client
@@ -84,6 +116,5 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: |
-            ${{ env.DOCKER_WEB_IMAGE_TAG }}
-            ${{ env.DOCKER_WEB_IMAGE_TAG }}
+          tags: ${{ steps.meta_web.outputs.tags }}
+          labels: ${{ steps.meta_web.outputs.labels }}
