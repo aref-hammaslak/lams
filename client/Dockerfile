@@ -1,5 +1,4 @@
 ARG NODE_VERSION=18
-ARG NGINX_VERSION=1.26
 
 FROM node:${NODE_VERSION}-slim AS builder
 WORKDIR /build
@@ -12,6 +11,7 @@ RUN npm install --force
 COPY . .
 RUN npm run build
 
+ARG NGINX_VERSION=1.26
 FROM nginx:${NGINX_VERSION}-alpine
 
 RUN mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /var/www/lams.app
