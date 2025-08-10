@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/aref-hammaslak/lams/backend:v1.0.0
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 400Mi
+              cpu: 0.2
+            requests:
+              memory: 400Mi
+              cpu: 0.2
+          env:
+            - name: LAMS_PORT
+              value: "8080"
+            - name: LAMS_DB_URI
+              value: "mongodb://mongodb:27017/LaMsDB"
+          volumeMounts:
+            - name: backend-pvc
+              mountPath: /app/public/uploads
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: backend-pvc
+          persistentVolumeClaim:
+            claimName: backend-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    limits:
+      storage: 100Mi
+    requests:
+      storage: 100Mi
