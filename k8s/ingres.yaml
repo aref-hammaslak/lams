@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+
+kind: Ingress
+metadata:
+  name: lams-ingress
+spec:
+  rules:
+    - host: lams.app-5db4afe29e-lams.apps.ir-central1.arvancaas.ir
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 80
+  ingressClassName: nginx
